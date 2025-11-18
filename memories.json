@@ -90,7 +90,25 @@
       "lastAccessed": "2025-11-17T21:05:24.830Z",
       "lastVerified": "2025-11-17T21:05:24.830Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763431339582_u34iwxx1y",
+      "content": "Settings drawer uses vaul drawer component from bottom. Current layout is 2-column grid (md:grid-cols-2) with SettingGroup components showing title/description on left, controls on right. Has 4 categories: Controls, Camera, Audio (3 toggles), Developer Tools (2 toggles). Uses Zustand store for state management with persistence.",
+      "type": "config",
+      "tags": [
+        "config",
+        "settings",
+        "ui",
+        "drawer",
+        "current-implementation"
+      ],
+      "timestamp": "2025-11-18T02:02:19.582Z",
+      "context": "Researching settings drawer for vertical tabs implementation",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T02:02:19.582Z",
+      "lastVerified": "2025-11-18T02:02:19.582Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-17T21:05:24.830Z"
+  "lastUpdated": "2025-11-18T02:02:19.582Z"
 }

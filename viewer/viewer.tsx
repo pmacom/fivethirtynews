@@ -11,8 +11,7 @@ import { UI } from './ui/ui'
 import Legend from './ui/legend/legend'
 import Details from './ui/details/details'
 import Settings from './ui/settings/settings'
-import SettingsOptions, { CameraOptions, LevaOptions } from './ui/settings/options'
-import AudioSettings from './audio/settings'
+import SettingsOptions from './ui/settings/options'
 
 const Viewer = () => {
 
@@ -33,9 +32,6 @@ const Viewer = () => {
         <Details />
         <Settings>
           <SettingsOptions />
-          <CameraOptions />
-          <LevaOptions />
-          <AudioSettings />
         </Settings>
       </UI>
 

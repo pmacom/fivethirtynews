@@ -8,6 +8,7 @@ import "./styles.css"
 import {
   Drawer,
   DrawerContent,
+  DrawerTitle,
 } from "@/components/ui/drawer"
 
 interface SettingsProps {
@@ -32,17 +33,22 @@ export const Settings = ({ children }:SettingsProps) => {
   
         <Drawer open={showSettings} defaultOpen onClose={() => setIsOpen(false)}>
           <DrawerContent className='dark'>
-            <div className="p-4 pb-10 flex flex-col gap-2 text-slate-300">
+            <div className="flex flex-col text-slate-300">
 
-              <div className="font-bold pl-4  pb-5 flex justify-between items-center">
-                <div className="text-2xl">Settings</div>
-                <div className="flex items-center space-x-2 text-2xl mr-4">
-                  <Label>Close</Label>
+              <div className="font-bold px-6 pt-4 pb-4 flex justify-between items-center flex-shrink-0 border-b border-slate-700">
+                <DrawerTitle className="text-2xl">Settings</DrawerTitle>
+                <div
+                  className="flex items-center space-x-2 text-2xl cursor-pointer hover:text-white transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Label className="cursor-pointer">Close</Label>
                   <IoMdClose />
                 </div>
               </div>
 
-              {children}
+              <div className="flex-1 overflow-hidden">
+                {children}
+              </div>
 
             </div>
           </DrawerContent>
