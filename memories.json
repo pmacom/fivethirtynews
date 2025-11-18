@@ -717,7 +717,172 @@
       "lastAccessed": "2025-11-18T17:09:37.332Z",
       "lastVerified": "2025-11-18T17:09:37.332Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763488102035_iqc742aki",
+      "content": "FiveThirty viewer tweet display research findings:\n\nCURRENT STATE:\n- Tweet.tsx: Shows only thumbnail via PlaneView, no text overlay\n- TweetUIKit.tsx: Prototype with basic text overlay at bottom (fontSize 12-14, truncated at 100 chars)\n- Data available: item.content.description (full tweet text), item.content.author (username), thumbnail_url\n- Slide size: viewport-based, planeHeight=1.0 unit, planeWidth=1.0*viewportAspect\n- Using @react-three/uikit v1.0.59 for UI overlays\n\nUIKIT TEXT CAPABILITIES:\n- fontSize (numeric), fontWeight (\"bold\" etc), color, lineHeight (multiplier or px)\n- whiteSpace (\"normal\", \"pre\", \"pre-line\"), wordBreak (\"break-all\", \"break-word\")\n- maxWidth/maxHeight for constraints, overflow (\"visible\", \"scroll\", \"hidden\")\n- Container uses flexbox (powered by Yoga), supports sizeX/sizeY in three.js units\n- Text wraps automatically based on container width\n\nTWEET UI DESIGN:\n- Typical hierarchy: Avatar (left) → Header (name/handle/timestamp) → Text → Actions\n- Font sizes: Name (bold, larger), handle/timestamp (sm, gray-500), text (sm-base)\n- Spacing: mb-1 (header-text), mt-3 (media), mt-4 (actions)\n- Colors: Dark text on light bg, muted metadata, blue links\n\nRECOMMENDATIONS:\n1. Use maxWidth on Text to constrain within slide bounds\n2. Calculate dynamic fontSize based on text length (shorter=larger, longer=smaller)\n3. Use wordBreak=\"break-word\" for long URLs\n4. Position overlay as absolute container at bottom with semi-transparent bg\n5. Show full tweet text (not truncated) with proper wrapping",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "fivethirty",
+        "tweet-ui",
+        "uikit",
+        "text-display"
+      ],
+      "timestamp": "2025-11-18T17:48:22.035Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T17:48:22.035Z",
+      "lastVerified": "2025-11-18T17:48:22.035Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763488538704_pl62m1oqf",
+      "content": "Tweet Text Display Implementation:\n- Created textSizing.ts utility with calculateTweetFontSize() function (10-20px dynamic sizing)\n- Created TweetCard.tsx component with Standard Twitter UI (avatar, name, handle, timestamp, text)\n- Updated Tweet.tsx to conditionally render: hasMedia ? SafePlaneView : TweetCard\n- Text-only tweets display as centered cards with Twitter color scheme (#15202b bg, #e7e9ea text, #71767b muted)\n- Font sizes scale based on text length: <50 chars=20px, 50-100=16px, 100-150=14px, 150-200=12px, 200+=10px\n- extractDisplayName(), extractHandle(), formatRelativeTime() utilities for metadata parsing\n- TemplateSwitcher switched back from TweetUIKit to Tweet\n- Visibility: Text overlay only on text-only tweets (no media), media tweets show thumbnail only",
+      "type": "code",
+      "tags": [
+        "code",
+        "tweet",
+        "text",
+        "display",
+        "uikit",
+        "typography"
+      ],
+      "timestamp": "2025-11-18T17:55:38.704Z",
+      "context": "Implemented tweet text display with dynamic sizing and Twitter-like UI",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T17:55:38.704Z",
+      "lastVerified": "2025-11-18T17:55:38.704Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763489453939_mx26q8rav",
+      "content": "Investigation of tweet text overlay issue:\n\nFINDINGS:\n1. Tweet.tsx logic: Uses `hasMedia = !!contentThumbnail` (line 27) to determine if media exists\n2. Issue: This only checks if thumbnail_url field exists, not if it's a valid/working URL\n3. Some tweets may have thumbnail_url but it could be null, empty string, or broken URL\n4. Current logic shows TweetCard (3D text) when hasMedia is false, but some tweets with media might pass this check incorrectly\n\nTEMPLATE STRUCTURE:\n- TemplateSwitcher routes by content_type: 'twitter', 'video', 'image', 'website', 'warpcast', 'discord'\n- Video.tsx, Image.tsx, Website.tsx, Warpcast.tsx, Discord.tsx all use PlaneView with solid color placeholders - NO text overlays\n- Only Tweet.tsx has conditional logic for text overlays via TweetCard\n- TweetUIKit.tsx exists but is NOT used in TemplateSwitcher (it has UIKit text overlays)\n\nPOTENTIAL ROOT CAUSES:\n1. !!contentThumbnail might evaluate true for empty strings or placeholder URLs\n2. Some tweets might be missing thumbnail_url despite having actual media\n3. Data quality issue where thumbnail_url is populated but invalid",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "tweet-rendering",
+        "bug-investigation",
+        "media-detection"
+      ],
+      "timestamp": "2025-11-18T18:10:53.939Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T18:10:53.939Z",
+      "lastVerified": "2025-11-18T18:10:53.939Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763490673629_n7m7zfzy5",
+      "content": "Tweet Media Detection Enhancement:\n- Strengthened hasMedia validation: checks for valid string, non-empty after trim, starts with http:// or https:// or data:\n- Previous: !!contentThumbnail (simple truthy check)\n- New: Validates type, length, and URL format to catch edge cases (empty strings, whitespace, invalid formats)\n- Enhanced debug logging with displayMode field (MEDIA_ONLY vs TEXT_CARD)\n- Added warning for potential data quality issues (text-only tweets mentioning pic.twitter.com)\n- No behavior change for valid cases - just more robust edge case handling\n- File modified: viewer/pillar/templates/Tweet.tsx (lines 28-34, 56-75)",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "tweet",
+        "media-detection",
+        "validation",
+        "logging"
+      ],
+      "timestamp": "2025-11-18T18:31:13.629Z",
+      "context": "Enhanced tweet media detection with robust validation and debugging",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T18:31:13.629Z",
+      "lastVerified": "2025-11-18T18:31:13.629Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763493269613_9bqmtc1ud",
+      "content": "TweetCard text sizing issues:\n- Current font sizes: 20px (<50 chars), 16px (<100), 14px (<150), 12px (<200), 10px (200+)\n- Font sizes are in three.js units (not pixels)\n- TweetCard width: 0.8 units, padding: 24px\n- PlaneView slide size: screenAspect based on viewport (planeHeight = 1.0 unit)\n- UIKit scroll requires: overflow=\"scroll\", localClippingEnabled: true (already set in scene.tsx)\n- Scrollbar customization: scrollbarColor, scrollbarWidth, scrollbarBorderRadius\n- onScroll event available for handling scroll interactions",
+      "type": "general",
+      "tags": [
+        "general",
+        "tweet-card",
+        "uikit",
+        "text-sizing",
+        "scrolling",
+        "3d-ui"
+      ],
+      "timestamp": "2025-11-18T19:14:29.613Z",
+      "context": "Researching TweetCard sizing and scrolling implementation for fivethirty project",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T19:14:29.613Z",
+      "lastVerified": "2025-11-18T19:14:29.613Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763493448741_qktch2z79",
+      "content": "Tweet Text Sizing & Scrolling Optimization:\n- Reduced font sizes by ~75% in textSizing.ts (20→0.028, 16→0.024, 14→0.020, 12→0.018, 10→0.016 units)\n- Previous sizes were 400-800x too large for three.js 3D space\n- Added scrollable text container in TweetCard.tsx with maxHeight={0.75} to fit in 1.0-unit slide\n- Implemented UIKit scroll: overflow=\"scroll\", scrollbarColor=\"#1d9bf0\", scrollbarWidth={3}\n- Fixed header (flexShrink={0}), scrollable text area (flexGrow={1})\n- Header font sizes also reduced: displayName=0.020, handle/timestamp=0.016\n- Avatar circle size changed from 48 to smaller proportional units\n- Mouse-over scrolling works automatically with UIKit pointer events",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "optimization",
+        "tweet",
+        "text",
+        "sizing",
+        "scrolling",
+        "uikit"
+      ],
+      "timestamp": "2025-11-18T19:17:28.741Z",
+      "context": "Optimized tweet text sizing and added scrollable text containers",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T19:17:28.741Z",
+      "lastVerified": "2025-11-18T19:17:28.741Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763494025155_zxphnf17h",
+      "content": "TweetCard Element Sizing Fix (Blue Cylinder Issue):\n- Problem: Absolute pixel values (48, 24, 16, etc.) treated as 3D scene units, creating massive elements\n- Blue cylinder was the 48-unit wide avatar circle (60× too large for 0.75-unit card)\n- Fixed by scaling all dimensions to relative 3D units:\n  - Avatar: 48 → 0.08 (10.7% of card height)\n  - Card padding: 24 → 0.025 (3.3% of card height)\n  - Card borderRadius: 16 → 0.015 (2% of card height)\n  - Card gap: 16 → 0.015\n  - Header row gap: 12 → 0.012\n  - Header column gap: 4 → 0.008\n  - Timestamp gap: 8 → 0.004\n  - Avatar borderRadius: 24 → 0.04 (50% of avatar size)\n  - Scrollbar width: 3 → 0.003\n  - Scrollbar borderRadius: 2 → 0.0015\n- All elements now sized proportionally to 0.75-unit card height\n- File modified: viewer/pillar/templates/components/TweetCard.tsx",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "tweetcard",
+        "sizing",
+        "3d-units",
+        "avatar",
+        "fix"
+      ],
+      "timestamp": "2025-11-18T19:27:05.155Z",
+      "context": "Fixed TweetCard element sizing - scaled from absolute pixels to relative 3D units",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T19:27:05.155Z",
+      "lastVerified": "2025-11-18T19:27:05.155Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763494309326_7r6idmj3y",
+      "content": "PlaneView Dimensions Analysis:\n- screenAspect: Calculated from viewport (width/height), defaults to planeHeight=1.0\n- Formula: planeWidth = planeHeight * viewportAspect, results in [planeWidth, 1.0]\n- Example: viewport 16:9 gives screenAspect=[1.78, 1.0]\n- imageAspect: Calculated from loaded content (image/video), normalized to max dimension = 1.0\n- PlaneView uses TWO meshes:\n  1. Background mesh at z=0 with screenAspect (full viewport dimensions)\n  2. Content mesh at z=0.001 with imageAspect (content-fit dimensions)\n- ContentWrapper also creates a screenAspect-sized clickable plane at z=0\n\nUIKit Container Sizing:\n- Uses width/height props (not sizeX/sizeY in newer versions)\n- TweetCard example uses: width={0.8}, maxHeight={0.75} with absolute positioning\n- No Root component found in codebase - Container is used directly\n- Positioning: positionType=\"absolute\" with percentage-based centering\n\nFor text-only tweets to match PlaneView dimensions:\n- Use screenAspect dimensions from PlaneView logic\n- Position Container at same z-depth (0.001)\n- Container width should match planeWidth, height should be 1.0",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "uikit",
+        "planeview",
+        "dimensions",
+        "tweet-rendering"
+      ],
+      "timestamp": "2025-11-18T19:31:49.326Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T19:31:49.326Z",
+      "lastVerified": "2025-11-18T19:31:49.326Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763494484197_sgsoz6bzq",
+      "content": "TextPlaneView Implementation - Matches PlaneView Dimensions:\n- Created TextPlaneView.tsx component that uses UIKit Container instead of mesh\n- Uses identical screenAspect calculation as PlaneView (planeHeight=1.0, planeWidth=planeHeight*viewportAspect)\n- Container dimensions: width={screenAspect[0]}, height={screenAspect[1]}\n- Includes tweet UI: avatar (0.08 units), display name (0.020), handle (0.016), timestamp (0.016), text (dynamic fontSize)\n- No scrolling for now (simplified approach)\n- Updated Tweet.tsx to use TextPlaneView for text-only tweets instead of TweetCard\n- Text-only tweets now occupy same screen space as media tweets (visual consistency)\n- Files: Created viewer/pillar/components/TextPlaneView.tsx, Modified viewer/pillar/templates/Tweet.tsx",
+      "type": "general",
+      "tags": [
+        "general",
+        "textplaneview",
+        "planeview",
+        "dimensions",
+        "uikit",
+        "twitter"
+      ],
+      "timestamp": "2025-11-18T19:34:44.197Z",
+      "context": "Created TextPlaneView to match PlaneView dimensions for text-only tweets",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T19:34:44.197Z",
+      "lastVerified": "2025-11-18T19:34:44.197Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-18T17:09:37.332Z"
+  "lastUpdated": "2025-11-18T19:34:44.197Z"
 }

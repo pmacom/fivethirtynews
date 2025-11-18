@@ -1,6 +1,5 @@
 import React from 'react'
 import TemplateTweet from '../templates/Tweet'
-import TemplateTweetUIKit from '../templates/TweetUIKit'
 import TemplateVideo from '../templates/Video'
 import TemplateImage from '../templates/Image'
 import TemplateWebsite from '../templates/Website'
@@ -33,7 +32,7 @@ export function TemplateSwitcher({
 
     switch (contentType) {
       case 'twitter':
-        return <TemplateTweetUIKit {...props} />
+        return <TemplateTweet {...props} />
       case 'video':
         return <TemplateVideo {...props} />
       case 'image':
