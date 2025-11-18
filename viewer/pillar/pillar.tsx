@@ -61,7 +61,12 @@ export const Pillar = () => {
 
   useEffect(() => {
     useSceneStore.setState({ canvasWidth, canvasHeight })
-    useSceneStore.getState().fitToBox()
+    // Double RAF ensures PlaneView geometry effects complete before camera adjustment
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        useSceneStore.getState().fitToBox()
+      })
+    })
   },[canvasWidth, canvasHeight])
 
   // Use useSpring to animate the rotation smoothly

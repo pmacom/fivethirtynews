@@ -98,6 +98,23 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
     }
   }, [active])
 
+  // Handle geometry updates (e.g., during browser resize)
+  // When geometry dimensions change, update activeItemObject and re-trigger fitToBox
+  useEffect(() => {
+    if (active) {
+      const activeItemObject = useContentStore.getState().activeItemObject
+      if (activeItemObject && activeItemObject.geometry) {
+        // Force geometry to recompute its bounding box after dimension changes
+        activeItemObject.geometry.computeBoundingBox()
+
+        // Trigger fitToBox to reframe content with updated geometry
+        requestAnimationFrame(() => {
+          useSceneStore.getState().fitToBox()
+        })
+      }
+    }
+  }, [active, screenAspect, imageAspect])
+
   // Viewport-based sizing - eliminates gaps between content
   useEffect(() => {
     const planeHeight = 1.0 // Fill the 1-unit spacing exactly

@@ -406,7 +406,24 @@
       "lastAccessed": "2025-11-18T06:11:42.925Z",
       "lastVerified": "2025-11-18T06:11:42.925Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763446545002_ywlmhbi6u",
+      "content": "Browser resize handling in fivethirty viewer:\n- pillar.tsx (lines 62-65): useEffect monitors canvasWidth/canvasHeight from useThree and calls fitToBox on resize\n- PlaneView.tsx (lines 102-109): useEffect recalculates screenAspect when width/height change\n- ContentWrapper.tsx (lines 27-32): useEffect recalculates screenAspect on resize\n- store.tsx fitToBox(): checks if camera and activeItemObject exist before calling camera.fitToBox()\n\nCRITICAL ISSUE: Callback ref (setPlaneRef) only fires when the ref node changes or when 'active' dependency changes, NOT when canvas resizes. This means on resize, pillar.tsx's fitToBox might use a stale activeItemObject reference.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "resize",
+        "camera",
+        "fitToBox",
+        "bug-analysis"
+      ],
+      "timestamp": "2025-11-18T06:15:45.002Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T06:15:45.002Z",
+      "lastVerified": "2025-11-18T06:15:45.002Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-18T06:11:42.925Z"
+  "lastUpdated": "2025-11-18T06:15:45.002Z"
 }
