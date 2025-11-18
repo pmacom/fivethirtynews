@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import * as THREE from 'three'
 import { shaderMaterial } from "@react-three/drei";
 import { useContentStore } from '../../core/store/contentStore';
+import { useSceneStore } from '../../scene/store';
 
 
 // Extend JSX.IntrinsicElements to include fadeShaderMaterial
@@ -59,11 +60,11 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
   const [imageSize, setImageSize] = useState<[number, number]>([1, 1])
 
   const [screenAspect, setScreenAspect] = useState<[number, number]>([1, 1])
+  // Initialize imageAspect to a reasonable default (will be updated when content loads)
   const [imageAspect, setImageAspect] = useState<[number, number]>([1, 1])
   
   const viewRef = useRef<THREE.Group>(null)
   const screenRef = useRef<THREE.Mesh>(null)
-  const planeRef = useRef<THREE.Mesh>(null)
 
   const [videoTexture, setVideoTexture] = useState<THREE.VideoTexture | null>(null);
   const [blendFactor, setBlendFactor] = useState(0);
@@ -84,10 +85,16 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
     }
   }, [active]);
 
-  // Set activeItemObject to the content plane for proper fitToBox framing
-  useEffect(() => {
-    if (active && planeRef.current) {
-      useContentStore.setState({ activeItemObject: planeRef.current })
+  // Use callback ref to set activeItemObject synchronously and trigger fitToBox
+  // This eliminates race condition where fitToBox is called before activeItemObject is set
+  const setPlaneRef = useCallback((node: THREE.Mesh | null) => {
+    if (node && active) {
+      useContentStore.setState({ activeItemObject: node })
+      // Trigger fitToBox after setting activeItemObject
+      // Use requestAnimationFrame to ensure state update completes
+      requestAnimationFrame(() => {
+        useSceneStore.getState().fitToBox()
+      })
     }
   }, [active])
 
@@ -98,7 +105,7 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
     const planeWidth = planeHeight * viewportAspect
 
     setScreenAspect([planeWidth, planeHeight])
-    setImageAspect([planeWidth, planeHeight])
+    // Don't set imageAspect here - it should be based on actual content dimensions
   }, [width, height])
 
   // @ts-expect-error - Type incompatibility between @react-three/fiber@8.2.2 and Three.js loader types
@@ -115,10 +122,15 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
 
   useEffect(() => {
     if(imageTexture){
+      // Calculate normalized image dimensions (max dimension = 1.0)
       let dimension = Math.max(imageTexture.image.width, imageTexture.image.height)
-      let width = imageTexture.image.width / dimension
-      let height = imageTexture.image.height / dimension
-      setImageSize([width, height])
+      let imgWidth = imageTexture.image.width / dimension
+      let imgHeight = imageTexture.image.height / dimension
+      setImageSize([imgWidth, imgHeight])
+
+      // Set imageAspect to the normalized image size
+      // This ensures the plane geometry matches the actual content dimensions
+      setImageAspect([imgWidth, imgHeight])
     }
   }, [imageTexture])
 
@@ -187,10 +199,14 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
       // Update the aspect ratio and duration based on video metadata
       const handleLoadedMetadata = () => {
         if (video.videoWidth && video.videoHeight) {
+          // Calculate normalized video dimensions (max dimension = 1.0)
           const videoDimension = Math.max(video.videoWidth, video.videoHeight)
           const width = video.videoWidth / videoDimension
           const height = video.videoHeight / videoDimension
           setImageSize([width, height])
+
+          // Set imageAspect to match video dimensions
+          setImageAspect([width, height])
         }
 
         // Store video duration in ContentStore for VideoBar
@@ -258,7 +274,7 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
         <meshBasicMaterial color={active ? "hotpink" : "black"} transparent opacity={.5} /> }
       </mesh>
 
-      <mesh ref={planeRef} position={[0, 0, 0.001]}>
+      <mesh ref={setPlaneRef} position={[0, 0, 0.001]}>
         <planeGeometry args={[imageAspect[0], imageAspect[1]]} />
         <fadeShaderMaterial
           attach="material"

@@ -35,6 +35,8 @@ export const Pillar = () => {
       activeCategoryId: contents[0].id,
       activeItemId: contents[0].content_block_items[0]?.content?.content_id,
       activeItemData: contents[0].content_block_items[0],
+      activeCategoryIndex: 0,
+      activeItemIndex: 0,
     })
   },[contents])
 
@@ -75,7 +77,7 @@ export const Pillar = () => {
     },
     onRest: () => {
       useContentStore.setState({ isAnimating: false })
-      useSceneStore.getState().fitToBox()
+      // fitToBox is now called by PlaneView after it sets activeItemObject
     }
   })
 

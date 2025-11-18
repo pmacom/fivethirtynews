@@ -27,7 +27,7 @@ export function TemplateSwitcher({
     item: data,
     itemIndex,
     categoryId,
-    active: data.id === activeItemId
+    active: data.content?.content_id === activeItemId
   }
 
     switch (contentType) {

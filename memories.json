@@ -296,7 +296,100 @@
       "lastAccessed": "2025-11-18T05:09:44.083Z",
       "lastVerified": "2025-11-18T05:09:44.083Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763444180162_6ikorzb5c",
+      "content": "Camera positioning bug in fivethirty project:\n- Issue: Camera moves to strange position when navigating to section with only one website item\n- Recent change: fitToBox padding reduced from 0.1 to 0 in viewer/scene/store.tsx (commit daa3a0b)\n- The Website template uses placeholder image URL with dimensions 800x600\n- PlaneView calculates imageAspect based on viewport aspect ratio, NOT actual image dimensions\n- When active, PlaneView sets planeRef.current as activeItemObject for fitToBox\n- The plane geometry uses imageAspect which is recalculated on viewport resize\n- Problem: PlaneView calculates plane size based on viewport aspect, creating viewport-filling planes\n- This means single-item sections with 0 padding cause fitToBox to try fitting to full viewport size object",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "bug",
+        "camera",
+        "fivethirty",
+        "fitToBox",
+        "PlaneView"
+      ],
+      "timestamp": "2025-11-18T05:36:20.162Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T05:36:20.162Z",
+      "lastVerified": "2025-11-18T05:36:20.162Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763444513239_u4wdgrzfg",
+      "content": "Fixed camera positioning bug for single-item sections in fivethirty project. Root cause: PlaneView was setting imageAspect to viewport dimensions instead of actual content dimensions. The plane geometry used imageAspect for its size, causing fitToBox to calculate incorrect bounding boxes. Solution: Only set imageAspect when content (image/video) loads with normalized dimensions (max dimension = 1.0), not from viewport dimensions.",
+      "type": "config",
+      "tags": [
+        "config",
+        "bug-fix",
+        "camera",
+        "three.js",
+        "bounding-box",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-18T05:41:53.239Z",
+      "context": "PlaneView.tsx camera positioning issue - viewport-sized planes vs content-sized planes",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T05:41:53.239Z",
+      "lastVerified": "2025-11-18T05:41:53.239Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763444857581_nm5xs9nus",
+      "content": "Investigating fitToBox issue with single-item columns in fivethirty project.\n\nKey observations from code review:\n1. PillarColumn positions items at [0, i, 0] where i is the item index (line 23)\n2. For single-item column: item is at position [0, 0, 0] within the column\n3. For multi-item column: items are at [0, 0, 0], [0, 1, 0], [0, 2, 0], etc.\n4. Pillar.tsx animates positionY to -(activeItemIndex) (line 70)\n5. For single-item: activeItemIndex = 0, so positionY animates to 0\n6. For multi-item: activeItemIndex could be 1, 2, etc., so positionY animates to -1, -2, etc.\n7. PlaneView sets activeItemObject to planeRef (the content plane at z=0.001) when active (line 91)\n8. fitToBox is called on animation rest (line 80) with 0.03 padding on all sides\n\nThe issue appears to be a TIMING problem:\n- When activeItemIndex = 0 (single item), positionY animates to 0\n- Since it's already at 0, the animation completes IMMEDIATELY\n- fitToBox is called before the rotation animation completes\n- The plane hasn't rotated to face the camera yet\n- Bounding box is calculated for a plane that's sideways or at wrong angle",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "fivethirty",
+        "fitToBox",
+        "bug",
+        "single-item",
+        "timing"
+      ],
+      "timestamp": "2025-11-18T05:47:37.581Z",
+      "context": "Investigation of fitToBox camera positioning bug with single-item columns",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T05:47:37.581Z",
+      "lastVerified": "2025-11-18T05:47:37.581Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763445110225_gbfb26ftq",
+      "content": "FOUND ROOT CAUSE of fitToBox bug in fivethirty single-item columns!\n\nProblem: Default template (viewer/pillar/templates/Default.tsx) doesn't use PlaneView component, so it never sets activeItemObject. When a single-item column uses Default template:\n\n1. Previous item's PlaneView set activeItemObject to its mesh\n2. User navigates to single-item column using Default template  \n3. Default template renders but doesn't update activeItemObject\n4. activeItemObject still points to PREVIOUS item's mesh on DIFFERENT column\n5. Pillar rotates to new column (rotation works correctly)\n6. fitToBox is called with activeItemObject pointing to old column's mesh\n7. Camera frames content that's not visible (90° away)\n\nWhy single-item columns specifically: They likely have content_type values that fall through to default case in TemplateSwitcher.tsx switch statement (not 'twitter', 'video', 'image', 'website', 'warpcast', or 'discord').\n\nSolution: Default template needs to set activeItemObject when active, OR ensure single-item columns use proper content types with templates that have PlaneView.",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "fivethirty",
+        "fitToBox",
+        "bug",
+        "root-cause",
+        "Default-template"
+      ],
+      "timestamp": "2025-11-18T05:51:50.225Z",
+      "context": "Final diagnosis of camera framing bug with single-item columns",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T05:51:50.225Z",
+      "lastVerified": "2025-11-18T05:51:50.225Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763445727510_vo7sq5uk5",
+      "content": "\n**ROOT CAUSE FOUND: Default template missing ContentWrapper causes fitToBox to frame wrong geometry**\n\nThe issue is NOT a race condition or timing problem. The actual root cause is:\n\n**Working templates (Tweet, Image, etc.):**\n- Use ContentWrapper which creates a viewport-sized invisible click target\n- Wrap PlaneView which creates content-sized geometry with imageAspect dimensions\n- PlaneView sets activeItemObject to planeRef with geometry args=[imageAspect[0], imageAspect[1]]\n- imageAspect is normalized (max dimension = 1.0) and matches actual content\n\n**Broken Default template:**\n- NO ContentWrapper\n- Creates mesh with planeGeometry args=[2, 2] - FIXED 2x2 size\n- Sets activeItemObject to this 2x2 mesh\n- When fitToBox is called, it frames a 2x2 plane instead of content-sized geometry\n\n**Why \"shows nothing\":**\nThe 2x2 mesh IS being framed correctly by fitToBox, but the 2x2 size doesn't match the visual content expectations. Combined with the padding (0.03) in fitToBox, the camera might be positioning to frame an object that appears visually empty or transparent.\n\n**Solution:**\nDefault template needs to either:\n1. Use ContentWrapper + PlaneView pattern (preferred)\n2. Or use correct geometry size matching viewport/content aspect ratio like PlaneView does\n",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "bug",
+        "camera",
+        "fitToBox",
+        "Default-template",
+        "root-cause"
+      ],
+      "timestamp": "2025-11-18T06:02:07.510Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T06:02:07.510Z",
+      "lastVerified": "2025-11-18T06:02:07.510Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-18T05:09:44.083Z"
+  "lastUpdated": "2025-11-18T06:02:07.510Z"
 }
