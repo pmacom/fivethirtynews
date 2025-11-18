@@ -32,6 +32,7 @@ export const SafePlaneView: React.FC<SafePlaneViewProps> = ({
   return (
     <ErrorBoundary
       key={errorKey}
+      silent={true} // Suppress console errors for expected image loading failures
       fallback={<PlaneView url={BROKEN_IMAGE_PLACEHOLDER} active={active} onClick={onClick} />}
     >
       <PlaneView

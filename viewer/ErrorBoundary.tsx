@@ -5,6 +5,7 @@ import React, { Component, ReactNode } from 'react'
 interface Props {
   children: ReactNode
   fallback?: ReactNode
+  silent?: boolean // If true, suppresses console error logging (useful for expected errors like image loading failures)
 }
 
 interface State {
@@ -23,7 +24,10 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
+    // Only log to console if not in silent mode
+    if (!this.props.silent) {
+      console.error('ErrorBoundary caught an error:', error, errorInfo)
+    }
   }
 
   render() {

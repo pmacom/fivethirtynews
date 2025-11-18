@@ -1,12 +1,15 @@
 import React from 'react'
 import { SafePlaneView } from '../components/SafePlaneView'
+import { TextPlaneView } from '../components/TextPlaneView'
 import { useContentStore } from '../../core/store/contentStore'
 import { LiveViewContentBlockItems } from '../../core/content/types'
 import ContentWrapper from '../components/ContentWrapper'
-import SafeTweetView from '../components/SafeTweetView'
-
-// Solid red 1x1 pixel PNG for text-only tweet placeholder
-const RED_PLACEHOLDER = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg=='
+import {
+  calculateTweetFontSize,
+  extractDisplayName,
+  extractHandle,
+  formatRelativeTime
+} from './utils/textSizing'
 
 interface TemplateTweetProps {
   item: LiveViewContentBlockItems
@@ -21,6 +24,12 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
   // Get thumbnail and text from content data
   const contentThumbnail = item.content?.thumbnail_url
   const tweetText = item.content?.description || ''
+
+  // Extract tweet metadata for display
+  const displayName = extractDisplayName(item.content?.author)
+  const handle = extractHandle(item.content?.author)
+  const timestamp = formatRelativeTime(item.content?.created_at)
+  const fontSize = calculateTweetFontSize(tweetText.length)
 
   // Robust media detection: validate thumbnail_url is a valid, non-empty URL
   const hasMedia = contentThumbnail &&
@@ -50,9 +59,10 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
       contentId: item.content?.content_id,
       hasMedia,
       mediaType,
-      displayMode: hasMedia ? 'MEDIA_ONLY' : 'RED_PLACEHOLDER',
+      displayMode: hasMedia ? 'MEDIA_ONLY' : 'TEXT_CARD',
       thumbnailUrl: contentThumbnail || '(none)',
       textLength: tweetText.length,
+      fontSize: hasMedia ? 'N/A' : fontSize,
     })
 
     // Warn if this might be a data quality issue
@@ -75,8 +85,15 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
         // Tweet with media: Show only the media thumbnail
         <SafePlaneView url={thumbnailUrl} active={isActive} />
       ) : (
-        // Text-only tweet: Show red placeholder (matches PlaneView dimensions)
-        <SafeTweetView url={RED_PLACEHOLDER} active={isActive} item={item} />
+        // Text-only tweet: Show TextPlaneView (matches PlaneView dimensions)
+        <TextPlaneView
+          text={tweetText}
+          displayName={displayName}
+          handle={handle}
+          timestamp={timestamp}
+          fontSize={fontSize}
+          active={isActive}
+        />
       )}
     </ContentWrapper>
   )
