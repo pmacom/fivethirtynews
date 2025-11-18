@@ -14,8 +14,8 @@ export const TemplateWebsite = ({ item, itemIndex, categoryId }: TemplateWebsite
   const activeItemId = useContentStore(state => state.activeItemId)
   const isActive = item.content?.content_id === activeItemId
 
-  // Use CORS-friendly placeholder for now
-  const thumbnailUrl = 'https://placehold.co/800x600/10b981/white/png?text=Website'
+  // Solid color data URI - green for website
+  const thumbnailUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAEBgIApD5fRAAAAABJRU5ErkJggg=='
 
   return (
     <ContentWrapper

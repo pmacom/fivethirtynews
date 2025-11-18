@@ -14,8 +14,8 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
   const activeItemId = useContentStore(state => state.activeItemId)
   const isActive = item.content?.content_id === activeItemId
 
-  // Use CORS-friendly placeholder for now
-  const thumbnailUrl = 'https://placehold.co/800x600/1da1f2/white/png?text=Tweet'
+  // Solid color data URI - blue for tweet
+  const thumbnailUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg=='
 
   return (
     <ContentWrapper

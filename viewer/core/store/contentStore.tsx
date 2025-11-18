@@ -228,22 +228,123 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   },
 
   fetchLatestEpisode: async () => {
-    console.log('Fetching latest Episode')
-    const { data, error } = await supabase
-      .from('episodes')
-      .select('*')
-      .order('date', { ascending: false })
-      .limit(1);
+    console.log('Fetching latest content by category')
 
-    if (error) {
-      console.error('Error fetching data:', error);
-      return;
-    }
+    try {
+      // Get all content with categories
+      const { data: allContent, error: contentError } = await supabase
+        .from('content')
+        .select('*')
+        .not('category', 'is', null)
+        .order('submitted_at', { ascending: false });
 
-    if (data && data.length > 0) {
-      const latestEpisodeId = data[0].id;
-      set({ episodeId: latestEpisodeId });
-      get().fetchEpisodeContent(latestEpisodeId);
+      if (contentError) {
+        console.error('Error fetching content:', contentError);
+        return;
+      }
+
+      if (!allContent || allContent.length === 0) {
+        console.warn('No content found');
+        return;
+      }
+
+      // Group content by category and take top 20 per category
+      const contentByCategory = new Map<string, any[]>();
+
+      for (const item of allContent) {
+        if (!item.category) continue;
+
+        if (!contentByCategory.has(item.category)) {
+          contentByCategory.set(item.category, []);
+        }
+
+        const categoryItems = contentByCategory.get(item.category)!;
+        if (categoryItems.length < 20) {
+          categoryItems.push(item);
+        }
+      }
+
+      // Transform into content blocks
+      const contentBlocks: LiveViewContentBlock[] = [];
+      let blockWeight = 0;
+
+      for (const [category, items] of contentByCategory.entries()) {
+        const content_block_items = items.map((item, index) => ({
+          id: item.id,
+          content_block_id: category,
+          content_id: item.id,
+          weight: index,
+          note: item.description || '',
+          content: item
+        }));
+
+        contentBlocks.push({
+          id: category,
+          episode_id: 'latest',
+          title: category,
+          weight: blockWeight++,
+          content_block_items: content_block_items as LiveViewContentBlockItems[]
+        });
+      }
+
+      // Sort blocks alphabetically by title
+      contentBlocks.sort((a, b) => a.title.localeCompare(b.title));
+
+      // Process the data (same as fetchEpisodeContent)
+      let maxIndex = 0;
+      contentBlocks.forEach(block => {
+        maxIndex++;
+        maxIndex += (block.content_block_items.length - 1);
+      });
+
+      const processedData: LiveViewContentBlock[] = contentBlocks.map(block => {
+        const processed_content_block_items = block.content_block_items.map(item => {
+          if (item?.content?.thumbnail_url) {
+            try {
+              const urlObj = new URL(item.content.thumbnail_url);
+              const pathname = urlObj.pathname;
+              const filename = pathname.substring(pathname.lastIndexOf('/') + 1);
+
+              const filepath = WTF_CONFIG.useRelativeImagePaths
+                ? `/thumbnails/${filename}`
+                : urlObj.href
+
+              return {
+                ...item,
+                content: {
+                  ...item.content,
+                  thumbnail_url: filepath,
+                },
+              };
+            } catch (error) {
+              console.error('Invalid URL:', error);
+              return item;
+            }
+          }
+          return item;
+        });
+
+        return {
+          ...block,
+          content_block_items: processed_content_block_items,
+        };
+      });
+
+      const categoryTitles = processedData.map(block => block.title);
+      const itemTitles = processedData.map(block => block.content_block_items.map(item => item.note));
+
+      console.log(`Loaded ${contentBlocks.length} categories with content`);
+
+      set({
+        maxIndex,
+        content: processedData,
+        categoryTitles,
+        itemTitles,
+      })
+
+      get().setIdStrings(processedData)
+    } catch (error) {
+      console.error('Error in fetchLatestEpisode:', error);
     }
   },
 }));

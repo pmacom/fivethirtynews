@@ -11,7 +11,8 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
-    "db:studio": "supabase studio"
+    "db:studio": "supabase studio",
+    "db:seed:prod": "supabase db reset && psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/seed.production.sql"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -14,8 +14,8 @@ export const TemplateWarpcast = ({ item, itemIndex, categoryId }: TemplateWarpca
   const activeItemId = useContentStore(state => state.activeItemId)
   const isActive = item.content?.content_id === activeItemId
 
-  // Use CORS-friendly placeholder for now
-  const thumbnailUrl = 'https://placehold.co/800x600/8a63d2/white/png?text=Warpcast'
+  // Solid color data URI - purple for warpcast
+  const thumbnailUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8j4HwAFBQIAXk+8hwAAAABJRU5ErkJggg=='
 
   return (
     <ContentWrapper

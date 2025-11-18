@@ -14,8 +14,8 @@ export const TemplateDiscord = ({ item, itemIndex, categoryId }: TemplateDiscord
   const activeItemId = useContentStore(state => state.activeItemId)
   const isActive = item.content?.content_id === activeItemId
 
-  // Use CORS-friendly placeholder for now
-  const thumbnailUrl = 'https://placehold.co/800x600/5865f2/white/png?text=Discord'
+  // Solid color data URI - indigo for discord
+  const thumbnailUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk4GD4DwABhgHfP6uktwAAAABJRU5ErkJggg=='
 
   return (
     <ContentWrapper

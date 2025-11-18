@@ -441,7 +441,116 @@
       "lastAccessed": "2025-11-18T06:26:23.339Z",
       "lastVerified": "2025-11-18T06:26:23.339Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763448018777_hpl851dws",
+      "content": "Chyron Component Investigation Results:\n\nSettings Popup Implementation:\n- Uses Zustand store (useSettingStore) with showSettings boolean\n- Uses \"vaul\" drawer library (components/ui/drawer.tsx)\n- Renders as fixed position overlay with dark theme\n- Toggle via useSettingStore.setState({ showSettings: !showSettings })\n\nCategory/Column Change:\n- contentStore.tsx has activeCategoryIndex and categoryTitles array\n- setNextColumn/setPrevColumn update activeCategoryIndex\n- categoryTitles comes from fetchEpisodeContent (line 197)\n- BehaviorDetection.tsx triggers column changes via keyboard/swipe\n\nAnimation Libraries:\n- framer-motion installed and used in LegendCategories.tsx\n- @react-spring/three also available\n\nUI Component Structure:\n- viewer.tsx renders: Scene > Pillar and UI > Legend, Details, Settings\n- UI wraps children in RevealOnMovement component\n- All UI overlays are siblings under UI component\n\nBroadcast Chyron Design:\n- Lower-third positioning (bottom left/center)\n- Brief display (2-3 seconds auto-hide)\n- Slide-in animation from left/bottom\n- Semi-transparent background with clear typography\n- Should use uppercase text with bold weight",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "react",
+        "spring",
+        "investigation",
+        "chyron",
+        "ui-components",
+        "architecture"
+      ],
+      "timestamp": "2025-11-18T06:40:18.777Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T06:40:18.777Z",
+      "lastVerified": "2025-11-18T06:40:18.777Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763448275998_83fwtdcos",
+      "content": "Chyron bugs identified:\n1. BUG: showChyron creates new timeout on each call but never clears previous one - causes timer leak\n2. BUG: When category changes before timeout completes, old timer still runs and hides the new chyron\n3. BUG: showChyron function is in useEffect dependencies but Zustand store functions are stable - causes unnecessary re-renders\n4. Duration is 2500ms (2.5s) - user wants it longer\n5. Position is bottom-left, user wants top-right\n\nSolution:\n- Add timerId tracking in store to clear previous timeouts\n- Remove showChyron from useEffect dependencies\n- Increase duration to 3500-4000ms\n- Reposition to top-right with right-to-left animation",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "bug-fix",
+        "chyron",
+        "timer-leak",
+        "zustand"
+      ],
+      "timestamp": "2025-11-18T06:44:35.998Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T06:44:35.998Z",
+      "lastVerified": "2025-11-18T06:44:35.998Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763448956239_vezsxemrk",
+      "content": "Fixed chyron intermittent display bug in /Users/patrickmacom/MainQuests/530News/fivethirty/viewer/ui/chyron/chyron.tsx. \n\nROOT CAUSE: useEffect had unnecessary dependencies [activeCategoryIndex, categoryTitles, showChyron, updateChyron]. When categoryTitles array reference changed or Zustand recreated the functions, the effect would fire even though activeCategoryIndex hadn't changed. This caused prevCategoryIndexRef to update incorrectly, making the condition (prevIndex !== activeCategoryIndex) fail on actual navigation changes.\n\nFIX: Changed dependencies to only [activeCategoryIndex]. Now the effect only fires when the category actually changes, not when unrelated state updates occur. The chyron will now show consistently on every category switch.\n\nLESSON: When using refs to track previous values in useEffect, only include the actual value you're tracking in the dependencies array, not helper functions or related arrays.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "bug-fix",
+        "react",
+        "useEffect",
+        "dependencies",
+        "chyron",
+        "zustand"
+      ],
+      "timestamp": "2025-11-18T06:55:56.239Z",
+      "context": "Debugging intermittent chyron display issue",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T06:55:56.239Z",
+      "lastVerified": "2025-11-18T06:55:56.239Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763449043609_86opbni9t",
+      "content": "Chyron intermittent display bug was caused by React StrictMode double-rendering in development. The useRef tracking was getting initialized on first render but then StrictMode re-ran the effect with prevIndex already set to 0, causing the \"first render\" check to fail. Solution: Added hasInitializedRef that persists across StrictMode rerenders, ensuring showChyron() is called exactly once on initial load.",
+      "type": "error",
+      "tags": [
+        "error",
+        "react",
+        "bug-fix",
+        "strictmode",
+        "chyron",
+        "useEffect"
+      ],
+      "timestamp": "2025-11-18T06:57:23.609Z",
+      "context": "fivethirty project - Chyron component debugging",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T06:57:23.609Z",
+      "lastVerified": "2025-11-18T06:57:23.609Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763449676072_8b9lmbu02",
+      "content": "Chyron simplified to ALWAYS show on category change:\n- Removed updateChyron() method entirely\n- Removed hasInitializedRef complexity\n- Simple logic: if (prevIndex !== activeCategoryIndex) → showChyron()\n- On first load, prevIndex is null, so null !== 0 triggers show\n- On category change, always calls showChyron() which resets timer to 3s\n- Predictable: category change = chyron shows, no branching logic",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "chyron",
+        "simplification",
+        "fix"
+      ],
+      "timestamp": "2025-11-18T07:07:56.072Z",
+      "context": "User reported chyron not showing reliably on category switches despite previous fixes. Root cause: complex updateChyron logic with if/else branches checking visibility state. Solution: always call showChyron() on category change.",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T07:07:56.072Z",
+      "lastVerified": "2025-11-18T07:07:56.072Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763451300218_0ivv08tck",
+      "content": "CHYRON BUG ROOT CAUSE CONFIRMED:\n- Chyron is wrapped inside UI component at line 42 of viewer.tsx\n- UI component wraps all children with RevealOnMovement (line 14 of ui.tsx)\n- RevealOnMovement controls opacity based on useUIStore.isHovered state\n- UIListener sets isHovered=true on mousemove, then false after 2s timeout\n- Result: Chyron only visible when mouse moves because opacity is controlled by isHovered state\n- Solution: Move Chyron outside UI wrapper to make it independent of mouse movement logic\n- Chyron has its own visibility logic via useChyronStore.isVisible that works correctly\n- No dependencies found that require Chyron to be inside UI component",
+      "type": "error",
+      "tags": [
+        "error",
+        "bug-fix",
+        "chyron",
+        "ui-architecture",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-18T07:35:00.218Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T07:35:00.218Z",
+      "lastVerified": "2025-11-18T07:35:00.218Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-18T06:26:23.339Z"
+  "lastUpdated": "2025-11-18T07:35:00.218Z"
 }

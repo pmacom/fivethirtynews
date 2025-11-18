@@ -15,8 +15,8 @@ export const TemplateDefault = ({ item, itemIndex, categoryId }: TemplateDefault
   const activeItemId = useContentStore(state => state.activeItemId)
   const isActive = item.content?.content_id === activeItemId
 
-  // Use a placeholder for default content type
-  const placeholderUrl = 'https://placehold.co/800x600/64748b/white/png?text=Content'
+  // Solid color data URI - gray for default
+  const placeholderUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKQAAAABJRU5ErkJggg=='
 
   return (
     <ContentWrapper

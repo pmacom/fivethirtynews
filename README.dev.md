@@ -27,6 +27,7 @@ Your app will be available at: **http://localhost:3000**
 - `npm run db:start` - Start Supabase only
 - `npm run db:stop` - Stop Supabase
 - `npm run db:reset` - Reset database and reload seed data
+- `npm run db:seed:prod` - Load production dataset (8,000+ items)
 - `npm run db:studio` - Open Supabase Studio GUI
 
 ### Build & Deploy
@@ -59,6 +60,47 @@ episodes
               └── content (many:1)
 ```
 
+## Database Seeding
+
+### Default Test Data
+By default, `npm run db:reset` loads a small test dataset:
+- **1 episode**: "Episode 001: AI & Tech Roundup"
+- **3 content blocks**: AI, Code & Development, Design & Art
+- **6 sample items**: Mix of tweets, videos, and images
+
+This is perfect for quick onboarding and testing.
+
+### Production Dataset (Optional)
+To work with the full production content library:
+
+```bash
+npm run db:seed:prod
+```
+
+This loads:
+- **8,000+ content items** from the production database
+- Historical tweets, videos, links, and articles
+- Real 530 News content collection
+
+**Note:**
+- Production seed contains 4.3MB of data (may take 30-60 seconds)
+- Only includes `content` table data
+- You may need to manually create episodes/blocks via Studio for complete functionality
+
+### When to Use Which?
+
+**Use test data when:**
+- First time setup / onboarding
+- Quick feature development
+- Testing UI components
+- Fast database resets
+
+**Use production data when:**
+- Testing with real content variety
+- Performance testing with large datasets
+- Debugging content-specific issues
+- Demoing with actual 530 News content
+
 ## Adding Content
 
 ### Via Studio (Recommended)
@@ -67,7 +109,7 @@ episodes
 3. Add/edit rows directly
 
 ### Via SQL
-1. Edit `supabase/seed.sql`
+1. Edit `supabase/seed.sql` (for test data)
 2. Run: `npm run db:reset`
 
 ## Troubleshooting

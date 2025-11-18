@@ -14,8 +14,8 @@ export const TemplateVideo = ({ item, itemIndex, categoryId }: TemplateVideoProp
   const activeItemId = useContentStore(state => state.activeItemId)
   const isActive = item.content?.content_id === activeItemId
 
-  // Use CORS-friendly placeholder for now
-  const thumbnailUrl = 'https://placehold.co/800x600/ef4444/white/png?text=Video'
+  // Solid color data URI - red for video
+  const thumbnailUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg=='
 
   return (
     <ContentWrapper

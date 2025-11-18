@@ -1,0 +1,58 @@
+.chyron {
+  position: fixed;
+  top: 40px;
+  right: 40px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.chyron-content {
+  background: linear-gradient(270deg,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.85) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  padding: 1rem 1.5rem 1rem 3rem;
+  border-right: 4px solid #ff6b00;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 107, 0, 0.2);
+  backdrop-filter: blur(4px);
+  min-width: 300px;
+}
+
+.chyron-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.25rem;
+}
+
+.chyron-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ff6b00;
+  line-height: 1.2;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .chyron {
+    right: 20px;
+    top: 20px;
+  }
+
+  .chyron-content {
+    padding: 0.75rem 1rem 0.75rem 2rem;
+    min-width: 250px;
+  }
+
+  .chyron-title {
+    font-size: 1.4rem;
+  }
+}
