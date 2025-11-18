@@ -1,0 +1,96 @@
+{
+  "memories": [
+    {
+      "id": "mem_1763400323424_30xpcl04g",
+      "content": "Fixed Next.js Turbopack setup: 1) Use 'turbopack.root: __dirname' not 'experimental.turbo.root' in next.config.ts 2) Add --turbopack to dev script 3) Fixed Viewer component export mismatch (was named export, needed default export)",
+      "type": "config",
+      "tags": [
+        "config",
+        "nextjs",
+        "turbopack",
+        "configuration",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-17T17:25:23.423Z",
+      "context": "Project: fivethirty at /Users/patrickmacom/MainQuests/530News/fivethirty",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-17T17:25:23.423Z",
+      "lastVerified": "2025-11-17T17:25:23.423Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763402953067_kj9owj454",
+      "content": "Zustand-x migration analysis for fivethirty project:\n\nSTORES USING ZUSTAND-X:\n1. UIStore (/viewer/ui/store.tsx) - tracks UI hover state\n2. SceneStore (/viewer/scene/store.tsx) - manages 3D scene camera and canvas dimensions\n3. ContentStore (/viewer/core/store/contentStore.tsx) - main content/episode store with persist middleware\n4. TweetStore (/viewer/core/store/contentStore.tsx) - tweet caching with persist middleware\n5. KeyListenerStore (/viewer/common/KeyListener.tsx) - keyboard interaction hover state\n\nSTORES USING REGULAR ZUSTAND:\n1. useAudioStore (/viewer/audio/store.tsx) - audio streaming and analysis\n2. useSettingStore (/viewer/ui/settings/store.tsx) - app settings with persist middleware\n\nZUSTAND-X PATTERNS:\n- createStore() with name parameter for debugging\n- .extendActions((set, get, api) => ({...})) for actions\n- .use.stateProp() for component subscriptions\n- .get.stateProp() for non-reactive reads\n- .set.stateProp(value) or .set.mergeState({...}) for updates\n- { persist: { enabled: true } } for persistence (TweetStore)",
+      "type": "config",
+      "tags": [
+        "config",
+        "api",
+        "zustand-x",
+        "migration",
+        "state-management",
+        "analysis"
+      ],
+      "timestamp": "2025-11-17T18:09:13.067Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-17T18:09:13.067Z",
+      "lastVerified": "2025-11-17T18:09:13.067Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763409757219_hbd6l7wt7",
+      "content": "Successfully migrated all zustand-x stores to regular zustand:\n- UIStore → useUIStore (2 files)\n- KeyListenerStore → useKeyListenerStore (1 file)\n- TweetStore → useTweetStore with persist middleware (2 files)\n- SceneStore → useSceneStore with cross-store access to ContentStore (3 files)\n- ContentStore → useContentStore (11+ files: pillar.tsx, Tweet.tsx, BehaviorDetection.tsx, details.tsx, legend.tsx, LegendItems.tsx, LegendCategories.tsx, VideoBar.tsx, Default.tsx, PlaneView.tsx, PillarColumnItem.tsx)\n\nMigration patterns:\n- .use.property() → useStore(state => state.property)\n- .set.property(val) → useStore.setState({ property: val })\n- .set.mergeState({...}) → useStore.setState({...})\n- .set.action() → useStore.getState().action()\n- .get.property() → useStore.getState().property\n- Cross-store: ContentStore.get.x() → useContentStore.getState().x",
+      "type": "general",
+      "tags": [
+        "general",
+        "zustand",
+        "migration",
+        "stores",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-17T20:02:37.219Z",
+      "context": "Project: fivethirty - Migrated from zustand-x to regular zustand v5.0.8",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-17T20:02:37.219Z",
+      "lastVerified": "2025-11-17T20:02:37.219Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763412175707_ydcsp7w73",
+      "content": "Successfully set up local Supabase database for fivethirty project:\n- Created schema with 5 tables: episodes, content, content_blocks, content_block_items, tweets\n- Configured relationships: episodes → content_blocks → content_block_items → content\n- Added seed data with 1 episode, 3 content blocks (AI, Code, Design), 6 content items, 2 cached tweets\n- Supabase running at http://127.0.0.1:54321\n- Studio GUI at http://127.0.0.1:54323\n- Environment configured in .env.local\n- Migration file: supabase/migrations/20250117_initial_schema.sql\n- Seed file: supabase/seed.sql",
+      "type": "config",
+      "tags": [
+        "config",
+        "database",
+        "supabase",
+        "local-setup",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-17T20:42:55.707Z",
+      "context": "Project: fivethirty - Local Supabase database setup for content viewer",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-17T20:42:55.707Z",
+      "lastVerified": "2025-11-17T20:42:55.707Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763413524830_9l4x1z544",
+      "content": "Configured automatic Supabase startup with npm run dev:\n- Created scripts/dev.sh that checks and starts Supabase before Next.js\n- Updated package.json with new scripts: dev, dev:next-only, db:start, db:stop, db:reset, db:studio\n- Script handles startup gracefully - starts Supabase if not running, skips if already running\n- Displays Supabase status info before starting Next.js\n- Created README.dev.md with complete development guide",
+      "type": "general",
+      "tags": [
+        "general",
+        "automation",
+        "dev-workflow",
+        "supabase",
+        "npm-scripts",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-17T21:05:24.830Z",
+      "context": "Project: fivethirty - Automated development environment setup",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-17T21:05:24.830Z",
+      "lastVerified": "2025-11-17T21:05:24.830Z",
+      "status": "fresh"
+    }
+  ],
+  "lastUpdated": "2025-11-17T21:05:24.830Z"
+}

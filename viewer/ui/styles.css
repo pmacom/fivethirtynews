@@ -1,0 +1,30 @@
+.wtf--ui {
+  --wtf--ui--margin: 1rem;
+  --wtf--ui--padding: 0.8rem;
+  --wtf--ui--padding-half: calc(var(--wtf--ui--padding) / 2);
+  --wtf--ui--item-size: 2rem;
+  --wtf--ui--extended-length: 10px;
+  --wtf--ui--shadow-opacity: 0.25;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.wtf--ui--container {
+  display: flex;
+  color: white;
+  background: rgba(156, 156, 156, 0.2);
+  border-radius: 2rem;
+  padding: 0 var(--wtf--ui--padding);
+  margin: var(--wtf--ui--margin);
+  border: 1px solid rgba(0, 0, 0, .3);
+  outline: 1px solid rgba(255, 255, 255, .5);
+  box-shadow: 0 0.75px 1.5px rgba(0, 0, 0, var(--wtf--ui--shadow-opacity)), 
+    0 1.25px 4.5px rgba(0, 0, 0, var(--wtf--ui--shadow-opacity)), 
+    0 1.75px 6.75px rgba(0, 0, 0, var(--wtf--ui--shadow-opacity)), 
+    0 1px 9px rgba(0, 0, 0, var(--wtf--ui--shadow-opacity));
+}
+
+.wtf--ui--container.rounded {
+  padding: var(--wtf--ui--padding-half) var(--wtf--ui--padding-half);
+}

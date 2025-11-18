@@ -1,0 +1,18 @@
+.wtf--settings {
+  --fivethirty-settings-margin: 1rem;
+  --fivethirty-settings-size: 2rem;
+}
+
+.wtf--settings {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  border: 1px solid red;
+  width: var(--fivethirty-settings-size);
+  height: var(--fivethirty-settings-size);
+  margin: var(--fivethirty-settings-margin);
+  border-radius: 100%;
+  z-index: 103;
+  background: red;
+}
+
