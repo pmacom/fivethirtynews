@@ -14,8 +14,8 @@ export const BehaviorDetection = ({ children }:BehaviorDetectionProps) => {
 
   return (
     <KeyListener
-      onKeyLeft={() => useContentStore.getState().setPrevColumn()}
-      onKeyRight={() => useContentStore.getState().setNextColumn()}
+      onKeyLeft={() => useContentStore.getState().setNextColumn()}
+      onKeyRight={() => useContentStore.getState().setPrevColumn()}
       onKeyDown={() => useContentStore.getState().setPrevItem()}
       onKeyUp={() => useContentStore.getState().setNextItem()}
       enabled={useKeyboard}

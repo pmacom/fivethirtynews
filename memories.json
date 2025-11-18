@@ -389,7 +389,24 @@
       "lastAccessed": "2025-11-18T06:02:07.510Z",
       "lastVerified": "2025-11-18T06:02:07.510Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763446302925_9r8s6p3vt",
+      "content": "Arrow key mapping bug in BehaviorDetection.tsx: ArrowLeft calls setPrevColumn() and ArrowRight calls setNextColumn(). User reports this is backwards - should be reversed so left arrow goes to next column and right arrow goes to previous column.",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "bug",
+        "keyboard-controls",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-18T06:11:42.925Z",
+      "context": "File: /Users/patrickmacom/MainQuests/530News/fivethirty/viewer/common/BehaviorDetection.tsx, lines 17-18",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T06:11:42.925Z",
+      "lastVerified": "2025-11-18T06:11:42.925Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-18T06:02:07.510Z"
+  "lastUpdated": "2025-11-18T06:11:42.925Z"
 }
