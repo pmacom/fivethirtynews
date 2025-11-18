@@ -85,13 +85,15 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
     }
   }, [active]);
 
-  // Use callback ref to set activeItemObject synchronously and trigger fitToBox
-  // This eliminates race condition where fitToBox is called before activeItemObject is set
-  const setPlaneRef = useCallback((node: THREE.Mesh | null) => {
-    if (node && active) {
-      useContentStore.setState({ activeItemObject: node })
-      // Trigger fitToBox after setting activeItemObject
-      // Use requestAnimationFrame to ensure state update completes
+  // Use ref + useEffect pattern to reliably handle activeItemObject and fitToBox
+  // This works correctly even when component remounts (e.g., from SafePlaneView error boundary)
+  const planeRef = useRef<THREE.Mesh>(null)
+
+  // Set activeItemObject and trigger fitToBox whenever this becomes the active slide
+  useEffect(() => {
+    if (active && planeRef.current) {
+      useContentStore.setState({ activeItemObject: planeRef.current })
+      // Use requestAnimationFrame to ensure state update completes before fitToBox
       requestAnimationFrame(() => {
         useSceneStore.getState().fitToBox()
       })
@@ -291,7 +293,7 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
         <meshBasicMaterial color={active ? "hotpink" : "black"} transparent opacity={.5} /> }
       </mesh>
 
-      <mesh ref={setPlaneRef} position={[0, 0, 0.001]}>
+      <mesh ref={planeRef} position={[0, 0, 0.001]}>
         <planeGeometry args={[imageAspect[0], imageAspect[1]]} />
         <fadeShaderMaterial
           attach="material"

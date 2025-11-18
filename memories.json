@@ -550,7 +550,62 @@
       "lastAccessed": "2025-11-18T07:35:00.218Z",
       "lastVerified": "2025-11-18T07:35:00.218Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763474768191_q9g3hlhjh",
+      "content": "FiveThirty Twitter Content Implementation Research:\n\nDATABASE SCHEMA:\n- content table has: content_type, content_url, thumbnail_url, description, content_id\n- tweets table stores full tweet data as JSONB (id, data, created_at, updated_at)\n- Video tweets identified by thumbnail_url pattern: 'ext_tw_video_thumb'\n- Image tweets have thumbnail_url with 'media' or static image URLs\n- Text-only tweets have NULL thumbnail_url\n\nCURRENT IMPLEMENTATION:\n- Tweet.tsx template: Uses solid blue color data URI, no real thumbnail/video support\n- Video.tsx template: Uses solid red color data URI, no real video support\n- PlaneView.tsx: Has full video infrastructure with videoUrl prop, blend shader, video texture loading\n- ContentWrapper.tsx: Wraps all content with click handlers and viewport sizing\n- Active slide detection: Uses activeItemId from contentStore, matched against item.content.content_id\n\nVIDEO INFRASTRUCTURE:\n- PlaneView supports videoUrl parameter with full playback\n- VideoTexture creation with THREE.js\n- Shader-based blending from thumbnail to video (1 second fade)\n- Video seeking controls via isVideoSeeking, videoSeekTime state\n- VideoBar UI component for playback control\n- isContentVideo flag in contentStore indicates if active content has video\n\nACTIVE SLIDE LOGIC:\n- contentStore tracks: activeItemId, activeCategoryId, activeItemIndex\n- Templates check: isActive = item.content?.content_id === activeItemId\n- PlaneView sets activeItemObject when active=true (used for camera framing)\n- ContentWrapper handles click to set activeItemId\n\nSAMPLE DATA PATTERNS:\n- Video tweets: thumbnail_url contains 'ext_tw_video_thumb'\n- Image tweets: thumbnail_url contains 'media' or 'pbs.twimg.com'\n- Text tweets: thumbnail_url is NULL\n- Example video tweet IDs: 1818069921927926054, 1843072811818180948, 1888977498051915951\n\nKEY FINDINGS:\n- Tweet template currently ignores all data, uses placeholder color\n- Video playback infrastructure exists but not used in Tweet template\n- Need to detect video vs image vs text from thumbnail_url pattern\n- Need to extract actual video URL from Twitter (not just thumbnail)\n- Aspect ratio handling already exists in PlaneView\n",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "database",
+        "fivethirty",
+        "twitter",
+        "video",
+        "research"
+      ],
+      "timestamp": "2025-11-18T14:06:08.191Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T14:06:08.191Z",
+      "lastVerified": "2025-11-18T14:06:08.191Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763475487858_fmloqm9fd",
+      "content": "FiveThirty Image Loading Error Handling Research:\n\nCurrent Implementation (PlaneView.tsx):\n- Uses useLoader(THREE.TextureLoader, url) with onError callback\n- onError only logs warning, doesn't handle failure\n- No fallback texture when loading fails\n- Wrapped in Suspense but errors crash the component\n\nPackage versions:\n- @react-three/fiber: ^9.4.0\n- @react-three/drei: ^10.7.7\n- three: ^0.181.1\n\nProxy API (/api/proxy-image/route.ts):\n- Only allows pbs.twimg.com URLs\n- Uses Twitter headers (User-Agent, Referer)\n- Returns errors but doesn't provide fallback\n- Images still getting 403 from Twitter\n\nBest Practices Found:\n1. useLoader suspends until texture loads, throws on error\n2. Must wrap in ErrorBoundary + Suspense for proper handling\n3. onError callback in useLoader logs but doesn't prevent crash\n4. Create fallback texture using data URI or canvas\n5. Use try-catch in component with useState for fallback\n\nCurrent viewer structure:\n- Has ErrorBoundary at top level\n- Has Suspense around Pillar\n- PlaneView directly uses useLoader (crashes on error)\n\nOther templates use data URI placeholders:\n- Image: blue placeholder\n- Video: red placeholder\n- Website: green placeholder\n- Tweet: gray placeholder OR proxy URL (can fail)",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "react",
+        "api",
+        "fivethirty",
+        "image-loading",
+        "error-handling",
+        "react-three-fiber"
+      ],
+      "timestamp": "2025-11-18T14:18:07.858Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T14:18:07.858Z",
+      "lastVerified": "2025-11-18T14:18:07.858Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763475971307_3xiu125e5",
+      "content": "FiveThirty fitToBox camera issue - ROOT CAUSE IDENTIFIED:\n\nPROBLEM: SafePlaneView's key prop causes PlaneView to remount on every URL change, but setPlaneRef callback only fires when BOTH conditions are true: (1) node exists AND (2) active is true.\n\nTECHNICAL BREAKDOWN:\n\n1. SafePlaneView.tsx line 28-30: useEffect increments errorKey whenever url changes\n2. SafePlaneView.tsx line 34: ErrorBoundary has key={errorKey}\n3. When errorKey changes, React unmounts and remounts the entire ErrorBoundary and PlaneView\n4. PlaneView.tsx line 90-99: setPlaneRef callback has dependency [active]\n5. Callback ref logic: if (node && active) { set activeItemObject and call fitToBox }\n\nTHE BUG:\n- When slide changes, SafePlaneView increments errorKey, causing full remount\n- During remount, setPlaneRef callback fires\n- BUT if the NEW slide hasn't been set to active=true yet, the callback sees node=mesh but active=false\n- Callback does nothing because condition fails: if (node && active)\n- activeItemObject never gets set, fitToBox never gets called\n\nRACE CONDITION:\n1. User changes slide\n2. SafePlaneView detects URL change, increments errorKey\n3. PlaneView remounts, setPlaneRef fires with active=false (old value)\n4. Later, active prop updates to true\n5. But callback ref doesn't fire again when active changes to true (only fires on mount/unmount)\n\nWHY IT WORKED BEFORE:\n- Direct PlaneView usage didn't have the key-based remounting\n- Component stayed mounted, only active prop changed\n- The useEffect at line 103-116 would handle active changes and call fitToBox\n\nAFFECTED FILES:\n- /Users/patrickmacom/MainQuests/530News/fivethirty/viewer/pillar/components/SafePlaneView.tsx (line 28-30, 34)\n- /Users/patrickmacom/MainQuests/530News/fivethirty/viewer/pillar/components/PlaneView.tsx (line 90-99)\n\nFIX OPTIONS:\n1. Remove key={errorKey} from ErrorBoundary (let it stay mounted)\n2. Add useEffect in PlaneView to handle active changes when already mounted\n3. Change setPlaneRef callback to not depend on active (always set object, let useEffect handle fitToBox)\n4. Remove the remounting behavior from SafePlaneView",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "react",
+        "debugging",
+        "refs",
+        "camera",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-18T14:26:11.307Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T14:26:11.307Z",
+      "lastVerified": "2025-11-18T14:26:11.307Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-18T07:35:00.218Z"
+  "lastUpdated": "2025-11-18T14:26:38.612Z"
 }
