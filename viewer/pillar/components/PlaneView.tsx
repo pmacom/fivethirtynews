@@ -84,30 +84,34 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
     }
   }, [active]);
 
+  // Set activeItemObject to the content plane for proper fitToBox framing
   useEffect(() => {
-    const maxWindowDimension = Math.max(width, height)
-    const windowWidth = width / maxWindowDimension
-    const windowHeight = height / maxWindowDimension
-    let imageWidth = imageSize[0]
-    let imageHeight = imageSize[1]
-    let aspect = imageWidth / imageHeight
+    if (active && planeRef.current) {
+      useContentStore.setState({ activeItemObject: planeRef.current })
+    }
+  }, [active])
 
-    if (windowHeight < imageHeight) {
-      imageHeight = windowHeight
-      imageWidth = windowHeight * aspect
-    }
-    if (windowWidth < imageWidth) {
-      imageWidth = windowWidth
-      imageHeight = windowWidth / aspect
-    }
-    setScreenAspect([windowWidth, windowHeight])
-    setImageAspect([imageWidth, imageHeight])
-  }, [width, height, imageSize])
+  // Viewport-based sizing - eliminates gaps between content
+  useEffect(() => {
+    const planeHeight = 1.0 // Fill the 1-unit spacing exactly
+    const viewportAspect = width / height
+    const planeWidth = planeHeight * viewportAspect
+
+    setScreenAspect([planeWidth, planeHeight])
+    setImageAspect([planeWidth, planeHeight])
+  }, [width, height])
 
   // @ts-expect-error - Type incompatibility between @react-three/fiber@8.2.2 and Three.js loader types
-  const imageTexture = useLoader(THREE.TextureLoader, url, (loader: THREE.Loader) => {
-    (loader as THREE.TextureLoader).crossOrigin = 'anonymous';
-  })
+  const imageTexture = useLoader(
+    THREE.TextureLoader,
+    url,
+    (loader: THREE.Loader) => {
+      (loader as THREE.TextureLoader).crossOrigin = 'anonymous';
+    },
+    (error) => {
+      console.warn('Failed to load texture:', url, error);
+    }
+  )
 
   useEffect(() => {
     if(imageTexture){

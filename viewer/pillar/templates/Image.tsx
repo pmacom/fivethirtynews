@@ -4,18 +4,18 @@ import { useContentStore } from '../../core/store/contentStore'
 import { LiveViewContentBlockItems } from '../../core/content/types'
 import ContentWrapper from '../components/ContentWrapper'
 
-interface TemplateTweetProps {
+interface TemplateImageProps {
   item: LiveViewContentBlockItems
   itemIndex: number
   categoryId: string
 }
 
-export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProps) => {
+export const TemplateImage = ({ item, itemIndex, categoryId }: TemplateImageProps) => {
   const activeItemId = useContentStore(state => state.activeItemId)
   const isActive = item.content?.content_id === activeItemId
 
   // Use CORS-friendly placeholder for now
-  const thumbnailUrl = 'https://placehold.co/800x600/1da1f2/white/png?text=Tweet'
+  const imageUrl = 'https://placehold.co/800x600/3b82f6/white/png?text=Image'
 
   return (
     <ContentWrapper
@@ -24,9 +24,9 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
       itemIndex={itemIndex}
       active={isActive}
     >
-      <PlaneView url={thumbnailUrl} active={isActive} />
+      <PlaneView url={imageUrl} active={isActive} />
     </ContentWrapper>
   )
 }
 
-export default TemplateTweet
+export default TemplateImage

@@ -31,7 +31,7 @@ export const PillarColumnItem = ({ data, categoryId, itemIndex, position }:Pilla
   useEffect(() => {
     if(content_id == activeItemId && groupRef.current ){
       useContentStore.setState({ activeItemData: data })
-      useContentStore.setState({ activeItemObject: groupRef.current })
+      // Note: activeItemObject is now set by PlaneView (the content plane)
     }
   }, [groupRef, content_id, activeItemId, data])
 

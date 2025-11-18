@@ -108,7 +108,195 @@
       "lastAccessed": "2025-11-18T02:02:19.582Z",
       "lastVerified": "2025-11-18T02:02:19.582Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763437528704_plly69qvn",
+      "content": "Enabled Pillar component in viewer.tsx to display Supabase database content. All 6 content type templates are now integrated: Image, Video, Website, Warpcast, Discord, and Tweet. Pillar fetches data via useContentStore.fetchLatestEpisode() and renders content in cylindrical 3D layout.",
+      "type": "general",
+      "tags": [
+        "general",
+        "database",
+        "pillar",
+        "supabase",
+        "templates",
+        "3d-scene"
+      ],
+      "timestamp": "2025-11-18T03:45:28.704Z",
+      "context": "viewer/viewer.tsx lines 9, 28 - Imported and added Pillar component to Canvas",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T03:45:28.704Z",
+      "lastVerified": "2025-11-18T03:45:28.704Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763438826532_rjqd62cby",
+      "content": "Fixed all Pillar templates by removing non-existent createContentInstance imports. All templates (Discord, Warpcast, Website, Video, Image, Tweet) now use simple approach with PlaneView and thumbnail_url. Also installed react-device-detect package and simplified Default template to remove @react-three/uikit dependency.",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "react",
+        "pillar",
+        "templates",
+        "build-fix"
+      ],
+      "timestamp": "2025-11-18T04:07:06.532Z",
+      "context": "Fixed build errors in viewer/pillar/templates/*.tsx files",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T04:07:06.532Z",
+      "lastVerified": "2025-11-18T04:07:06.532Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763439558378_9pcoanpqv",
+      "content": "Temporarily disabled PlaneView image loading in all Pillar templates (Tweet, Discord, Warpcast, Website, Video, Image) to avoid CORS errors. All templates now use Default3dContent which shows a colored plane (gray when inactive, pink when active). This allows testing the Pillar's 3D cylindrical layout without external image dependencies.",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "testing",
+        "pillar",
+        "templates",
+        "workaround",
+        "cors"
+      ],
+      "timestamp": "2025-11-18T04:19:18.378Z",
+      "context": "Modified all templates in viewer/pillar/templates/ to use Default template temporarily",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T04:19:18.378Z",
+      "lastVerified": "2025-11-18T04:19:18.378Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763440158387_2kmdpc91y",
+      "content": "Pillar Camera System Analysis:\n\nOLD SYSTEM (What Worked):\n1. CameraControls from @react-three/drei with fitToBox() functionality\n2. SceneCamera component managed camera positioning automatically\n3. PlaneView component handled viewport-responsive sizing with screenAspect calculations\n4. Store integration: activeItemObject set in PillarColumnItem, used by fitToBox()\n5. Automatic camera framing: triggered on rotation end and canvas resize\n\nCURRENT STATE (What's Broken):\n1. Templates (Tweet, Discord, Warpcast, Website, Video, Image) all disabled PlaneView\n2. All using Default3dContent (simple colored planes)\n3. Scene components (SceneCamera, SceneEffects, SceneListeners) commented out\n4. Using basic OrbitControls instead of CameraControls\n5. fitToBox() exists in sceneStore but camera ref is null\n\nKEY COMPONENTS:\n- /viewer/scene/store.tsx: fitToBox() method exists, needs camera ref\n- /viewer/scene/components/SceneCamera.tsx: CameraControls with freelook mode\n- /viewer/pillar/components/PlaneView.tsx: Viewport sizing logic intact\n- /viewer/pillar/pillar.tsx: Calls fitToBox() on animation end and resize\n\nOLD TWEET TEMPLATE (commit 2a09f69): Used PlaneView with proper media detection, TweetCard for text-only tweets",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "pillar",
+        "camera",
+        "architecture",
+        "research"
+      ],
+      "timestamp": "2025-11-18T04:29:18.387Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-18T05:05:27.571Z",
+      "lastVerified": "2025-11-18T04:29:18.387Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763440518426_nyowma3ty",
+      "content": "Restored Pillar camera controls and viewport-responsive layout system. Re-enabled SceneCamera with CameraControls fitToBox() functionality. Created ContentWrapper component that provides viewport-responsive sizing for all content types. Updated all 6 templates (Tweet, Video, Image, Discord, Warpcast, Website) to use ContentWrapper with PlaneView and CORS-friendly placeholder images from placehold.co. Each template now has distinct colored placeholders for easy identification.",
+      "type": "general",
+      "tags": [
+        "general",
+        "pillar",
+        "camera-controls",
+        "viewport-responsive",
+        "content-wrapper",
+        "templates"
+      ],
+      "timestamp": "2025-11-18T04:35:18.426Z",
+      "context": "Restored camera framing system - viewer/pillar/components/ContentWrapper.tsx and all templates updated",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-18T05:05:27.571Z",
+      "lastVerified": "2025-11-18T04:35:18.426Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763441805457_s8lthnb5q",
+      "content": "Original pillar implementation: Items are stacked vertically with position={[0, i, 0]} where i is itemIndex. This creates 1 unit spacing between planes. PlaneView calculates screenAspect and imageAspect independently - screenAspect uses normalized window dimensions, imageAspect fits image within those bounds. Two separate planes: invisible click target at screenAspect size, visible content plane at imageAspect size. ContentWrapper was added later and duplicates this structure.",
+      "type": "general",
+      "tags": [
+        "general",
+        "pillar",
+        "spacing",
+        "original-implementation",
+        "plane-sizing"
+      ],
+      "timestamp": "2025-11-18T04:56:45.457Z",
+      "context": "Researching original pillar spacing and fitToBox implementation",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T04:56:45.457Z",
+      "lastVerified": "2025-11-18T04:56:45.457Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763441805656_pw2llv3hr",
+      "content": "fitToBox flow: 1) Called in pillar.tsx line 62-63 on canvas resize, 2) Called in pillar.tsx line 78 on rotation onRest callback, 3) Uses activeItemObject from contentStore (set in PillarColumnItem line 34 when item becomes active), 4) sceneStore.fitToBox checks isAnimating flag and requires camera + activeItemObject, 5) Applies padding (1.5 on all sides) to prevent extreme zoom. Critical: fitToBox is already being called after rotation completes - the issue is WHICH object it's framing.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "fitToBox",
+        "camera",
+        "rotation",
+        "timing",
+        "current-implementation"
+      ],
+      "timestamp": "2025-11-18T04:56:45.656Z",
+      "context": "Understanding fitToBox triggering and activeItemObject setting",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T04:56:45.656Z",
+      "lastVerified": "2025-11-18T04:56:45.656Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763442065137_ig1wgea8n",
+      "content": "Fixed Pillar fitToBox to frame specific content planes and eliminated gaps between content. Key changes: 1) PlaneView now sets activeItemObject to the content plane mesh (planeRef) instead of wrapper group. 2) Replaced normalized screenAspect sizing with viewport-based sizing: planeHeight=1.0, planeWidth=planeHeight*(width/height). This makes planes exactly 1 unit tall to fill spacing with no gaps. 3) Removed duplicate activeItemObject logic from ContentWrapper and PillarColumnItem. Single source of truth is now PlaneView. Result: Camera frames exact content after rotation, planes touch perfectly with zero gaps.",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "pillar",
+        "fitToBox",
+        "viewport-sizing",
+        "gap-elimination",
+        "camera-framing"
+      ],
+      "timestamp": "2025-11-18T05:01:05.137Z",
+      "context": "Fixed viewer/pillar/components/PlaneView.tsx, ContentWrapper.tsx, PillarColumnItem.tsx",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T05:01:05.137Z",
+      "lastVerified": "2025-11-18T05:01:05.137Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763442405948_gpdgwmyqo",
+      "content": "CameraControls fitToBox Research Findings:\n\nCORRECT API SIGNATURE:\nfitToBox(box3OrObject: THREE.Box3 | THREE.Object3D, enableTransition: boolean, options?: Partial<FitToOptions>)\n\nOPTIONS INTERFACE (FitToOptions):\n- cover: boolean (default: false) - fills entire screen when true\n- paddingLeft: number (default: 0) - padding in world units\n- paddingRight: number (default: 0)\n- paddingTop: number (default: 0)\n- paddingBottom: number (default: 0)\n\nCURRENT IMPLEMENTATION ISSUE:\nCode passes planeRef.current (a Group) which has dimensions [planeWidth, planeHeight] calculated as:\n- planeHeight = 1.0 (fixed)\n- planeWidth = planeHeight * viewportAspect\n\nPADDING UNITS: Values are in WORLD UNITS not screen pixels. Using 1.5 padding on a 1.0 unit plane means camera backs way out.\n\nLIBRARY VERSION: camera-controls@3.1.2 installed via @react-three/drei@10.7.7\n\nEXAMPLES: Official examples at yomotsu.github.io/camera-controls/examples/fit-and-padding.html show proper usage.",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "api",
+        "camera-controls",
+        "fitToBox",
+        "research",
+        "drei",
+        "three.js"
+      ],
+      "timestamp": "2025-11-18T05:06:45.948Z",
+      "context": "Research on CameraControls fitToBox method for fixing framing issues",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T05:06:45.948Z",
+      "lastVerified": "2025-11-18T05:06:45.948Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763442584083_gyqhfualj",
+      "content": "Fixed fitToBox padding values from 1.5 to 0.1 units. The issue was padding scale mismatch - 1.5 unit padding on 1.0 unit content caused camera to frame 4.0 unit area, making content appear at 25% optimal size. New 0.1 padding (10% of object size) provides comfortable framing while relying on CameraControls' native fitToBox math. This is the correct usage of the API - padding values are in world units, not percentages.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "fitToBox",
+        "camera-controls",
+        "padding-fix"
+      ],
+      "timestamp": "2025-11-18T05:09:44.083Z",
+      "context": "Fixed viewer/scene/store.tsx fitToBox padding from 1.5 to 0.1",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T05:09:44.083Z",
+      "lastVerified": "2025-11-18T05:09:44.083Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-18T02:02:19.582Z"
+  "lastUpdated": "2025-11-18T05:09:44.083Z"
 }
