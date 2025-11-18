@@ -20,9 +20,9 @@ export const useSceneStore = create<SceneStoreState>()((set, get) => ({
     const activeItemObject = useContentStore.getState().activeItemObject
     if(!canvasWidth || !canvasHeight || isAnimating) return
     if(!camera || !activeItemObject) return
-    // Small padding (10% of object size) for comfortable framing
+    // Minimal padding for tight framing
     // Relies on CameraControls' native fitToBox math
-    camera.fitToBox(activeItemObject, true, { paddingTop: 0.1, paddingBottom: 0.1, paddingLeft: 0.1, paddingRight: 0.1 })
+    camera.fitToBox(activeItemObject, true, { paddingTop: 0, paddingBottom: 0, paddingLeft: 0, paddingRight: 0 })
   },
 }))
 
