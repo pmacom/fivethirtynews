@@ -82,7 +82,13 @@ export const Pillar = () => {
     },
     onRest: () => {
       useContentStore.setState({ isAnimating: false })
-      // fitToBox is now called by PlaneView after it sets activeItemObject
+      // After pillar rotation/translation completes, trigger fitToBox
+      // Double RAF ensures PlaneView has set activeItemObject and geometry is ready
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          useSceneStore.getState().fitToBox()
+        })
+      })
     }
   })
 

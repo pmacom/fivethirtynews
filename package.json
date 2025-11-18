@@ -46,6 +46,8 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.0",
     "@react-three/postprocessing": "^3.0.4",
+    "@react-three/uikit": "^1.0.59",
+    "@react-three/uikit-default": "^1.0.59",
     "@supabase/ssr": "^0.7.0",
     "@types/three": "^0.181.0",
     "class-variance-authority": "^0.7.1",

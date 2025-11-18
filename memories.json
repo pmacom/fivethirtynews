@@ -605,7 +605,119 @@
       "lastAccessed": "2025-11-18T14:26:11.307Z",
       "lastVerified": "2025-11-18T14:26:11.307Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763476719079_awpbgxik4",
+      "content": "FiveThirty viewer uses viewport-based dynamic sizing system:\n- PlaneView calculates screenAspect from viewport width/height (planeHeight=1.0, planeWidth=height*viewportAspect)\n- imageAspect is calculated from actual content dimensions (normalized to max dimension = 1.0)\n- Camera uses CameraControls with fitToBox() to frame active content\n- fitToBox operates on activeItemObject (the content plane mesh) with small padding (0.03)\n- Scene uses PerspectiveCamera at [0,0,0] with OrbitControls disabled by default\n- Content is positioned in vertical columns with 1-unit spacing between slides",
+      "type": "general",
+      "tags": [
+        "general",
+        "fivethirty",
+        "viewer",
+        "camera",
+        "sizing",
+        "architecture"
+      ],
+      "timestamp": "2025-11-18T14:38:39.079Z",
+      "context": "Research for @pmndrs/uikit integration - documenting current implementation",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T14:38:39.079Z",
+      "lastVerified": "2025-11-18T14:38:39.079Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763476719314_zt3kuf7ud",
+      "content": "@pmndrs/uikit key features for FiveThirty integration:\n- Flexbox-based layout system (Yoga engine) with familiar CSS properties\n- Container component for rectangular panels with sizeX/sizeY or width/height props\n- Image/Video components with automatic aspectRatio preservation and objectFit (fill/cover)\n- Content component for nesting Three.js meshes within flexbox layout (supports depthAlign, keepAspectRatio)\n- Hover/active interactive states without manual state management\n- Instanced rendering for performance (described as \"very performant\")\n- NOT currently installed in package.json - needs: @react-three/uikit @react-three/uikit-default",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "fivethirty",
+        "uikit",
+        "integration",
+        "dependencies"
+      ],
+      "timestamp": "2025-11-18T14:38:39.314Z",
+      "context": "Research findings about @pmndrs/uikit capabilities",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T14:38:39.314Z",
+      "lastVerified": "2025-11-18T14:38:39.314Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763484749849_hsm2yoq0v",
+      "content": "UIKit Integration Phase 1 Complete:\n- Installed @react-three/uikit and @react-three/uikit-default packages\n- Configured Canvas with gl={{ localClippingEnabled: true }} in viewer/scene/scene.tsx\n- Added DefaultProperties theme provider wrapper in Canvas\n- Created TweetUIKit.tsx prototype template using Container/Text components\n- Integrated TweetUIKit into TemplateSwitcher for Twitter content\n- Server compiles successfully with no errors\n- Ready to test fitToBox compatibility with UIKit Container refs",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "uikit",
+        "phase1",
+        "twitter",
+        "template"
+      ],
+      "timestamp": "2025-11-18T16:52:29.849Z",
+      "context": "FiveThirty viewer UIKit integration - Phase 1 Foundation Setup completed",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T16:52:29.849Z",
+      "lastVerified": "2025-11-18T16:52:29.849Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763485031470_09yag6bl8",
+      "content": "UIKit Integration Error Fix:\n- Error: \"Only pmndrs/uikit components can be added as children to this component. Got AmbientLight instead.\"\n- Root cause: DefaultProperties was wrapping all Canvas children including Three.js components (ambientLight, SceneCamera, etc.)\n- Solution: Moved DefaultProperties from scene.tsx to TweetUIKit.tsx component\n- DefaultProperties now only wraps UIKit Container/Text components\n- Canvas remains with gl={{ localClippingEnabled: true }} for UIKit clipping support\n- Server compiles without errors after fix",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "uikit",
+        "error",
+        "fix",
+        "defaultproperties"
+      ],
+      "timestamp": "2025-11-18T16:57:11.470Z",
+      "context": "Fixed UIKit DefaultProperties scope issue",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T16:57:11.470Z",
+      "lastVerified": "2025-11-18T16:57:11.470Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763485231255_7c0gdg8ek",
+      "content": "UIKit Architecture Fix - Component Hierarchy:\n- Error: \"Got Group instead\" - UIKit Container cannot have Three.js Group/Mesh as children\n- Solution: PlaneView and UIKit Container are siblings, not parent-child\n- Architecture:\n  - ContentWrapper contains both PlaneView and UIKit Container\n  - PlaneView (Three.js) handles image/video rendering and fitToBox\n  - UIKit Container positioned absolutely as overlay for text metadata\n  - DefaultProperties only wraps UIKit components\n- This hybrid approach keeps Three.js and UIKit hierarchies separate\n- PlaneView maintains existing fitToBox functionality\n- UIKit provides text overlays on top of rendered content",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "uikit",
+        "architecture",
+        "hierarchy",
+        "fix"
+      ],
+      "timestamp": "2025-11-18T17:00:31.255Z",
+      "context": "Fixed UIKit component hierarchy - siblings not parent-child",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T17:00:31.255Z",
+      "lastVerified": "2025-11-18T17:00:31.255Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763485777332_mnzsvmuk6",
+      "content": "Pillar Animation + fitToBox Coordination Fix:\n- Problem: fitToBox was called immediately when item became active, but pillar was still animating\n- Solution: Moved fitToBox call to pillar's onRest callback after animation completes\n- Changes:\n  1. pillar.tsx:83-92 - Added fitToBox call in onRest (after 2s animation)\n  2. PlaneView.tsx:92-98 - Removed immediate fitToBox call, only sets activeItemObject\n  3. Uses double RAF to ensure geometry is ready before fitToBox\n- Flow: Select item → Pillar animates (rotation + translation) → Animation completes → fitToBox frames the item\n- CameraControls.fitToBox() uses official OrbitControls implementation with 3% padding",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "pillar",
+        "animation",
+        "fittobox",
+        "coordination",
+        "camera"
+      ],
+      "timestamp": "2025-11-18T17:09:37.332Z",
+      "context": "Fixed pillar animation and camera fitToBox coordination",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T17:09:37.332Z",
+      "lastVerified": "2025-11-18T17:09:37.332Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-18T14:26:38.612Z"
+  "lastUpdated": "2025-11-18T17:09:37.332Z"
 }

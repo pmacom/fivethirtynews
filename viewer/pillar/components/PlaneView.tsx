@@ -89,14 +89,11 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
   // This works correctly even when component remounts (e.g., from SafePlaneView error boundary)
   const planeRef = useRef<THREE.Mesh>(null)
 
-  // Set activeItemObject and trigger fitToBox whenever this becomes the active slide
+  // Set activeItemObject whenever this becomes the active slide
+  // fitToBox is now called by pillar.tsx after rotation animation completes
   useEffect(() => {
     if (active && planeRef.current) {
       useContentStore.setState({ activeItemObject: planeRef.current })
-      // Use requestAnimationFrame to ensure state update completes before fitToBox
-      requestAnimationFrame(() => {
-        useSceneStore.getState().fitToBox()
-      })
     }
   }, [active])
 

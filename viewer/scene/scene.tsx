@@ -19,7 +19,7 @@ function Scene({ children }: SceneProps) {
 
   return (
     <div className="w-screen h-screen bg-slate-900">
-      <Canvas>
+      <Canvas gl={{ localClippingEnabled: true }}>
         <PerspectiveCamera position={[0, 0, 0]} />
 
         <SceneCamera />
