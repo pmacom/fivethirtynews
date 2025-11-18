@@ -113,9 +113,9 @@ export const Pillar = () => {
   return (
     <animated.group rotation-y={rotationY} position-y={positionY}>
       {cols}
-      {/* <group ref={logoRef} scale={10} position={[0, height, 0]} rotation={[0, 0, 0]}>
+      <group ref={logoRef} scale={.3} position={[0, 0, 0]} rotation={[0, 0, 0]}>
         <Logo530 />
-      </group> */}
+      </group>
     </animated.group>
   )
 }
