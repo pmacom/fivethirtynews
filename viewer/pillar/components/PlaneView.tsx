@@ -144,11 +144,11 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
       let imgHeight = imageTexture.image.height / dimension
       setImageSize([imgWidth, imgHeight])
 
-      // Set imageAspect to the normalized image size
-      // This ensures the plane geometry matches the actual content dimensions
-      setImageAspect([imgWidth, imgHeight])
+      // Use viewport aspect ratio for all content planes
+      // This ensures the plane geometry always matches the browser viewport
+      setImageAspect(screenAspect)
     }
-  }, [imageTexture])
+  }, [imageTexture, screenAspect])
 
   const onClick = useCallback((event: ThreeEvent<MouseEvent>) => {
     if(_onClick && screenRef && screenRef.current) _onClick(screenRef.current)
@@ -221,8 +221,9 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
           const height = video.videoHeight / videoDimension
           setImageSize([width, height])
 
-          // Set imageAspect to match video dimensions
-          setImageAspect([width, height])
+          // Use viewport aspect ratio for all content planes
+          // This ensures the plane geometry always matches the browser viewport
+          setImageAspect(screenAspect)
         }
 
         // Store video duration in ContentStore for VideoBar
