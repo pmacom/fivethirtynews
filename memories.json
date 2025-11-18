@@ -882,7 +882,41 @@
       "lastAccessed": "2025-11-18T19:34:44.197Z",
       "lastVerified": "2025-11-18T19:34:44.197Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763502143579_dsy5xfzua",
+      "content": "Pillar cylinder geometry calculation:\n- Radius formula: R = 0.5 / sin(π / N) where N = number of categories/columns\n- Location: /Users/patrickmacom/MainQuests/530News/fivethirty/viewer/pillar/pillar.tsx lines 43-46\n- Current implementation uses 0.5 as the half-width\n- Plane width is calculated as: planeHeight * viewportAspect (line 121 in PlaneView.tsx)\n- planeHeight is fixed at 1.0 (line 119 in PlaneView.tsx)\n- So plane width = 1.0 * (viewport width / viewport height)\n\nProblem: The radius formula uses 0.5 (hardcoded) instead of using the actual planeWidth/2. This means the radius doesn't adapt to the viewport aspect ratio, causing planes to potentially overlap on wide screens or have gaps on narrow screens.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "pillar",
+        "geometry",
+        "radius-calculation",
+        "viewport"
+      ],
+      "timestamp": "2025-11-18T21:42:23.579Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T21:42:23.579Z",
+      "lastVerified": "2025-11-18T21:42:23.579Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763502562524_cliu479i6",
+      "content": "Pillar rotation issue: The rotation uses absolute angles (selectedPlaneAngle - angleOffset) without considering shortest path. When camera is moved manually with orbit controls and user clicks a plane, the pillar always rotates to the absolute angle, which may cause it to spin the long way around (e.g., rotating 270° instead of -90°). No angle normalization or shortest-path calculation exists. The fitToBox() camera adjustment happens AFTER rotation completes, but doesn't influence the rotation path itself.",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "pillar-rotation",
+        "animation-bug",
+        "angle-calculation"
+      ],
+      "timestamp": "2025-11-18T21:49:22.524Z",
+      "context": "Analysis of why pillar cylinder rotates poorly after manual camera movement in fivethirty project",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-18T21:49:22.524Z",
+      "lastVerified": "2025-11-18T21:49:22.524Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-18T19:34:44.197Z"
+  "lastUpdated": "2025-11-18T21:49:22.524Z"
 }

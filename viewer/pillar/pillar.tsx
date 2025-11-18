@@ -42,8 +42,13 @@ export const Pillar = () => {
 
   const radius = useMemo(() => {
     if (!contents || contents.length === 0) return 0
-    return 0.5 / Math.sin(Math.PI / contents.length)
-  }, [contents])
+    // Calculate radius based on actual viewport-based plane width
+    // This ensures planes touch but don't overlap
+    const viewportAspect = canvasWidth / canvasHeight
+    const planeWidth = 1.0 * viewportAspect  // matches PlaneView sizing
+    const halfWidth = planeWidth / 2
+    return halfWidth / Math.sin(Math.PI / contents.length)
+  }, [contents, canvasWidth, canvasHeight])
 
   const angleStep = useMemo(() => {
     if (!contents || contents.length === 0) return 0
