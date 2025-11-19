@@ -19,6 +19,7 @@ export const Pillar = () => {
   const { size: { width: canvasWidth, height: canvasHeight } } = useThree()
   const episodeId = useContentStore(state => state.episodeId)
   const logoRef = useRef<Group>(null)
+  const hasFetchedRef = useRef(false)
 
   // useEffect(() => {
   //   if(!episodeId) return
@@ -26,6 +27,9 @@ export const Pillar = () => {
   // }, [episodeId])
 
   useEffect(() => {
+    // Prevent duplicate fetches in StrictMode
+    if (hasFetchedRef.current) return
+    hasFetchedRef.current = true
     useContentStore.getState().fetchLatestEpisode()
   }, [])
 

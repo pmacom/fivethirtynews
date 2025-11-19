@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { CameraControls } from "@react-three/drei";
 import * as THREE from 'three';
 import { useContentStore } from '../core/store/contentStore';
+import logger from '../utils/logger';
 
 interface SceneStoreState {
   camera: CameraControls | null
@@ -25,7 +26,7 @@ export const useSceneStore = create<SceneStoreState>()((set, get) => ({
     if(!camera || !activeItemObject) return
 
     // Debug logging to verify correct object is being framed
-    console.log('fitToBox called:', {
+    logger.debug('fitToBox called:', {
       activeItemId,
       objectUuid: activeItemObject.uuid,
       localPosition: activeItemObject.position.toArray(),

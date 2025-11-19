@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { shaderMaterial } from "@react-three/drei";
 import { useContentStore } from '../../core/store/contentStore';
 import { useSceneStore } from '../../scene/store';
+import logger from '../../utils/logger';
 
 
 // Extend JSX.IntrinsicElements to include fadeShaderMaterial
@@ -145,7 +146,7 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
       (loader as THREE.TextureLoader).crossOrigin = 'anonymous';
     },
     (error) => {
-      console.warn('Failed to load texture:', url, error);
+      logger.warn('Failed to load texture:', url, error);
     }
   )
 
@@ -221,7 +222,7 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
       useContentStore.setState({ isContentVideo: true });
 
       video.play().catch((error) => {
-        console.error('Video playback failed:', error);
+        logger.warn('Video playback failed:', error);
       });
 
       // Update the aspect ratio and duration based on video metadata
@@ -240,7 +241,7 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
         // Store video duration in ContentStore for VideoBar
         if (isFinite(video.duration)) {
           useContentStore.setState({ videoDuration: video.duration });
-          console.log('Video metadata loaded - Duration:', video.duration);
+          logger.debug('Video metadata loaded - Duration:', video.duration);
         }
       };
 

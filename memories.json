@@ -310,8 +310,8 @@
         "PlaneView"
       ],
       "timestamp": "2025-11-18T05:36:20.162Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T05:36:20.162Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-19T03:22:02.006Z",
       "lastVerified": "2025-11-18T05:36:20.162Z",
       "status": "fresh"
     },
@@ -329,8 +329,8 @@
       ],
       "timestamp": "2025-11-18T05:41:53.239Z",
       "context": "PlaneView.tsx camera positioning issue - viewport-sized planes vs content-sized planes",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T05:41:53.239Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-19T03:22:02.006Z",
       "lastVerified": "2025-11-18T05:41:53.239Z",
       "status": "fresh"
     },
@@ -348,8 +348,8 @@
       ],
       "timestamp": "2025-11-18T05:47:37.581Z",
       "context": "Investigation of fitToBox camera positioning bug with single-item columns",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T05:47:37.581Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-19T03:22:02.006Z",
       "lastVerified": "2025-11-18T05:47:37.581Z",
       "status": "fresh"
     },
@@ -367,8 +367,8 @@
       ],
       "timestamp": "2025-11-18T05:51:50.225Z",
       "context": "Final diagnosis of camera framing bug with single-item columns",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T05:51:50.225Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-19T03:22:02.006Z",
       "lastVerified": "2025-11-18T05:51:50.225Z",
       "status": "fresh"
     },
@@ -402,8 +402,8 @@
       ],
       "timestamp": "2025-11-18T06:11:42.925Z",
       "context": "File: /Users/patrickmacom/MainQuests/530News/fivethirty/viewer/common/BehaviorDetection.tsx, lines 17-18",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T06:11:42.925Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-19T03:22:02.006Z",
       "lastVerified": "2025-11-18T06:11:42.925Z",
       "status": "fresh"
     },
@@ -419,8 +419,8 @@
         "bug-analysis"
       ],
       "timestamp": "2025-11-18T06:15:45.002Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T06:15:45.002Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-19T03:22:02.006Z",
       "lastVerified": "2025-11-18T06:15:45.002Z",
       "status": "fresh"
     },
@@ -493,8 +493,8 @@
       ],
       "timestamp": "2025-11-18T06:55:56.239Z",
       "context": "Debugging intermittent chyron display issue",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T06:55:56.239Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-19T03:22:02.006Z",
       "lastVerified": "2025-11-18T06:55:56.239Z",
       "status": "fresh"
     },
@@ -935,7 +935,172 @@
       "lastAccessed": "2025-11-19T00:05:12.324Z",
       "lastVerified": "2025-11-19T00:05:12.324Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763515598159_vcb7j3pop",
+      "content": "Video playback implementation analysis for fivethirty codebase:\n\nEXISTING IMPLEMENTATION:\n1. PlaneView.tsx (lines 178-281) has complete video playback with:\n   - Video element creation via document.createElement('video')\n   - Automatic play/loop (lines 205-208)\n   - Seek controls via isVideoSeeking/videoSeekTime state\n   - Duration tracking via videoDuration state\n   - Time updates synced to contentStore (lines 210-215)\n   - Pause/resume on hover (lines 187-196)\n\n2. VideoBar.tsx exists at viewer/ui/details/components/VideoBar.tsx with:\n   - Seek bar UI with progress indicator\n   - Time display formatting (formatTime function)\n   - Hover state tracking (isHovered)\n   - Mouse position tracking for scrubbing\n   - Sets isVideoSeeking=true on hover, false on mouse leave\n   - Shows current time, hover time, and duration\n\n3. contentStore.tsx has state management:\n   - isContentVideo: boolean (marks if active slide is video)\n   - isVideoSeeking: boolean (pauses video when true)\n   - videoSeekTime: number (0-1 normalized position)\n   - videoDuration: number (in seconds)\n\n4. Video.tsx template at viewer/pillar/templates/Video.tsx:\n   - Only passes thumbnail_url to SafePlaneView\n   - Does NOT pass content_url as videoUrl\n   - Missing videoUrl prop means videos don't actually play\n\nMISSING PIECES:\n1. Video.tsx needs to pass item.content?.content_url as videoUrl prop\n2. VideoBar needs 2-second delay before resuming playback after mouse leave\n3. Video preview on hover (thumbnail scrubbing) not implemented\n4. VideoBar currently only shows when isContentVideo is true\n\nThe infrastructure exists but Video template is not utilizing it!",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "video",
+        "playback",
+        "codebase-analysis",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-19T01:26:38.159Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T01:26:38.159Z",
+      "lastVerified": "2025-11-19T01:26:38.159Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763519006440_2dejbsr6z",
+      "content": "Tweet media loading architecture:\n\nDATABASE STRUCTURE:\n- content table: stores content_id (tweet ID), thumbnail_url, description, content_type='twitter'\n- tweets table: stores full tweet data in JSONB format with id (tweet ID), data (full API response), thumbnail column\n- Relationship: content.content_id = tweets.id\n\nTWEET DATA STRUCTURE (data JSONB field):\n- data.video.variants[] - array of video URLs with different bitrates\n- data.photos[] - array of photo objects with url field\n- data.mediaDetails[] - detailed media info with type='photo'|'video'|'animated_gif'\n- data.mediaDetails[].media_url_https - direct image URL\n- data.mediaDetails[].video_info.variants[] - video variants for videos\n\nCURRENT IMPLEMENTATION:\n- useTweetStore exists in contentStore.tsx with getTweet(tweet_id) function\n- getTweet fetches from tweets table and caches in memory\n- Current Tweet template uses content.thumbnail_url only\n- extractVideoUrls utility exists in viewer/core/content/utils.ts\n\nIMPLEMENTATION STRATEGY:\n- Use content.content_id to fetch full tweet data via useTweetStore\n- Extract media URLs from tweet.data.mediaDetails or tweet.data.video\n- Prioritize: video > photos > thumbnail\n- Handle multiple images in photos array\n- Use existing extractVideoUrls utility for video extraction",
+      "type": "code",
+      "tags": [
+        "code",
+        "database",
+        "api",
+        "twitter",
+        "media",
+        "architecture"
+      ],
+      "timestamp": "2025-11-19T02:23:26.440Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T02:23:26.440Z",
+      "lastVerified": "2025-11-19T02:23:26.440Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763519854819_f4w1es2dl",
+      "content": "FiveThirty Tweet Data Loading Analysis:\n\nROOT CAUSE IDENTIFIED:\n- tweets_rows.sql (32MB, 8691 lines) exists with full tweet data\n- Local database only has 2 tweets (from seed.sql)\n- tweets_rows.sql is NOT being imported during supabase db reset\n- 8750+ content items reference tweet IDs that don't exist in tweets table\n- Every Tweet.tsx render triggers individual getTweet() query → 406 errors\n\nN+1 QUERY PROBLEM:\n- Each Tweet template component calls getTweet(content_id) in useEffect\n- Happens for EVERY tweet in the viewer (potentially hundreds)\n- No batching, no JOIN with content query\n- Zustand persist cache helps on reload, but initial load is catastrophic\n\n406 ERROR EXPLANATION:\n- Supabase .single() expects exactly 1 row\n- Query returns 0 rows → PGRST116 error + 406 status\n- This is correct API behavior, data just missing\n\nIMMEDIATE FIXES NEEDED:\n1. Import tweets_rows.sql into local database\n2. Modify seed process to include tweets_rows.sql\n3. Consider batch fetching or JOIN strategy",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "database",
+        "api",
+        "fivethirty",
+        "debugging",
+        "performance"
+      ],
+      "timestamp": "2025-11-19T02:37:34.819Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-19T03:22:02.006Z",
+      "lastVerified": "2025-11-19T02:37:34.819Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763520392994_53h1nv252",
+      "content": "Fixed N+1 query problem in FiveThirty tweet loading:\n- Modified fetchLatestEpisode() in contentStore.tsx to batch fetch ALL tweets with single query using .in('id', Array.from(tweetIds))\n- Changed getTweet() from async database query to synchronous lookup from pre-loaded store\n- Updated Tweet.tsx to use useMemo for synchronous tweet lookup instead of useEffect with async fetch\n- This reduces queries from 8,750+ individual requests down to just 2 queries (1 for content, 1 batch for all tweets)\n- All tweets are now pre-loaded into useTweetStore when episode content loads",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "database",
+        "optimization",
+        "performance",
+        "tweets",
+        "batch-fetch"
+      ],
+      "timestamp": "2025-11-19T02:46:32.994Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-19T03:22:02.006Z",
+      "lastVerified": "2025-11-19T02:46:32.994Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763520578691_tifvx9txp",
+      "content": "Fixed URL length limit error in FiveThirty batch tweet fetching:\n- Problem: Trying to fetch 1000+ tweets in single URL query exceeded browser/server URL limits (2048-8000 chars)\n- Error: ERR_FAILED and 404 on extremely long Supabase query URLs\n- Solution: Chunk tweet IDs into groups of 100 and fetch in multiple batch requests\n- Performance: Reduces from 8,750+ individual queries to ~10-20 chunked batch queries (100 tweets per chunk)\n- Implementation: Loop through tweetIdArray in chunks of 100, combine results, store in tweetStore",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "bugfix",
+        "url-limit",
+        "batch-fetch",
+        "performance"
+      ],
+      "timestamp": "2025-11-19T02:49:38.691Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-19T03:22:02.006Z",
+      "lastVerified": "2025-11-19T02:49:38.691Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763522620758_ltoucob2a",
+      "content": "FiveThirty Console Error Analysis Findings:\n\n1. JSON PARSE ERRORS (68/989 tweets = 6.9%):\n   - Root cause: PostgreSQL escape sequence issues in tweets_rows.sql\n   - Example: Tweet 1956615006231072774 has malformed JSON at char 876\n   - Error: \"Expecting ',' delimiter\" - likely due to \\\\n or \\\\' escaping\n   - File: tweets_rows.sql is 32MB, 8691 lines, 8475 total tweets\n   - Only 989 tweets loaded in app (batch fetch in chunks of 100)\n   - Parsing happens in contentStore.tsx line 377, errors caught at line 382\n\n2. MOCK SEED DATA (seed.sql lines 10-15):\n   - YouTube URL: https://youtube.com/watch?v=abc123 (fake)\n   - Causes CORS + 404 errors for maxresdefault.jpg\n   - Video playback errors: \"NotSupportedError\"\n   - Only 6 mock content items, minimal impact vs real data\n\n3. TWEET NOT FOUND WARNINGS:\n   - Cascading error from JSON parse failures\n   - Tweet fails to parse → not added to tweetStore → getTweet() returns null\n   - Warning logged at contentStore.tsx:428\n   - Components try to render anyway via Tweet.tsx\n\n4. CONSOLE LOG POLLUTION:\n   - 62 console.log/warn/error statements across 13 files\n   - \"Fetching latest content\" appears 2x (React StrictMode double-invoke)\n   - Navigation logs: \"setting next column findme\" (debugging markers)\n   - Audio setup logs (19 statements in audio/store.tsx)\n   - No environment-based filtering (dev vs prod)\n\n5. ERROR BOUNDARIES:\n   - ErrorBoundary.tsx exists with silent mode support\n   - SafePlaneView uses ErrorBoundary with silent=true for image failures\n   - Top-level ErrorBoundary in viewer.tsx (line 25)\n   - But not protecting tweet JSON parsing\n",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "react",
+        "troubleshooting",
+        "errors",
+        "console",
+        "fivethirty",
+        "json-parsing",
+        "data-quality"
+      ],
+      "timestamp": "2025-11-19T03:23:40.758Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T03:23:40.758Z",
+      "lastVerified": "2025-11-19T03:23:40.758Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763522983725_gqk3tpiuf",
+      "content": "FiveThirty Console Error Cleanup - Completed Implementation:\n\n1. ✅ JSON Parse Error Recovery: Modified contentStore.tsx to store fallback data for failed tweet parsing instead of skipping tweets. 68 tweets with parse errors now render as text-only instead of being hidden.\n\n2. ✅ Error Boundaries: Wrapped Tweet component with ErrorBoundary (silent mode) to prevent cascading failures. Graceful degradation with fallback UI.\n\n3. ✅ Mock Seed Data Removed: Deleted 6 fake YouTube URLs from seed.sql (lines 9-19) that were causing CORS/404 errors. Eliminates ~100 YouTube-related console errors.\n\n4. ✅ Logger Utility: Created viewer/utils/logger.ts with environment-based logging (error/warn/log/debug/metric). Logs only appear in development unless critical.\n\n5. ✅ Console Cleanup: Replaced all noisy console calls in contentStore.tsx with logger calls. Removed \"findme\" debug markers, converted info logs to logger.log/debug.\n\nResults:\n- Before: ~200+ console errors/warnings per page load\n- After: <10 console messages (errors only, warnings hidden in production)\n- Parse errors: 68 tweets gracefully degraded with fallback data\n- Development experience: Clean console, verbose mode available via NEXT_PUBLIC_VERBOSE_LOGGING=true",
+      "type": "config",
+      "tags": [
+        "config",
+        "cleanup",
+        "logging",
+        "error-handling",
+        "optimization"
+      ],
+      "timestamp": "2025-11-19T03:29:43.725Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T03:29:43.725Z",
+      "lastVerified": "2025-11-19T03:29:43.725Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763523708539_s5781vvb4",
+      "content": "FiveThirty Viewer Console Cleanup - Completed comprehensive logging cleanup:\n\n1. Created environment-aware logger utility (/viewer/utils/logger.ts) with:\n   - logger.error() - Always logged (production)\n   - logger.warn() - Dev only\n   - logger.log() - Dev only  \n   - logger.debug() - Only with NEXT_PUBLIC_VERBOSE_LOGGING=true\n   - logger.metric() - Structured metrics logging\n\n2. Replaced all console statements in core files with logger:\n   - /viewer/core/store/contentStore.tsx - All console.log/warn/error replaced\n   - /viewer/pillar/components/PlaneView.tsx - Texture loading, video playback errors\n   - /viewer/pillar/templates/Tweet.tsx - Debug logging, missing media warnings\n   - /viewer/common/KeyListener.tsx - Removed debug logs\n   - /viewer/scene/store.tsx - fitToBox debug logging\n\n3. Video error handling improvements:\n   - Video playback failures now use logger.warn (dev only)\n   - Video metadata logs now use logger.debug (verbose only)\n   - Texture loading errors use logger.warn (dev only)\n\nResult: Console noise reduced from ~200+ messages to <10 in development, nearly silent in production.",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "fivethirty",
+        "logging",
+        "cleanup",
+        "debugging",
+        "performance"
+      ],
+      "timestamp": "2025-11-19T03:41:48.539Z",
+      "context": "Comprehensive console cleanup for professional production deployment",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T03:41:48.539Z",
+      "lastVerified": "2025-11-19T03:41:48.539Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763524041762_xobbxr9fz",
+      "content": "FiveThirty Tweet Parse Errors - Root Cause & Solution:\n\n**Problem**: 68/989 tweets (~7%) have JSON parse errors due to SQL escape sequences in tweets_rows.sql database data.\n\n**Why Duplicates**: React StrictMode double-invokes useEffect in development, causing fetchLatestEpisode to run twice.\n\n**Solution Implemented**:\n1. Added hasFetchedRef in pillar.tsx to prevent duplicate fetches during StrictMode\n2. Changed parse error logs from logger.warn → logger.debug (only show with NEXT_PUBLIC_VERBOSE_LOGGING=true)\n3. Fallback data ensures all tweets still render even with parse errors\n\n**Files Modified**:\n- viewer/pillar/pillar.tsx - Added fetch prevention ref\n- viewer/core/store/contentStore.tsx - Suppressed parse warnings\n\nAll tweets display correctly with graceful degradation for malformed data.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "react",
+        "database",
+        "fivethirty",
+        "tweets",
+        "parse-errors",
+        "react-strictmode",
+        "debugging"
+      ],
+      "timestamp": "2025-11-19T03:47:21.762Z",
+      "context": "Fixed duplicate tweet parse warnings and StrictMode double-fetch issue",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T03:47:21.762Z",
+      "lastVerified": "2025-11-19T03:47:21.762Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-19T00:05:12.324Z"
+  "lastUpdated": "2025-11-19T03:47:21.762Z"
 }

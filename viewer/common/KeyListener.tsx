@@ -27,24 +27,18 @@ export const KeyListener = ({ enabled = true, children, onKeyLeft, onKeyRight, o
 
       // e.preventDefault();
 
-      console.log('THIS IS A TEST', hovered ? 'Hovered' : 'Not Hovered');
       // if (!hovered) return;  // Only proceed if the element is hovered
 
       const key = e.key;
       if (key === 'ArrowLeft') {
-        console.log('Arrow Left', onKeyLeft)
         onKeyLeft?.();
       } else if (key === 'ArrowRight') {
-        console.log('Arrow Right', onKeyRight)
         onKeyRight?.();
       } else if (key === ' ') {
-        console.log('Space Pressed')
         onKeySpace?.();
       } else if (key === 'ArrowDown') {
-        console.log('Arrow Down')
         onKeyDown?.();
       } else if (key === 'ArrowUp') {
-        console.log('Arrow Up')
         onKeyUp?.();
       }
 

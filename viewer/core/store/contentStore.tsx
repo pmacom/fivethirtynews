@@ -5,6 +5,7 @@ import { supabase } from "@/utils/supabase/client";
 import { Group } from "three";
 import { WTF_CONFIG } from "../../config";
 import Viewer from "../../viewer";
+import logger from "../../utils/logger";
 
 interface ContentStoreState {
   episodeId: string | null;
@@ -73,7 +74,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
     const nextCategoryId = categoryIds[nextCategoryIndex];
     const firstItemInNextCategory = itemIds[nextCategoryIndex][0];
 
-    console.log('setting next column findme');
+    logger.debug('Setting next column', { nextCategoryIndex, nextCategoryId });
     set({
       activeCategoryIndex: nextCategoryIndex,
       activeCategoryId: nextCategoryId,
@@ -87,7 +88,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
     const prevCategoryIndex = (activeCategoryIndex - 1 + categoryIds.length) % categoryIds.length;
     const prevCategoryId = categoryIds[prevCategoryIndex];
     const lastItemInPrevCategory = itemIds[prevCategoryIndex][itemIds[prevCategoryIndex].length - 1];
-    console.log('setting prev column findme');
+    logger.debug('Setting prev column', { prevCategoryIndex, prevCategoryId });
     set({
       activeCategoryIndex: prevCategoryIndex,
       activeCategoryId: prevCategoryId,
@@ -102,7 +103,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
 
     if (activeItemIndex < currentCategoryItems.length - 1) {
       const nextItemId = currentCategoryItems[activeItemIndex + 1];
-      console.log('setting next item findme');
+      logger.debug('Setting next item', { nextItemId });
       set({
         activeItemIndex: activeItemIndex + 1,
         activeItemId: nextItemId
@@ -118,7 +119,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
 
     if (activeItemIndex > 0) {
       const prevItemId = itemIds[activeCategoryIndex][activeItemIndex - 1];
-      console.log('setting prev item findme');
+      logger.debug('Setting prev item', { prevItemId });
       set({
         activeItemIndex: activeItemIndex - 1,
         activeItemId: prevItemId
@@ -143,7 +144,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
       .order('weight', { ascending: true });
 
     if (error) {
-      console.error('Error fetching data:', error);
+      logger.error('Error fetching data:', error);
       return;
     }
 
@@ -181,7 +182,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
               },
             };
           } catch (error) {
-            console.error('Invalid URL:', error);
+            logger.error('Invalid URL:', error);
             return item; // Return the original item if there's an error
           }
         }
@@ -208,9 +209,9 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   },
 
   nextSlide() {
-    console.log('Next Slide');
+    logger.debug('Next Slide');
     const { maxIndex, activeSlideIndex } = get();
-    console.log('Next Slide', maxIndex, activeSlideIndex);
+    logger.debug('Next Slide', maxIndex, activeSlideIndex);
     if (maxIndex !== null && activeSlideIndex !== null) {
       const nextIndex = (activeSlideIndex + 1) > maxIndex ? 0 : activeSlideIndex + 1;
       set({ activeSlideIndex: nextIndex });
@@ -218,9 +219,9 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   },
 
   prevSlide() {
-    console.log('Prev Slide');
+    logger.debug('Prev Slide');
     const { maxIndex, activeSlideIndex } = get();
-    console.log('Prev Slide', maxIndex, activeSlideIndex);
+    logger.debug('Prev Slide', maxIndex, activeSlideIndex);
     if (maxIndex !== null && activeSlideIndex !== null) {
       const prevIndex = (activeSlideIndex - 1) < 0 ? maxIndex : activeSlideIndex - 1;
       set({ activeSlideIndex: prevIndex });
@@ -228,7 +229,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   },
 
   fetchLatestEpisode: async () => {
-    console.log('Fetching latest content by category')
+    logger.debug('Fetching latest content by category')
 
     try {
       // Get all content with categories
@@ -239,12 +240,12 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
         .order('submitted_at', { ascending: false });
 
       if (contentError) {
-        console.error('Error fetching content:', contentError);
+        logger.error('Error fetching content:', contentError);
         return;
       }
 
       if (!allContent || allContent.length === 0) {
-        console.warn('No content found');
+        logger.warn('No content found');
         return;
       }
 
@@ -317,7 +318,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
                 },
               };
             } catch (error) {
-              console.error('Invalid URL:', error);
+              logger.error('Invalid URL:', error);
               return item;
             }
           }
@@ -333,7 +334,73 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
       const categoryTitles = processedData.map(block => block.title);
       const itemTitles = processedData.map(block => block.content_block_items.map(item => item.note));
 
-      console.log(`Loaded ${contentBlocks.length} categories with content`);
+      logger.log(`Loaded ${contentBlocks.length} categories with content`);
+
+      // BATCH FETCH ALL TWEETS (reduces N+1 queries)
+      // Extract all tweet IDs from content items
+      const tweetIds = new Set<string>();
+      for (const item of allContent) {
+        if (item.content_type === 'twitter' && item.content_id) {
+          tweetIds.add(item.content_id);
+        }
+      }
+
+      // Batch query tweets in chunks to avoid URL length limits
+      if (tweetIds.size > 0) {
+        logger.log(`Batch fetching ${tweetIds.size} tweets in chunks...`);
+        const tweetIdArray = Array.from(tweetIds);
+        const chunkSize = 100; // Fetch 100 tweets per request
+        const allTweets: any[] = [];
+
+        // Split tweet IDs into chunks and fetch each chunk
+        for (let i = 0; i < tweetIdArray.length; i += chunkSize) {
+          const chunk = tweetIdArray.slice(i, i + chunkSize);
+          const { data: tweets, error: tweetsError } = await supabase
+            .from('tweets')
+            .select('*')
+            .in('id', chunk);
+
+          if (tweetsError) {
+            logger.error(`Error fetching tweet chunk ${i / chunkSize + 1}:`, tweetsError);
+          } else if (tweets) {
+            allTweets.push(...tweets);
+          }
+        }
+
+        // Store all tweets in tweetStore for synchronous lookup
+        // Parse JSON data field since it's stored as TEXT
+        const tweetMap: {[key: string]: any} = {};
+        let parseErrors = 0;
+        for (const tweet of allTweets) {
+          try {
+            tweetMap[tweet.id] = {
+              ...tweet,
+              data: typeof tweet.data === 'string' ? JSON.parse(tweet.data) : tweet.data
+            };
+          } catch (error) {
+            // Store minimal fallback data so getTweet() doesn't return null
+            parseErrors++;
+            tweetMap[tweet.id] = {
+              id: tweet.id,
+              data: {
+                text: tweet.text || 'Tweet data unavailable due to parsing error',
+                user: {
+                  name: tweet.screen_name || 'Unknown',
+                  screen_name: tweet.screen_name || 'unknown',
+                  profile_image_url_https: tweet.profile_image || ''
+                },
+                created_at: new Date().toISOString(),
+                __parse_error: true  // Flag for debugging
+              }
+            };
+
+            // Only log parse errors when verbose logging is enabled
+            logger.debug(`Failed to parse tweet ${tweet.id}, using fallback data`);
+          }
+        }
+        useTweetStore.setState({ tweets: tweetMap });
+        logger.log(`Loaded ${Object.keys(tweetMap).length} tweets into store (${Math.ceil(tweetIdArray.length / chunkSize)} chunks)${parseErrors > 0 ? `, ${parseErrors} with parse errors (using fallback)` : ''}`);
+      }
 
       set({
         maxIndex,
@@ -344,7 +411,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
 
       get().setIdStrings(processedData)
     } catch (error) {
-      console.error('Error in fetchLatestEpisode:', error);
+      logger.error('Error in fetchLatestEpisode:', error);
     }
   },
 }));
@@ -357,7 +424,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
 
 interface TweetStoreState {
   tweets: {[key: string]: any}
-  getTweet: (tweet_id: string) => Promise<any>
+  getTweet: (tweet_id: string) => any
 }
 
 export const useTweetStore = create<TweetStoreState>()(
@@ -365,32 +432,16 @@ export const useTweetStore = create<TweetStoreState>()(
     (set, get) => ({
       tweets: {},
 
-      getTweet: async (tweet_id: string) => {
-        console.log('530society TWEETID', tweet_id)
+      getTweet: (tweet_id: string) => {
+        // Synchronous lookup from pre-loaded tweets (loaded via batch fetch)
         const tweets = get().tweets
-
-        console.log('poop', { tweets, tweet_id })
 
         if (tweet_id in tweets) {
           return tweets[tweet_id]
         }
 
-        const { data, error } = await supabase
-          .from('tweets')
-          .select('*')
-          .eq('id', tweet_id)
-          .single() // Ensure you only get one tweet
-
-        if (error) {
-          console.log('530society test', error)
-          // throw new Error(`Error fetching tweet: ${error.message}`)
-        }
-
-        if (data) {
-          set({ tweets: { ...tweets, [tweet_id]: data } })
-          return data
-        }
-
+        // Tweet not found in store - should have been batch loaded
+        logger.warn(`Tweet ${tweet_id} not found in store. Was it batch loaded?`)
         return null
       },
     }),

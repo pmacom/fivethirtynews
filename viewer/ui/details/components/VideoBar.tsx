@@ -26,6 +26,7 @@ export const VideoBar = () => {
   const barRef = useRef<HTMLDivElement>(null)
   const sliderRef = useRef<HTMLDivElement>(null)
   const videoBarRef = useRef<HTMLDivElement>(null)
+  const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const [isHovered, setIsHovered] = useState(false)
   const [mousePercent, setMousePercent] = useState(0)
@@ -44,8 +45,31 @@ export const VideoBar = () => {
   })
 
   useEffect(() => {
-    useContentStore.setState({ isVideoSeeking: isHovered })
-  },[isHovered])
+    // Clear any pending timeout
+    if (resumeTimeoutRef.current) {
+      clearTimeout(resumeTimeoutRef.current)
+      resumeTimeoutRef.current = null
+    }
+
+    if (isHovered) {
+      // Immediately pause video when hovering
+      useContentStore.setState({ isVideoSeeking: true })
+    } else {
+      // Wait 2 seconds before resuming video after mouse leave
+      resumeTimeoutRef.current = setTimeout(() => {
+        useContentStore.setState({ isVideoSeeking: false })
+        resumeTimeoutRef.current = null
+      }, 2000)
+    }
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (resumeTimeoutRef.current) {
+        clearTimeout(resumeTimeoutRef.current)
+        resumeTimeoutRef.current = null
+      }
+    }
+  }, [isHovered])
 
   useEffect(() => {
     if(isVideoSeeking || !sliderRef || !sliderRef.current) return
