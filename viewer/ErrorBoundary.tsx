@@ -1,6 +1,7 @@
 "use client"
 
 import React, { Component, ReactNode } from 'react'
+import logger from './utils/logger'
 
 interface Props {
   children: ReactNode
@@ -24,6 +25,15 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Track error metrics (even in silent mode for telemetry)
+    logger.metric('error_boundary_triggered', {
+      error: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      silent: this.props.silent,
+      timestamp: Date.now()
+    })
+
     // Only log to console if not in silent mode
     if (!this.props.silent) {
       console.error('ErrorBoundary caught an error:', error, errorInfo)

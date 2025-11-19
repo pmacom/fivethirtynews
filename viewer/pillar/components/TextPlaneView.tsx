@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useThree } from '@react-three/fiber'
 import { Container, Text, DefaultProperties } from '@react-three/uikit'
+import { useContentStore } from '../../core/store/contentStore'
 
 interface TextPlaneViewProps {
   text: string
@@ -32,6 +33,7 @@ export const TextPlaneView = ({
 }: TextPlaneViewProps) => {
   const { size: { width, height } } = useThree()
   const [screenAspect, setScreenAspect] = useState<[number, number]>([1, 1])
+  const containerRef = useRef<any>(null)
 
   // Match PlaneView's viewport-based sizing logic
   useEffect(() => {
@@ -41,9 +43,17 @@ export const TextPlaneView = ({
     setScreenAspect([planeWidth, planeHeight])
   }, [width, height])
 
+  // Set activeItemObject for fitToBox (matches PlaneView behavior)
+  useEffect(() => {
+    if (active && containerRef.current) {
+      useContentStore.setState({ activeItemObject: containerRef.current })
+    }
+  }, [active])
+
   return (
     <DefaultProperties>
       <Container
+        ref={containerRef}
         // Use exact same dimensions as PlaneView's screenAspect mesh
         width={screenAspect[0]}
         height={screenAspect[1]}

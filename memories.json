@@ -1158,7 +1158,26 @@
       "lastAccessed": "2025-11-19T04:21:25.080Z",
       "lastVerified": "2025-11-19T04:21:25.080Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763530907313_ma84vkc8t",
+      "content": "Fixed critical bugs in FiveThirty viewer affecting content browsing:\n\n1. TextPlaneView activeItemObject bug - Text-only tweets weren't setting activeItemObject, causing fitToBox to fail silently\n   - Added containerRef and useEffect to set activeItemObject when active\n   - File: viewer/pillar/components/TextPlaneView.tsx\n\n2. fitToBox silent failures - No error logging when dependencies were missing\n   - Added comprehensive error logging with context (hasCamera, hasActiveItemObject, activeItemId, etc.)\n   - File: viewer/scene/store.tsx\n\n3. ErrorBoundary silent errors - Texture load failures had no telemetry\n   - Added logger.metric() in componentDidCatch for error tracking even in silent mode\n   - File: viewer/ErrorBoundary.tsx\n\n4. Created content validation utilities\n   - Functions: validateContent, validateContentItem, validateAndLog, hasRequiredMedia\n   - File: viewer/core/content/validation.ts\n\n5. Created comprehensive DEBUGGING.md guide\n   - How to identify and report issues\n   - Console filtering and error capture\n   - Common issues with diagnostic steps\n   - Reporting template\n\nAll changes compiled successfully with no errors.",
+      "type": "config",
+      "tags": [
+        "config",
+        "bug-fix",
+        "error-handling",
+        "debugging",
+        "fivethirty",
+        "fitToBox",
+        "TextPlaneView"
+      ],
+      "timestamp": "2025-11-19T05:41:47.313Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T05:41:47.313Z",
+      "lastVerified": "2025-11-19T05:41:47.313Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-19T04:21:25.080Z"
+  "lastUpdated": "2025-11-19T05:41:47.313Z"
 }

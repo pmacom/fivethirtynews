@@ -23,7 +23,19 @@ export const useSceneStore = create<SceneStoreState>()((set, get) => ({
     const activeItemId = useContentStore.getState().activeItemId
 
     if(!canvasWidth || !canvasHeight || isAnimating) return
-    if(!camera || !activeItemObject) return
+
+    // Error logging for missing dependencies
+    if(!camera || !activeItemObject) {
+      logger.error('fitToBox failed - missing dependencies', {
+        hasCamera: !!camera,
+        hasActiveItemObject: !!activeItemObject,
+        activeItemId,
+        canvasSize: [canvasWidth, canvasHeight],
+        isAnimating,
+        timestamp: Date.now()
+      })
+      return
+    }
 
     // Debug logging to verify correct object is being framed
     logger.debug('fitToBox called:', {
