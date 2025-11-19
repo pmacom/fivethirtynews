@@ -62,7 +62,8 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
   const [screenAspect, setScreenAspect] = useState<[number, number]>([1, 1])
   // Initialize imageAspect to a reasonable default (will be updated when content loads)
   const [imageAspect, setImageAspect] = useState<[number, number]>([1, 1])
-  
+  const [coverScale, setCoverScale] = useState(1)
+
   const viewRef = useRef<THREE.Group>(null)
   const screenRef = useRef<THREE.Mesh>(null)
 
@@ -91,9 +92,10 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
 
   // Set activeItemObject whenever this becomes the active slide
   // fitToBox is now called by pillar.tsx after rotation animation completes
+  // Use screenRef for bounds so fitToBox uses viewport aspect ratio
   useEffect(() => {
-    if (active && planeRef.current) {
-      useContentStore.setState({ activeItemObject: planeRef.current })
+    if (active && screenRef.current) {
+      useContentStore.setState({ activeItemObject: screenRef.current })
     }
   }, [active])
 
@@ -124,6 +126,17 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
     // Don't set imageAspect here - it should be based on actual content dimensions
   }, [width, height])
 
+  // Calculate contain scale to show full content within the screen plane
+  useEffect(() => {
+    if (imageAspect[0] > 0 && imageAspect[1] > 0) {
+      const scaleX = screenAspect[0] / imageAspect[0]
+      const scaleY = screenAspect[1] / imageAspect[1]
+      // Use the smaller scale to ensure content fits within bounds (contain behavior)
+      const scale = Math.min(scaleX, scaleY)
+      setCoverScale(scale)
+    }
+  }, [imageAspect, screenAspect])
+
   // @ts-expect-error - Type incompatibility between @react-three/fiber@8.2.2 and Three.js loader types
   const imageTexture = useLoader(
     THREE.TextureLoader,
@@ -144,9 +157,8 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
       let imgHeight = imageTexture.image.height / dimension
       setImageSize([imgWidth, imgHeight])
 
-      // Use viewport aspect ratio for all content planes
-      // This ensures the plane geometry always matches the browser viewport
-      setImageAspect(screenAspect)
+      // Use original content aspect ratio to preserve image proportions
+      setImageAspect([imgWidth, imgHeight])
     }
   }, [imageTexture, screenAspect])
 
@@ -221,9 +233,8 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
           const height = video.videoHeight / videoDimension
           setImageSize([width, height])
 
-          // Use viewport aspect ratio for all content planes
-          // This ensures the plane geometry always matches the browser viewport
-          setImageAspect(screenAspect)
+          // Use original content aspect ratio to preserve video proportions
+          setImageAspect([width, height])
         }
 
         // Store video duration in ContentStore for VideoBar
@@ -291,7 +302,7 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
         <meshBasicMaterial color={active ? "hotpink" : "black"} transparent opacity={.5} /> }
       </mesh>
 
-      <mesh ref={planeRef} position={[0, 0, 0.001]}>
+      <mesh ref={planeRef} position={[0, 0, 0.001]} scale={[coverScale, coverScale, 1]}>
         <planeGeometry args={[imageAspect[0], imageAspect[1]]} />
         <fadeShaderMaterial
           attach="material"
