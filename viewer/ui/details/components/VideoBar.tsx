@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
 import { useContentStore } from "@/viewer/core/store/contentStore"
 import { useEffect, useRef, useState } from "react"
+import videoPreloadManager from "@/viewer/core/video/VideoPreloadManager"
 
 /**
  * Format seconds into MM:SS or HH:MM:SS
