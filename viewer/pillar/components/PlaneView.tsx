@@ -5,6 +5,8 @@ import { shaderMaterial } from "@react-three/drei";
 import { useContentStore } from '../../core/store/contentStore';
 import { useSceneStore } from '../../scene/store';
 import logger from '../../utils/logger';
+import videoPreloadManager from '../../core/video/VideoPreloadManager';
+import VideoLoadingIndicator from './VideoLoadingIndicator';
 
 
 // Extend JSX.IntrinsicElements to include fadeShaderMaterial
@@ -52,10 +54,11 @@ interface PlaneViewProps {
   url: string
   active: boolean
   videoUrl?: string
+  itemId?: string
   onClick?: (object: THREE.Object3D) => void
 }
 
-export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneViewProps) => {
+export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick }: PlaneViewProps) => {
   const { size: { width, height } } = useThree()
 
   const [imageSize, setImageSize] = useState<[number, number]>([1, 1])
@@ -73,6 +76,10 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
   const hidePanel = true
 
   const [lingeringActive, setLingeringActive] = useState(active);
+
+  // Video loading state
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [videoLoadingProgress, setVideoLoadingProgress] = useState(0);
 
 
   useEffect(() => {
@@ -200,13 +207,33 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
   useEffect(() => {
     if(!videoUrl) useContentStore.setState({ isContentVideo: false })
     if (lingeringActive && videoUrl) {
-      const video = document.createElement('video');
-      video.src = videoUrl;
-      video.crossOrigin = 'anonymous';
-      video.loop = true;
-      video.muted = true;
-      video.playsInline = true;
-      video.autoplay = true;
+      // Check if video is preloaded
+      const preloadedVideo = itemId ? videoPreloadManager.getVideoForItem(itemId) : null;
+      const isPreloaded = preloadedVideo?.status === 'loaded' && preloadedVideo.videoElement;
+
+      let video: HTMLVideoElement;
+
+      if (isPreloaded && preloadedVideo.videoElement) {
+        // Use preloaded video element
+        logger.debug('Using preloaded video:', itemId);
+        video = preloadedVideo.videoElement;
+        setIsVideoLoading(false);
+        setVideoLoadingProgress(1);
+      } else {
+        // Create new video element
+        logger.debug('Creating new video element:', itemId);
+        video = document.createElement('video');
+        video.src = videoUrl;
+        video.crossOrigin = 'anonymous';
+        video.loop = true;
+        video.muted = true;
+        video.playsInline = true;
+        video.autoplay = true;
+
+        // Set initial loading state
+        setIsVideoLoading(true);
+        setVideoLoadingProgress(0);
+      }
 
       const handleTimeUpdate = () => {
         if (videoRef.current && isFinite(videoRef.current.duration)) {
@@ -245,11 +272,37 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
         }
       };
 
+      // Track loading progress
+      const handleProgress = () => {
+        if (!isPreloaded && video.buffered.length > 0) {
+          const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+          const duration = video.duration;
+          if (duration > 0) {
+            const progress = bufferedEnd / duration;
+            setVideoLoadingProgress(progress);
+          }
+        }
+      };
+
+      // Video ready to play
+      const handleCanPlay = () => {
+        setIsVideoLoading(false);
+        setVideoLoadingProgress(1);
+        logger.debug('Video ready to play:', itemId);
+      };
+
       video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      video.addEventListener('progress', handleProgress);
+      video.addEventListener('canplaythrough', handleCanPlay);
+
+      // If metadata already loaded (preloaded video), call handler immediately
+      if (isPreloaded && video.readyState >= 1) {
+        handleLoadedMetadata();
+      }
 
       // Blend from thumbnail to video over 1 second
       let startTime: number | null = null;
-      const fadeDuration = 1000; // 1 second
+      const fadeDuration = isPreloaded ? 300 : 1000; // Faster fade for preloaded videos
 
       const fadeBlend = (time: number) => {
         if (!startTime) startTime = time;
@@ -269,17 +322,22 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
         video.pause();
         video.removeEventListener('loadedmetadata', handleLoadedMetadata);
         video.removeEventListener('timeupdate', handleTimeUpdate);
+        video.removeEventListener('progress', handleProgress);
+        video.removeEventListener('canplaythrough', handleCanPlay);
         videoTexture?.dispose();
         setVideoRef(null); // Clear the video ref
+        setIsVideoLoading(false); // Reset loading state
+        setVideoLoadingProgress(0); // Reset progress
         useContentStore.setState({ videoDuration: 0 }); // Reset duration
         useContentStore.setState({ isContentVideo: false }); // Reset video flag
+        // Note: Don't dispose video element - VideoPreloadManager handles that
       }
     } else {
       setBlendFactor(0) // Reset blend factor
       setVideoTexture(null) // Reset video texture
       useContentStore.setState({ videoDuration: 0 }); // Reset duration when not active
     }
-  }, [lingeringActive, videoUrl]);
+  }, [lingeringActive, videoUrl, itemId]);
 
 
 
@@ -314,6 +372,15 @@ export const PlaneView = ({ url, active, videoUrl, onClick: _onClick }: PlaneVie
           // side={THREE.DoubleSide}
         />
       </mesh>
+
+      {/* Video loading indicator - only show when slide is active and video is loading */}
+      {videoUrl && active && isVideoLoading && (
+        <VideoLoadingIndicator
+          isLoading={isVideoLoading}
+          progress={videoLoadingProgress}
+          itemId={itemId}
+        />
+      )}
     </group>
   )
 }

@@ -1100,7 +1100,65 @@
       "lastAccessed": "2025-11-19T03:47:21.762Z",
       "lastVerified": "2025-11-19T03:47:21.762Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763524936570_resot3vg9",
+      "content": "FiveThirty Video Preloading Architecture Analysis:\n\nSLIDE NAVIGATION SYSTEM:\n- activeSlideIndex: Global flat index (0 to maxIndex) across all categories/items\n- maxIndex: Calculated as sum of all items across all categories\n- nextSlide()/prevSlide(): Increment/decrement activeSlideIndex with wrapping\n- activeSlideIndex is NOT directly used for rendering - it's stored but navigation uses activeCategoryIndex + activeItemIndex\n\nCURRENT NAVIGATION:\n- Navigation uses 2D system: activeCategoryIndex (column) + activeItemIndex (row within column)\n- setNextItem/setPrevItem: Moves within column, wraps to next/prev column\n- setNextColumn/setPrevColumn: Changes categories, resets to first/last item\n- activeItemId: The content_id of currently active item (used for rendering)\n\nVIDEO LOADING FLOW (PlaneView.tsx):\n1. When lingeringActive && videoUrl: Creates video element (lines 202-209)\n2. Video autoplay, loop, muted, playsInline set to true\n3. Creates THREE.VideoTexture from video element (line 220)\n4. Video plays immediately with video.play() (line 224)\n5. Blends from thumbnail to video over 1 second (lines 250-266)\n6. On cleanup: pauses video, removes listeners, disposes texture (lines 268-276)\n\nVIDEO DETECTION:\n- Videos in tweets: extractVideoUrls() from tweet.data.mediaDetails or tweet.data.video\n- Videos in video content type: item.content.content_url (TemplateVideo.tsx line 27)\n- Content types determined by TemplateSwitcher based on item.content.content_type\n\nCONTENT STRUCTURE:\n- LiveViewContentBlock[] (categories) -> content_block_items[] (items) -> content (LiveViewContent)\n- Each item has: content_type, content_url, thumbnail_url, content_id\n- Content types: 'twitter', 'video', 'image', 'website', 'warpcast', 'discord'\n\nKEY CHALLENGE FOR PRELOADING:\n- Need to map activeSlideIndex to category+item to determine adjacent slides\n- Need to identify which slides contain videos (check content_type and tweet media)\n- Videos are created on-demand when PlaneView becomes lingeringActive\n",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "fivethirty",
+        "video-preloading",
+        "architecture",
+        "analysis"
+      ],
+      "timestamp": "2025-11-19T04:02:16.570Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T04:02:16.570Z",
+      "lastVerified": "2025-11-19T04:02:16.570Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763525687462_yp4gg8fr3",
+      "content": "FiveThirty Video Preloading System - Complete Implementation:\n\n**Core Features Implemented:**\n1. VideoPreloadManager.ts - Manages pool of 3 preloaded videos (prev, current, next)\n2. ContentStore integration - Added video loading state tracking\n3. PlaneView integration - Uses preloaded videos for instant playback\n4. VideoLoadingIndicator - Beautiful loading UI with progress bar\n5. Auto-initialization in pillar.tsx\n\n**How It Works:**\n- Automatically detects prev/current/next slides based on activeSlideIndex\n- Preloads videos in background (max 3 concurrent)\n- PlaneView checks for preloaded video before creating new element\n- Loading indicator shows buffering progress with spinner + progress bar\n- Faster fade-in for preloaded videos (300ms vs 1000ms)\n\n**Files Created:**\n- /viewer/core/video/VideoPreloadManager.ts\n- /viewer/pillar/components/VideoLoadingIndicator.tsx\n\n**Files Modified:**\n- /viewer/core/store/contentStore.tsx - Added preloadedVideos state\n- /viewer/pillar/components/PlaneView.tsx - Integrated preload system + loading indicator\n- /viewer/pillar/components/SafePlaneView.tsx - Pass itemId prop\n- /viewer/pillar/templates/Tweet.tsx - Pass itemId to SafePlaneView\n- /viewer/pillar/templates/Video.tsx - Pass itemId to SafePlaneView  \n- /viewer/pillar/pillar.tsx - Initialize/destroy VideoPreloadManager\n\n**Benefits:**\n- Instant video playback when navigating to adjacent slides\n- Visual feedback during loading with modern UI\n- Memory efficient (max 3 videos cached)\n- Smooth user experience\n\n**Status:** Core system fully functional and building successfully",
+      "type": "general",
+      "tags": [
+        "general",
+        "fivethirty",
+        "video",
+        "preloading",
+        "performance",
+        "optimization",
+        "ux"
+      ],
+      "timestamp": "2025-11-19T04:14:47.462Z",
+      "context": "Complete implementation of video preloading system with 3-video cache and loading indicators",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T04:14:47.462Z",
+      "lastVerified": "2025-11-19T04:14:47.462Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763526085080_cujlln17a",
+      "content": "FiveThirty Video Preloading - Production Optimizations Added:\n\n**Mobile & Network Optimizations:**\n- Device detection (mobile vs desktop via user agent + screen size)\n- Network detection (WiFi vs cellular using Navigator.connection API)\n- Adaptive pool sizing:\n  - Desktop: 3 videos (prev, current, next)\n  - Mobile on WiFi: 2 videos  \n  - Mobile on cellular: 1 video (current only)\n- Cellular network: Skip preloading entirely to save data\n\n**Error Handling & Retry Logic:**\n- Automatic retry up to 2 attempts for failed video loads\n- Exponential backoff (1s, 2s delays between retries)\n- Retry count tracking in VideoLoadingState\n- Graceful fallback after max retries exceeded\n- Detailed error logging with attempt numbers\n\n**Loading Indicator Improvements:**\n- Only shows when slide is active AND video is loading\n- Hidden for background preloading (silent)\n- User only sees indicator when directly affected\n\n**Production Ready Features:**\n- Memory efficient (adaptive pool size)\n- Network aware (respects cellular connections)\n- Resilient (retry logic for failures)\n- User-friendly (contextual loading feedback)\n- Performance optimized (instant playback for preloaded videos)\n\n**Build Status:** ✅ All features compiling successfully",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "fivethirty",
+        "video",
+        "optimization",
+        "mobile",
+        "production",
+        "performance"
+      ],
+      "timestamp": "2025-11-19T04:21:25.080Z",
+      "context": "Production-ready video preloading with mobile/network optimizations and error handling",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T04:21:25.080Z",
+      "lastVerified": "2025-11-19T04:21:25.080Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-19T03:47:21.762Z"
+  "lastUpdated": "2025-11-19T04:21:25.080Z"
 }

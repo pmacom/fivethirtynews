@@ -24,7 +24,12 @@ export const TemplateVideo = ({ item, itemIndex, categoryId }: TemplateVideoProp
       itemIndex={itemIndex}
       active={isActive}
     >
-      <SafePlaneView url={thumbnailUrl} active={isActive} videoUrl={item.content?.content_url} />
+      <SafePlaneView
+        url={thumbnailUrl}
+        active={isActive}
+        videoUrl={item.content?.content_url}
+        itemId={item.id}
+      />
     </ContentWrapper>
   )
 }

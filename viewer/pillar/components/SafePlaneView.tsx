@@ -9,6 +9,7 @@ interface SafePlaneViewProps {
   url: string
   active: boolean
   videoUrl?: string
+  itemId?: string
   onClick?: () => void
 }
 
@@ -20,6 +21,7 @@ export const SafePlaneView: React.FC<SafePlaneViewProps> = ({
   url,
   active,
   videoUrl,
+  itemId,
   onClick
 }) => {
   const [errorKey, setErrorKey] = useState(0)
@@ -39,6 +41,7 @@ export const SafePlaneView: React.FC<SafePlaneViewProps> = ({
         url={url}
         active={active}
         videoUrl={videoUrl}
+        itemId={itemId}
         onClick={onClick}
       />
     </ErrorBoundary>

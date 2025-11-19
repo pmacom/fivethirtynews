@@ -11,6 +11,7 @@ import { useSceneStore } from '../scene/store'
 import PillarColumn from './components/PillarColumn'
 import Logo530 from '../models/Logo530'
 import { useControls } from 'leva'
+import videoPreloadManager from '../core/video/VideoPreloadManager'
 
 export const Pillar = () => {
   const contents = useContentStore(state => state.content)
@@ -43,6 +44,19 @@ export const Pillar = () => {
       activeItemIndex: 0,
     })
   },[contents])
+
+  // Initialize video preload manager when content loads
+  useEffect(() => {
+    if (!contents || contents.length === 0) return
+
+    // Initialize the preload manager
+    videoPreloadManager.initialize()
+
+    // Cleanup on unmount
+    return () => {
+      videoPreloadManager.destroy()
+    }
+  }, [contents])
 
   const radius = useMemo(() => {
     if (!contents || contents.length === 0) return 0

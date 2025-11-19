@@ -6,6 +6,7 @@ import { Group } from "three";
 import { WTF_CONFIG } from "../../config";
 import Viewer from "../../viewer";
 import logger from "../../utils/logger";
+import { VideoLoadingState } from '../video/VideoPreloadManager';
 
 interface ContentStoreState {
   episodeId: string | null;
@@ -28,6 +29,9 @@ interface ContentStoreState {
   maxIndex: number | null;
   activeSlideIndex: number;
   focusedSlideIndex: number;
+  // Video preloading state
+  preloadedVideos: Map<string, VideoLoadingState>;
+  getVideoForItem: (itemId: string) => VideoLoadingState | null;
   setIdStrings: (contents: LiveViewContentBlock[]) => void;
   setNextColumn: () => void;
   setPrevColumn: () => void;
@@ -60,6 +64,11 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   maxIndex: null,
   activeSlideIndex: 0,
   focusedSlideIndex: 0,
+  // Video preloading state
+  preloadedVideos: new Map(),
+  getVideoForItem: (itemId: string) => {
+    return get().preloadedVideos.get(itemId) || null;
+  },
 
   setIdStrings: (contents: LiveViewContentBlock[]) => {
     if (!contents || contents.length === 0) return;

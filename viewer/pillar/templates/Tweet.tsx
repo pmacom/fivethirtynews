@@ -137,6 +137,7 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
             url={thumbnailUrl}
             active={isActive}
             videoUrl={finalVideoUrl || undefined}
+            itemId={item.id}
           />
         ) : (
           // Text-only tweet: Show TextPlaneView (matches PlaneView dimensions)
