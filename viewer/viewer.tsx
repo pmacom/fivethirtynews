@@ -13,6 +13,7 @@ import Legend from './ui/legend/legend'
 import Details from './ui/details/details'
 import Settings from './ui/settings/settings'
 import SettingsOptions from './ui/settings/options'
+import StageSelect from './ui/stageselect/StageSelect'
 import Chyron from './ui/chyron/chyron'
 import ErrorBoundary from './ErrorBoundary'
 import BehaviorDetection from './common/BehaviorDetection'
@@ -39,6 +40,7 @@ const Viewer = () => {
           <Settings>
             <SettingsOptions />
           </Settings>
+          <StageSelect />
         </UI>
         <Chyron />
       </BehaviorDetection>

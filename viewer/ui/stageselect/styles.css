@@ -1,0 +1,140 @@
+/* Stage Select Overlay Container */
+.stage-select-container {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: stage-select-enter 0.4s ease-out;
+}
+
+.stage-select-closing {
+  animation: stage-select-exit 0.6s ease-in forwards;
+}
+
+/* Backdrop with blur and darken */
+.stage-select-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 201;
+}
+
+/* Content */
+.stage-select-content {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000;
+  overflow: hidden;
+  z-index: 202;
+  font-family: var(--font-orbitron), sans-serif;
+  user-select: none;
+}
+
+/* Arcade color variables */
+:root {
+  --arcade-yellow: #ffd700;
+  --arcade-red: #ff0000;
+  --arcade-blue: #0000ff;
+  --arcade-cyan: #00ffff;
+}
+
+.text-arcade-cyan { color: var(--arcade-cyan); }
+.text-arcade-yellow { color: var(--arcade-yellow); }
+.text-arcade-red { color: var(--arcade-red); }
+.text-arcade-blue { color: var(--arcade-blue); }
+.bg-arcade-yellow { background-color: var(--arcade-yellow); }
+.bg-arcade-red { background-color: var(--arcade-red); }
+.border-arcade-yellow { border-color: var(--arcade-yellow); }
+
+/* Font utilities */
+.font-orbitron {
+  font-family: var(--font-orbitron), sans-serif;
+}
+
+.font-share-tech {
+  font-family: var(--font-share-tech), monospace;
+}
+
+/* Effects */
+.text-glow {
+  text-shadow: 0 0 10px currentColor;
+}
+
+.box-glow {
+  box-shadow: 0 0 20px currentColor;
+}
+
+/* Grid background animation */
+.grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: scroll-bg 4s linear infinite;
+}
+
+@keyframes scroll-bg {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+/* Scanlines effect */
+.scanlines {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.2)
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+/* CRT overlay effect */
+.crt-overlay {
+  background: radial-gradient(
+    circle,
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 100%
+  );
+  pointer-events: none;
+}
+
+/* Animations */
+@keyframes stage-select-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes stage-select-exit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+}
+
+/* Color gradients for levels */
+.from-purple-400 { --tw-gradient-from: rgb(192 132 252); }
+.from-blue-400 { --tw-gradient-from: rgb(96 165 250); }
+.from-cyan-400 { --tw-gradient-from: rgb(34 211 238); }
+.from-emerald-400 { --tw-gradient-from: rgb(52 211 153); }
+.from-yellow-400 { --tw-gradient-from: rgb(250 204 21); }
+.from-indigo-400 { --tw-gradient-from: rgb(129 140 248); }
+.from-pink-400 { --tw-gradient-from: rgb(244 114 182); }
+.from-red-500 { --tw-gradient-from: rgb(239 68 68); }

@@ -916,7 +916,26 @@
       "lastAccessed": "2025-11-18T21:49:22.524Z",
       "lastVerified": "2025-11-18T21:49:22.524Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763510712324_qox4pjjsv",
+      "content": "3D Viewer Level Selection Research Findings:\n\nSETTINGS BUTTON STRUCTURE (Bottom Left):\n- Location: viewer/ui/settings/settings.tsx\n- Structure: Uses CiSettings icon from react-icons\n- Styling: .wtf--ui with .wtf--ui--container rounded classes\n- Positioned: fixed bottom-0 right-0 (note: code says right but should be left based on context)\n- z-index: 103\n- Opens a Drawer component from shadcn/ui (@/components/ui/drawer)\n\nCANVAS/VIEWER STRUCTURE:\n- Main file: viewer/viewer.tsx\n- Canvas in: viewer/scene/scene.tsx (wraps children with Canvas from @react-three/fiber)\n- Scene wrapper is a div with className=\"w-screen h-screen bg-slate-900\"\n\nCATEGORY/PILLAR SYSTEM:\n- Store: viewer/core/store/contentStore.tsx\n- Categories stored as: categoryIds, categoryTitles, activeCategoryIndex, activeCategoryId\n- Pillar rotation: viewer/pillar/pillar.tsx uses useSpring for smooth rotation\n- Setting category: useContentStore.setState({ activeCategoryIndex, activeCategoryId, activeItemIndex, activeItemId })\n- Navigation: setNextColumn(), setPrevColumn() methods available\n\nOVERLAY PATTERNS:\n- Dialog component available: components/ui/dialog.tsx with DialogOverlay (bg-black/50 backdrop)\n- Drawer pattern: Used by Settings (viewer/ui/settings/settings.tsx)\n- No blur effects currently in use - SceneEffects.tsx has DepthOfField commented out\n\nUI CONTAINER STYLES:\n- CSS: viewer/ui/styles.css\n- Base class: .wtf--ui (fixed top-0 left-0)\n- Container: .wtf--ui--container (glassmorphic with rgba background, border-radius: 2rem)\n- Variables: --wtf--ui--margin: 1rem, --wtf--ui--padding: 0.8rem, --wtf--ui--item-size: 2rem\n\nCATEGORY EXAMPLES FROM CONTENT:\n- Categories are fetched from database, sorted alphabetically\n- Each category has content_block_items with content\n- fetchLatestEpisode() groups by category (up to 20 items per category)",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "react",
+        "database",
+        "3d-viewer",
+        "ui-architecture",
+        "level-selection",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-19T00:05:12.324Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T00:05:12.324Z",
+      "lastVerified": "2025-11-19T00:05:12.324Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-18T21:49:22.524Z"
+  "lastUpdated": "2025-11-19T00:05:12.324Z"
 }
