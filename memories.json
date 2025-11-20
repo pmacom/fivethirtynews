@@ -1177,7 +1177,84 @@
       "lastAccessed": "2025-11-19T05:41:47.313Z",
       "lastVerified": "2025-11-19T05:41:47.313Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763573380798_5yifcf9yw",
+      "content": "Stage Select Implementation Research for Splash Page:\n\nSTAGE SELECT SYSTEM:\n- Button: Top-right corner (IoLayersOutline icon) in /viewer/ui/stageselect/StageSelect.tsx\n- State: Zustand store in /viewer/ui/stageselect/store.tsx with showStageSelect boolean\n- Overlay: Full-screen modal in /viewer/ui/stageselect/StageSelectOverlay.tsx\n- Styles: Arcade-themed CSS in /viewer/ui/stageselect/styles.css with animations\n- Integration: StageSelect component rendered in UI component tree in /viewer/viewer.tsx\n\nHOW IT WORKS:\n1. Toggle via: useStageSelectStore.setState({ showStageSelect: true/false })\n2. Overlay uses z-index: 200-202 for layering\n3. Animations: stage-select-enter (0.4s) and stage-select-exit (0.6s)\n4. Keyboard navigation: Arrow keys + Enter/Space to select, Escape to close\n5. Level selection updates contentStore (activeCategoryIndex, activeCategoryId, activeItemIndex, activeItemId)\n6. 7 predefined levels: preshow, general, thirddimension, ai, code, metaverse, misc\n\nLOGO530 COMPONENT:\n- Location: /viewer/models/Logo530.tsx\n- 3D component using GLTF model (/models/colorLogo1.glb)\n- Uses NormalWireframe material, Float animation from drei\n- Currently commented out in viewer.tsx but available\n\nAPP INITIALIZATION FLOW:\n1. /app/page.tsx - Root page component\n2. Renders <Viewer /> component\n3. /viewer/viewer.tsx structure:\n   - ErrorBoundary wrapper\n   - BehaviorDetection (keyboard/swipe handlers)\n   - Scene (3D Canvas with BackgroundScene)\n   - Pillar (content display)\n   - UI (contains all overlay UI)\n     - Legend, Details, Settings, StageSelect\n   - Chyron (bottom overlay)\n\nRECOMMENDED SPLASH APPROACH:\n1. Create new splash state in stageselect/store.tsx (showSplash: true)\n2. Add SplashScreen.tsx in /viewer/ui/stageselect/\n3. Render before StageSelectOverlay in viewer.tsx UI section\n4. On splash dismiss, set showSplash: false, showStageSelect: true\n5. Reuse arcade styling from styles.css (fonts: orbitron, share-tech)\n6. Include Logo530 3D component or 2D logo in splash\n7. Z-index 210+ to overlay everything including stage select\n\nCONTENT STORE:\n- Manages categories/items from Supabase\n- fetchLatestEpisode() or fetchEpisodeContent(episodeId) loads content\n- Stage select maps level IDs to category indices via getCategoryIndexForLevel()\n",
+      "type": "config",
+      "tags": [
+        "config",
+        "stage-select",
+        "splash-page",
+        "ui-architecture",
+        "530news"
+      ],
+      "timestamp": "2025-11-19T17:29:40.798Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T17:29:40.798Z",
+      "lastVerified": "2025-11-19T17:29:40.798Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763573613581_2q3vjcjhf",
+      "content": "Added video game-style splash screen to FiveThirty viewer:\n\n1. Modified store (viewer/ui/stageselect/store.tsx):\n   - Added showSplash: true to initial state\n   - Manages both splash and stage select visibility\n\n2. Created SplashScreen component (viewer/ui/splash/SplashScreen.tsx):\n   - Shows 530 SOCIETY logo with cyan glow and pulse animation\n   - \"PRESS START\" button with yellow arcade styling and blink effect\n   - Keyboard support (Enter/Space to start)\n   - On start: hides splash and opens stage select overlay\n   - 400ms fade transition\n\n3. Created splash styles (viewer/ui/splash/styles.css):\n   - Retro arcade aesthetic matching stage select\n   - Grid background with scroll animation\n   - Scanlines and CRT vignette effects\n   - Glow and pulse animations\n   - Z-index 210 (above stage select's 200)\n   - Responsive breakpoints for mobile\n\n4. Integrated into viewer (viewer/viewer.tsx):\n   - Added SplashScreen to UI section\n   - Imported splash styles\n   - Higher z-index ensures it covers everything\n\nUser flow: Visit site → Splash with logo → Press Start → Stage select opens → Choose stage → Viewer loads\n\nAll code compiled successfully with no errors.",
+      "type": "general",
+      "tags": [
+        "general",
+        "splash-screen",
+        "arcade",
+        "ui",
+        "fivethirty",
+        "stage-select",
+        "retro"
+      ],
+      "timestamp": "2025-11-19T17:33:33.581Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T17:33:33.581Z",
+      "lastVerified": "2025-11-19T17:33:33.581Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763586552545_9myqo07zu",
+      "content": "FiveThirty Splash Screen Visual Effects Research Complete:\n\nINSTALLED PACKAGES:\n- @react-three/postprocessing@3.0.4 (30+ effects available)\n- @react-three/drei@10.7.7 (helpers like Float, Environment, MeshReflectorMaterial)\n- @react-three/fiber@9.4.0\n- @react-spring/three@10.0.3 (spring animations)\n- framer-motion@12.23.24\n- three@0.181.1\n- leva@0.10.1 (debug controls)\n\nAVAILABLE POST-PROCESSING EFFECTS (in @react-three/postprocessing):\n- Bloom, ChromaticAberration, DepthOfField, Glitch, GodRays, Noise, Vignette\n- SelectiveBloom, SSAO, N8AO, Scanline, Outline, DotScreen, Pixelation\n- ASCII, BrightnessContrast, ColorAverage, ColorDepth, Grid, HueSaturation\n- LensFlare, FXAA, SMAA, Sepia, ShockWave, TiltShift, Ramp, LUT\n\nEXISTING 3D ASSETS:\n- Logo530.tsx: 3D \"530\" logo with NormalWireframe shader, Float animation\n- Logo532.tsx: Similar with MeshReflectorMaterial version\n- BackgroundScene.tsx: Container with Logo532 and Web2\n- Web.tsx: Spherical wireframe with custom shader\n- Web2.tsx: Reflective plane grid with Float animation\n- AudioResponsiveSphere.tsx: Custom shader sphere that responds to audio amplitude\n- NormalWireframe.tsx: Custom shader with time-based animation\n\nCURRENT SPLASH SCREEN (2D only):\n- CSS-based grid background animation\n- CSS scanlines overlay\n- CRT vignette effect\n- Text glow with pulse animation\n- Blinking \"Press Start\" button\n- No 3D Canvas integration\n\n3D MODELS AVAILABLE:\n- colorLogo1.glb (475KB) - Main 530 logo\n- 530Society_Logo.glb (450KB)\n- resized_interior.hdr (HDR environment)\n- Various other GLB models (robot, tunnel, rollion, ballface)\n\nEXISTING SCENE SETUP:\n- SceneEffects.tsx has EffectComposer with placeholder DepthOfField (commented out)\n- Main scene.tsx uses Canvas with BackgroundScene component\n- Already has Leva debug controls\n- Uses @react-spring/three for animations in pillar.tsx\n\nCUSTOM SHADERS IN CODEBASE:\n- NormalWireframe: Time-based color animation, wireframe mode\n- AudioResponsiveSphere: Complex web effect with audio reactivity\n- Both use shaderMaterial from drei and useFrame for animation\n\nCSS VARS USED:\n- --arcade-cyan, --arcade-yellow (splash colors)\n- --font-orbitron, --font-share-tech (fonts)\n\nPATH: /Users/patrickmacom/MainQuests/530News/fivethirty/viewer/ui/splash/SplashScreen.tsx",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "spring",
+        "fivethirty",
+        "research",
+        "splash-screen",
+        "visual-effects",
+        "react-three-fiber",
+        "postprocessing"
+      ],
+      "timestamp": "2025-11-19T21:09:12.545Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T21:09:12.545Z",
+      "lastVerified": "2025-11-19T21:09:12.545Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763586831772_r4tnd9zzu",
+      "content": "Replaced FiveThirty splash screen with enhanced 3D version featuring:\n\nComponent (viewer/ui/splash/SplashScreen.tsx):\n- 3D Canvas with Logo3D (rotating 3D logo from colorLogo1.glb)\n- MovingGrid with infinite runner effect (Tron-style cyan grid)\n- FloatingGeometry particles (3 wireframe icosahedrons in cyan, magenta, yellow)\n- Stars field (3000 stars) and Sparkles (50 particles)\n- Dramatic lighting (spotlight, 2 point lights, ambient)\n- Environment preset (city)\n- Arcade HUD overlay (Credits, Free Play, Version info)\n- Enhanced \"PRESS START\" button with shimmer and blink effects\n- Keyboard support (Enter/Space)\n- Screen effects (scanlines, CRT, vignette)\n- State management with useStageSelectStore (no Next.js router)\n\nStyles (viewer/ui/splash/styles.css):\n- Added blink animation (1.2s infinite, opacity 1 to 0.3)\n- Added shimmer animation (3s infinite, background position sweep)\n- animate-blink and animate-shimmer classes\n\nIntegration:\n- Uses existing stage select store\n- Transitions to stage select on \"Press Start\"\n- 800ms delay for visual effect\n- Z-index 210 (above all other UI)\n- Fixed positioning (full screen overlay)\n\nAll three.js features from @react-three/drei used: Float, Stars, Sparkles, Grid, Environment, PerspectiveCamera, useGLTF",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "splash-screen",
+        "3d",
+        "arcade",
+        "three.js",
+        "fivethirty",
+        "enhancement"
+      ],
+      "timestamp": "2025-11-19T21:13:51.772Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-19T21:13:51.772Z",
+      "lastVerified": "2025-11-19T21:13:51.772Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-19T05:41:47.313Z"
+  "lastUpdated": "2025-11-19T21:13:51.772Z"
 }

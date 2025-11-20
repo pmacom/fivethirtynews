@@ -4,6 +4,8 @@ import { useControls } from 'leva'
 import CameraControlsLib from 'camera-controls' // Import ACTION from camera-controls
 import { useSceneStore } from '../store'
 import useSettingStore from '../../ui/settings/store'
+import { BackgroundScene } from '@/viewer/models/BackgroundScene'
+import { TunnelThing } from './TunnelThing'
 
 export const SceneCamera = () => {
   const camRef = useRef<CameraControls | null>(null)

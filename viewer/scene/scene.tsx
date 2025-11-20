@@ -4,11 +4,13 @@ import React from 'react'
 import '@react-three/fiber'
 import { Canvas } from '@react-three/fiber'
 import { SceneCamera } from './components/SceneCamera'
-import { PerspectiveCamera } from '@react-three/drei'
+import { PerspectiveCamera, ScreenSpace } from '@react-three/drei'
 import SceneListeners from './components/SceneListeners'
 import useSettingStore from '../ui/settings/store'
 import { Leva } from 'leva'
 import SceneEffects from './components/SceneEffects'
+import { TunnelThing } from './components/TunnelThing'
+import { BackgroundScene } from '@/viewer/models/BackgroundScene'
 
 interface SceneProps {
   children: React.ReactNode
@@ -25,6 +27,8 @@ function Scene({ children }: SceneProps) {
         <SceneCamera />
         <SceneEffects />
         <SceneListeners />
+        
+        <BackgroundScene />
 
         <ambientLight intensity={0.5} />
 
