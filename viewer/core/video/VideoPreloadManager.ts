@@ -40,6 +40,26 @@ class VideoPreloadManager {
   private unsubscribe: (() => void) | null = null;
   private isMobile = false;
   private isOnWiFi = true;
+  private blacklistedUrls: Map<string, string> = new Map(); // URL -> error reason
+  private failedItems: Set<string> = new Set(); // Track permanently failed item IDs
+
+  /**
+   * Check if URL is permanently blacklisted or should be blacklisted
+   */
+  private isBlacklistedUrl(url: string): boolean {
+    if (this.blacklistedUrls.has(url)) {
+      return true;
+    }
+
+    // Detect YouTube URLs (can't be embedded directly due to CORS)
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      this.blacklistedUrls.set(url, 'YouTube URLs cannot be embedded directly (CORS)');
+      logger.warn(`Blacklisted YouTube URL: ${url}`);
+      return true;
+    }
+
+    return false;
+  }
 
   /**
    * Detect if device is mobile
@@ -280,7 +300,25 @@ class VideoPreloadManager {
   /**
    * Preload a video element
    */
-  private preloadVideo(itemId: string, videoUrl: string) {
+  private preloadVideo(itemId: string, videoUrl: string, retryCount: number = 0) {
+    // Check if item has permanently failed before
+    if (this.failedItems.has(itemId)) {
+      logger.debug(`Skipping permanently failed item: ${itemId}`);
+      return;
+    }
+
+    // Check if URL is blacklisted
+    if (this.isBlacklistedUrl(videoUrl)) {
+      const reason = this.blacklistedUrls.get(videoUrl);
+      logger.warn(`Skipping blacklisted URL for ${itemId}: ${reason}`);
+      this.failedItems.add(itemId);
+      this.updateLoadingState(itemId, {
+        status: 'error',
+        error: reason || 'URL is blacklisted',
+      });
+      return;
+    }
+
     // Skip preloading on mobile devices with cellular connection
     if (this.isMobile && !this.isOnWiFi) {
       logger.debug(`Skipping preload on cellular network: ${itemId}`);
@@ -293,7 +331,7 @@ class VideoPreloadManager {
       return;
     }
 
-    logger.debug(`Preloading video: ${itemId}`, { url: videoUrl });
+    logger.debug(`Preloading video: ${itemId} (attempt ${retryCount + 1}/${this.maxRetries + 1})`, { url: videoUrl });
 
     // Create video element
     const video = document.createElement('video');
@@ -311,7 +349,7 @@ class VideoPreloadManager {
       status: 'loading',
       progress: 0,
       videoElement: video,
-      retryCount: 0,
+      retryCount,
     };
 
     this.preloadedVideos.set(itemId, loadingState);
@@ -335,13 +373,39 @@ class VideoPreloadManager {
 
     const handleError = (error: Event) => {
       const currentState = this.preloadedVideos.get(itemId);
-      const retryCount = (currentState?.retryCount || 0) + 1;
+      const currentRetryCount = currentState?.retryCount || 0;
 
-      logger.warn(`Video preload error: ${itemId} (attempt ${retryCount}/${this.maxRetries})`, error);
+      // Detect CORS errors (permanent failure - no retry)
+      const errorTarget = error.target as HTMLVideoElement;
+      const errorMessage = errorTarget?.error?.message || '';
+      const isCorsError =
+        errorMessage.includes('CORS') ||
+        errorMessage.includes('cross-origin') ||
+        error.type === 'error';
 
-      // Retry if under max retry limit
-      if (retryCount <= this.maxRetries) {
-        logger.debug(`Retrying video load: ${itemId}`);
+      if (isCorsError || errorMessage.includes('ERR_FAILED')) {
+        logger.error(`Permanent video error (CORS/Network) for ${itemId}, blacklisting URL`);
+        this.blacklistedUrls.set(videoUrl, 'CORS or network error');
+        this.failedItems.add(itemId);
+
+        // Clean up
+        video.removeEventListener('progress', handleProgress);
+        video.removeEventListener('canplaythrough', handleCanPlay);
+        video.removeEventListener('error', handleError);
+
+        this.updateLoadingState(itemId, {
+          status: 'error',
+          error: 'Video cannot be loaded (CORS/Network error)',
+        });
+        return;
+      }
+
+      // Check if we should retry
+      if (currentRetryCount < this.maxRetries) {
+        const nextRetryCount = currentRetryCount + 1;
+        const delay = Math.min(1000 * Math.pow(2, currentRetryCount), 5000); // Exponential backoff, max 5s
+
+        logger.warn(`Video preload error: ${itemId} (attempt ${nextRetryCount}/${this.maxRetries + 1}), retrying in ${delay}ms`);
 
         // Clean up current attempt
         video.removeEventListener('progress', handleProgress);
@@ -349,17 +413,21 @@ class VideoPreloadManager {
         video.removeEventListener('error', handleError);
         video.src = '';
 
-        // Update retry count
-        this.updateLoadingState(itemId, { retryCount });
-
-        // Retry after delay (exponential backoff)
+        // Retry after delay
         setTimeout(() => {
           this.disposeVideo(itemId);
-          this.preloadVideo(itemId, videoUrl);
-        }, 1000 * retryCount); // 1s, 2s, 3s delays
+          this.preloadVideo(itemId, videoUrl, nextRetryCount);
+        }, delay);
       } else {
-        // Max retries exceeded
-        logger.error(`Video preload failed after ${retryCount} attempts: ${itemId}`);
+        // Max retries exceeded - permanent failure
+        logger.error(`Video preload failed after ${currentRetryCount + 1} attempts: ${itemId}, permanently failed`);
+        this.failedItems.add(itemId);
+
+        // Clean up
+        video.removeEventListener('progress', handleProgress);
+        video.removeEventListener('canplaythrough', handleCanPlay);
+        video.removeEventListener('error', handleError);
+
         this.updateLoadingState(itemId, {
           status: 'error',
           error: 'Failed to load video after multiple attempts',

@@ -11,18 +11,23 @@ interface SafePlaneViewProps {
   videoUrl?: string
   itemId?: string
   onClick?: () => void
+  clickUrl?: string | null
+  isYouTube?: boolean
 }
 
 /**
  * SafePlaneView wraps PlaneView with error boundary to gracefully handle texture loading failures.
  * When a texture fails to load, it displays a gray placeholder instead of crashing the app.
+ * For YouTube videos, it shows a thumbnail and opens the video in a new tab when clicked.
  */
 export const SafePlaneView: React.FC<SafePlaneViewProps> = ({
   url,
   active,
   videoUrl,
   itemId,
-  onClick
+  onClick,
+  clickUrl,
+  isYouTube = false
 }) => {
   const [errorKey, setErrorKey] = useState(0)
 
@@ -30,6 +35,15 @@ export const SafePlaneView: React.FC<SafePlaneViewProps> = ({
   useEffect(() => {
     setErrorKey(prev => prev + 1)
   }, [url])
+
+  // Handle YouTube click - open in new tab
+  const handleClick = () => {
+    if (clickUrl) {
+      window.open(clickUrl, '_blank', 'noopener,noreferrer')
+    } else if (onClick) {
+      onClick()
+    }
+  }
 
   return (
     <ErrorBoundary
@@ -42,7 +56,8 @@ export const SafePlaneView: React.FC<SafePlaneViewProps> = ({
         active={active}
         videoUrl={videoUrl}
         itemId={itemId}
-        onClick={onClick}
+        onClick={clickUrl ? handleClick : onClick}
+        isYouTube={isYouTube}
       />
     </ErrorBoundary>
   )

@@ -1,7 +1,7 @@
 import { extend, ThreeEvent, useLoader, useThree } from "@react-three/fiber"
 import { useCallback, useEffect, useRef, useState } from "react"
 import * as THREE from 'three'
-import { shaderMaterial } from "@react-three/drei";
+import { shaderMaterial, Html } from "@react-three/drei";
 import { useContentStore } from '../../core/store/contentStore';
 import { useSceneStore } from '../../scene/store';
 import logger from '../../utils/logger';
@@ -56,9 +56,10 @@ interface PlaneViewProps {
   videoUrl?: string
   itemId?: string
   onClick?: (object: THREE.Object3D) => void
+  isYouTube?: boolean
 }
 
-export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick }: PlaneViewProps) => {
+export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick, isYouTube = false }: PlaneViewProps) => {
   const { size: { width, height } } = useThree()
 
   const [imageSize, setImageSize] = useState<[number, number]>([1, 1])
@@ -380,6 +381,32 @@ export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick }: 
           progress={videoLoadingProgress}
           itemId={itemId}
         />
+      )}
+
+      {/* YouTube play icon overlay - indicates click will open in YouTube */}
+      {isYouTube && (
+        <Html center distanceFactor={1} style={{ pointerEvents: 'none' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            background: 'rgba(0, 0, 0, 0.7)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s ease'
+          }}>
+            {/* YouTube play triangle */}
+            <div style={{
+              width: 0,
+              height: 0,
+              borderLeft: '25px solid white',
+              borderTop: '15px solid transparent',
+              borderBottom: '15px solid transparent',
+              marginLeft: '8px'
+            }} />
+          </div>
+        </Html>
       )}
     </group>
   )

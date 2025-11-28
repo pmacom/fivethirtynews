@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useState, Suspense } from 'react'
+import React, { useRef, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import BackgroundScene from './models/BackgroundScene'
@@ -19,24 +19,50 @@ import Chyron from './ui/chyron/chyron'
 import ErrorBoundary from './ErrorBoundary'
 import BehaviorDetection from './common/BehaviorDetection'
 import { TunnelThing } from './scene/components/TunnelThing'
+import { useStageSelectStore } from './ui/stageselect/store'
+import { useContentStore } from './core/store/contentStore'
 import './ui/splash/styles.css'
 
-const Viewer = () => {
+// Component to ensure content loads even when Pillar is hidden
+const ContentLoader = () => {
+  const hasFetchedRef = useRef(false)
 
+  useEffect(() => {
+    // Prevent duplicate fetches in StrictMode
+    if (hasFetchedRef.current) return
+    hasFetchedRef.current = true
+
+    console.log('[ContentLoader] Fetching latest episode...')
+    useContentStore.getState().fetchLatestEpisode()
+  }, [])
+
+  return null
+}
+
+const Viewer = () => {
+  // Hide Pillar content when splash screen or stage select is showing
+  const showSplash = useStageSelectStore(state => state.showSplash)
+  const showStageSelect = useStageSelectStore(state => state.showStageSelect)
+
+  // Debug logging
+  console.log('[Viewer] State:', { showSplash, showStageSelect, shouldShowPillar: !showSplash && !showStageSelect })
 
   return (
     <ErrorBoundary>
       <BehaviorDetection>
+        <ContentLoader />
         <Scene>
           {/* <ambientLight intensity={Math.PI / 2} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
           <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} /> */}
-          
+
           {/* <AudioResponsiveSphere /> */}
-          <Suspense fallback={null}>
-            <Pillar />
-          </Suspense>
-          
+          {!showSplash && !showStageSelect && (
+            <Suspense fallback={null}>
+              <Pillar />
+            </Suspense>
+          )}
+
         </Scene>
         <UI>
           <Legend />

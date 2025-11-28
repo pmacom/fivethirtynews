@@ -241,11 +241,16 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
     logger.debug('Fetching latest content by category')
 
     try {
-      // Get all content with categories
+      // Calculate date for "last 7 days" filter
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+      // Get all content with categories from the last week
       const { data: allContent, error: contentError } = await supabase
         .from('content')
         .select('*')
         .not('category', 'is', null)
+        .gte('submitted_at', oneWeekAgo.toISOString())
         .order('submitted_at', { ascending: false });
 
       if (contentError) {

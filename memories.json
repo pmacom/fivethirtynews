@@ -31,8 +31,8 @@
         "analysis"
       ],
       "timestamp": "2025-11-17T18:09:13.067Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-17T18:09:13.067Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-27T22:54:31.540Z",
       "lastVerified": "2025-11-17T18:09:13.067Z",
       "status": "fresh"
     },
@@ -67,8 +67,8 @@
       ],
       "timestamp": "2025-11-17T20:42:55.707Z",
       "context": "Project: fivethirty - Local Supabase database setup for content viewer",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-17T20:42:55.707Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-28T03:16:16.928Z",
       "lastVerified": "2025-11-17T20:42:55.707Z",
       "status": "fresh"
     },
@@ -178,8 +178,8 @@
         "research"
       ],
       "timestamp": "2025-11-18T04:29:18.387Z",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-18T05:05:27.571Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-11-28T03:16:16.479Z",
       "lastVerified": "2025-11-18T04:29:18.387Z",
       "status": "fresh"
     },
@@ -197,8 +197,8 @@
       ],
       "timestamp": "2025-11-18T04:35:18.426Z",
       "context": "Restored camera framing system - viewer/pillar/components/ContentWrapper.tsx and all templates updated",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-18T05:05:27.571Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-11-28T03:16:16.479Z",
       "lastVerified": "2025-11-18T04:35:18.426Z",
       "status": "fresh"
     },
@@ -367,8 +367,8 @@
       ],
       "timestamp": "2025-11-18T05:51:50.225Z",
       "context": "Final diagnosis of camera framing bug with single-item columns",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-19T03:22:02.006Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-11-28T03:16:16.479Z",
       "lastVerified": "2025-11-18T05:51:50.225Z",
       "status": "fresh"
     },
@@ -419,8 +419,8 @@
         "bug-analysis"
       ],
       "timestamp": "2025-11-18T06:15:45.002Z",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-19T03:22:02.006Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-27T20:52:49.202Z",
       "lastVerified": "2025-11-18T06:15:45.002Z",
       "status": "fresh"
     },
@@ -473,8 +473,8 @@
         "zustand"
       ],
       "timestamp": "2025-11-18T06:44:35.998Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T06:44:35.998Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-27T22:54:31.540Z",
       "lastVerified": "2025-11-18T06:44:35.998Z",
       "status": "fresh"
     },
@@ -823,8 +823,8 @@
       ],
       "timestamp": "2025-11-18T19:17:28.741Z",
       "context": "Optimized tweet text sizing and added scrollable text containers",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T19:17:28.741Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-27T20:52:49.202Z",
       "lastVerified": "2025-11-18T19:17:28.741Z",
       "status": "fresh"
     },
@@ -859,8 +859,8 @@
         "tweet-rendering"
       ],
       "timestamp": "2025-11-18T19:31:49.326Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T19:31:49.326Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-27T22:54:31.540Z",
       "lastVerified": "2025-11-18T19:31:49.326Z",
       "status": "fresh"
     },
@@ -931,8 +931,8 @@
         "fivethirty"
       ],
       "timestamp": "2025-11-19T00:05:12.324Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-19T00:05:12.324Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-28T03:16:16.928Z",
       "lastVerified": "2025-11-19T00:05:12.324Z",
       "status": "fresh"
     },
@@ -984,8 +984,8 @@
         "performance"
       ],
       "timestamp": "2025-11-19T02:37:34.819Z",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-19T03:22:02.006Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-28T03:16:16.928Z",
       "lastVerified": "2025-11-19T02:37:34.819Z",
       "status": "fresh"
     },
@@ -1002,8 +1002,8 @@
         "batch-fetch"
       ],
       "timestamp": "2025-11-19T02:46:32.994Z",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-19T03:22:02.006Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-28T03:16:16.928Z",
       "lastVerified": "2025-11-19T02:46:32.994Z",
       "status": "fresh"
     },
@@ -1019,8 +1019,8 @@
         "performance"
       ],
       "timestamp": "2025-11-19T02:49:38.691Z",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-19T03:22:02.006Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-28T03:16:16.928Z",
       "lastVerified": "2025-11-19T02:49:38.691Z",
       "status": "fresh"
     },
@@ -1190,8 +1190,8 @@
         "530news"
       ],
       "timestamp": "2025-11-19T17:29:40.798Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-19T17:29:40.798Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-27T22:54:31.540Z",
       "lastVerified": "2025-11-19T17:29:40.798Z",
       "status": "fresh"
     },
@@ -1254,7 +1254,439 @@
       "lastAccessed": "2025-11-19T21:13:51.772Z",
       "lastVerified": "2025-11-19T21:13:51.772Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1763599223085_4d60nnoho",
+      "content": "FiveThirty Windows Compatibility Research Summary:\n\nCRITICAL ISSUE:\n- Main dev script is Bash-only: scripts/dev.sh\n- Used by npm run dev (primary development command)\n- Contains Bash-specific features: trap, SIGINT/SIGTERM, color codes, &>/dev/null\n\nPACKAGE.JSON ISSUES:\n- db:seed:prod uses && operator and psql command\n- dev script points to ./scripts/dev.sh\n\nENVIRONMENT:\n- Uses .env.local (cross-platform compatible)\n- process.env in TypeScript files (cross-platform)\n- No hardcoded paths found in app code\n\nBUILD TOOLS:\n- Next.js 16.0.3 with Turbopack (cross-platform)\n- pnpm package manager (cross-platform)\n- Supabase CLI required (has Windows version)\n\nQUICK FIXES:\n1. Convert dev.sh to cross-platform Node.js script\n2. Replace && with npm-run-all in db:seed:prod\n3. Add .gitattributes for line endings\n\nHARDER ISSUES:\n- Supabase CLI requires Docker Desktop\n- psql command needs PostgreSQL client on Windows\n- No path separator issues (Next.js handles this)\n\nnext.config.ts uses __dirname (Node.js built-in, cross-platform compatible)",
+      "type": "config",
+      "tags": [
+        "config",
+        "typescript",
+        "windows-compatibility",
+        "cross-platform",
+        "research",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-20T00:40:23.085Z",
+      "context": "Comprehensive Windows compatibility audit of FiveThirty codebase",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-20T00:40:23.085Z",
+      "lastVerified": "2025-11-20T00:40:23.085Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763609951566_c5n0f0kwl",
+      "content": "Made FiveThirty repo Windows-compatible with minimal refactoring:\n\n1. Created scripts/dev.js (Node.js cross-platform dev script)\n   - Checks Supabase status\n   - Starts Supabase if needed\n   - Displays connection info\n   - Starts Next.js with Turbopack\n   - Handles Ctrl+C gracefully\n   - Uses ANSI color codes (cross-platform)\n   - No external dependencies needed (uses Node.js child_process)\n\n2. Updated package.json scripts:\n   - \"dev\": \"node scripts/dev.js\" (now cross-platform)\n   - \"dev:bash\": \"./scripts/dev.sh\" (kept for Unix users)\n   - \"db:seed:prod\": split into sequential steps using npm-run-all\n   - Added \"db:seed:prod:load\" step\n\n3. Updated .npmrc:\n   - Removed \"script-shell=/bin/bash\" (was forcing Bash on all platforms)\n   - Added comment explaining platform-native shell usage\n\n4. Created .gitattributes:\n   - Auto-detect text files (text=auto)\n   - Force LF for all code files (.js, .ts, .tsx, .json, etc.)\n   - Force LF for config files\n   - Mark binary files as binary (.png, .glb, .mp4, etc.)\n   - Prevents CRLF corruption on Windows\n\n5. Installed dev dependencies:\n   - chalk 5.6.2 (for colored output - not used yet)\n   - npm-run-all 4.1.5 (for sequential script execution)\n\nResult: Windows developers can now use pnpm dev without WSL/Git Bash. All core functionality is cross-platform. Unix/Mac workflow unchanged.",
+      "type": "config",
+      "tags": [
+        "config",
+        "windows",
+        "cross-platform",
+        "dev-scripts",
+        "compatibility",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-20T03:39:11.566Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-20T03:39:11.566Z",
+      "lastVerified": "2025-11-20T03:39:11.566Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763660172008_djjba0feb",
+      "content": "FiveThirty Landing Page Current State:\n- app/page.tsx directly renders the Viewer component (no separate landing page)\n- Viewer shows SplashScreen on initial load (showSplash: true by default)\n- Current SplashScreen is already arcade-styled with:\n  * 3D rotating Logo530 model (colorLogo1.glb)\n  * Moving grid background (Tron-like)\n  * Floating wireframe particles\n  * \"PRESS START\" button with arcade styling\n  * Stars and sparkles effects\n  * CRT/scanlines overlay\n  * Arcade color scheme: cyan (#00ffff) and yellow (#ffd700)\n  * Share Tech and Orbitron fonts\n  \nAfter \"PRESS START\", transitions to StageSelect overlay (level selection screen)",
+      "type": "general",
+      "tags": [
+        "general",
+        "fivethirty",
+        "landing-page",
+        "current-state",
+        "splash-screen"
+      ],
+      "timestamp": "2025-11-20T17:36:12.008Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-20T17:36:12.008Z",
+      "lastVerified": "2025-11-20T17:36:12.008Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763662675113_ytmgt4p7w",
+      "content": "Enhanced splash screen with early 2000s video game aesthetics (PS2/Xbox era: MGS2, Halo, Final Fantasy X). Implemented in viewer/ui/splash/SplashScreen.tsx:\n\n1. Post-processing effects: Bloom (intensity 1.2), DepthOfField (focusDistance 0.02), ChromaticAberration, Vignette\n2. Chrome/metallic logo materials: MeshPhysicalMaterial with metalness=1.0, roughness=0.1, clearcoat=1.0, envMapIntensity=2.0\n3. CinematicCamera: 30-second orbital rotation around scene with slight vertical movement\n4. Menu state machine: 'initial' (PRESS START) → 'menu' (START GAME, STAGE SELECT, OPTIONS, CREDITS) → 'transitioning'\n5. Keyboard navigation: Enter/Space to start, Arrow keys to navigate menu, Escape to go back\n6. Slowed animations: Logo rotation 0.003, Grid movement 0.5, Stars 0.3, Sparkles 0.2, Float speeds reduced\n\nSuccessfully compiled with no errors. Note: colorLogo1.glb file needs to be in /public/models/ for 3D logo to display.",
+      "type": "general",
+      "tags": [
+        "general",
+        "go",
+        "splash-screen",
+        "react-three-fiber",
+        "post-processing",
+        "menu-system",
+        "video-game-ui",
+        "complete"
+      ],
+      "timestamp": "2025-11-20T18:17:55.113Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-20T18:17:55.113Z",
+      "lastVerified": "2025-11-20T18:17:55.113Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763663728383_ggpajplwb",
+      "content": "Hidden UI overlays (Chyron, Legend, Details, Settings) when splash screen or stage select is showing. Modified viewer/ui/ui.tsx to check showSplash/showStageSelect state and return null. Modified viewer/ui/chyron/chyron.tsx to hide when splash/stage select active. This prevents loading indicators and UI elements from appearing over the start screen or stage select menu.",
+      "type": "config",
+      "tags": [
+        "config",
+        "ui",
+        "splash-screen",
+        "stage-select",
+        "hide-ui",
+        "complete"
+      ],
+      "timestamp": "2025-11-20T18:35:28.383Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-20T18:35:28.383Z",
+      "lastVerified": "2025-11-20T18:35:28.383Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763668481603_t70skhhh1",
+      "content": "Fixed stage select not transitioning to pillar view. Issue: content data (categoryIds, itemIds) wasn't loaded because Pillar component was hidden during splash screen. Solution: Created ContentLoader component in viewer.tsx that loads content independently, allowing stage selection to work even when Pillar is hidden. ContentLoader runs useContentStore.getState().fetchLatestEpisode() on mount.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "stage-select",
+        "content-loading",
+        "splash-screen",
+        "bug-fix",
+        "complete"
+      ],
+      "timestamp": "2025-11-20T19:54:41.603Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-20T19:54:41.603Z",
+      "lastVerified": "2025-11-20T19:54:41.603Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763669096218_68tv5ocr4",
+      "content": "Fixed infinite video retry spam in VideoPreloadManager. Issues: 1) Retry logic reset count each time causing infinite loops, 2) No blacklist for permanently failed URLs (YouTube/CORS), 3) All errors treated same way. Solution: Added blacklistedUrls Map and failedItems Set, isBlacklistedUrl() helper detects YouTube URLs early, updated preloadVideo() to check blacklist first and accept retryCount parameter, fixed handleError() to detect CORS errors immediately and blacklist them, properly track retry count, use exponential backoff (1s, 2s, 4s, max 5s), permanently fail after max retries. Now YouTube/CORS URLs fail once and are blacklisted, other errors retry max 2 times with backoff before permanent failure.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "video-preload",
+        "error-handling",
+        "retry-logic",
+        "cors",
+        "youtube",
+        "bug-fix",
+        "complete"
+      ],
+      "timestamp": "2025-11-20T20:04:56.218Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-20T20:04:56.218Z",
+      "lastVerified": "2025-11-20T20:04:56.218Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1763692876054_ndeir9z7c",
+      "content": "YouTube video CORS solution implemented:\n- Created youtubeUtils.ts with extractYouTubeVideoId(), isYouTubeUrl(), getYouTubeThumbnailUrl(), getYouTubeVideoData()\n- Modified Video.tsx to detect YouTube URLs and use thumbnails instead of direct embedding\n- Updated SafePlaneView.tsx to handle clickUrl prop that opens YouTube in new tab\n- Updated PlaneView.tsx to show YouTube play icon overlay using Html component from drei\n- Fixed VideoPreloadManager.ts infinite retry bug with blacklist system and proper retry counting\n- YouTube videos now show thumbnail with play icon, clicking opens video in new tab (avoids CORS entirely)",
+      "type": "error",
+      "tags": [
+        "error",
+        "youtube",
+        "cors",
+        "video",
+        "solution",
+        "fivethirty"
+      ],
+      "timestamp": "2025-11-21T02:41:16.054Z",
+      "context": "Fixed console spam from infinite YouTube video retry attempts and implemented proper YouTube thumbnail handling with click-to-open functionality",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-21T02:41:16.054Z",
+      "lastVerified": "2025-11-21T02:41:16.054Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764196523305_mehfqnjr1",
+      "content": "## Bot Project Architecture Overview Completed\n\nExplored /Users/patrickmacom/MainQuests/530News/fivethirty/bot directory comprehensively.\n\nKey Findings:\n1. **Chrome Extension** (Manifest v3) - Multi-platform content curator supporting Twitter, YouTube, Reddit, Bluesky\n2. **Database** - PostgreSQL via Supabase with unified content table + tag relationships + co-occurrence tracking\n3. **Next.js Web App** - Admin dashboard and API endpoints for content and tag management\n4. **Tag System** - Hierarchical with semantic relationships (SKOS-inspired) and data-driven co-occurrence suggestions\n\nCore Tables:\n- content (unified multi-platform)\n- creators (cross-platform author tracking)\n- content_comments (saved comments from posts)\n- tags (hierarchical with slug, parent_id, depth)\n- tag_relationships (SKOS semantic relationships with strength scores)\n- tag_co_occurrence (usage pattern tracking)\n\nKey APIs:\n- POST /api/content - Save/update tagged content\n- POST /api/posts - Save tagged posts (legacy)\n- GET /api/tags/hierarchy - Hierarchical tag structure\n- POST /api/comments - Save comments attached to content\n- GET /api/creators, /api/content/count, etc.\n\nExtension flows:\n1. Content script detects platform (Twitter/YouTube/Reddit/Bluesky)\n2. Injects \"530\" button on content\n3. Click opens tag hierarchy modal (Tagify integration)\n4. Background service worker handles API calls to Next.js\n5. Data saved to Supabase with user attribution",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "database",
+        "api",
+        "bot-project",
+        "architecture",
+        "database-schema",
+        "chrome-extension",
+        "next.js-api"
+      ],
+      "timestamp": "2025-11-26T22:35:23.305Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "lastVerified": "2025-11-26T22:35:23.305Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764196631807_7a3gli370",
+      "content": "## Bot Project Integration Analysis (Nov 2025)\n\n### Main Project (fivethirty)\n- Next.js 16.0.3, React 19, React Three Fiber\n- Database tables: episodes, content, content_blocks, content_block_items, tweets\n- 3D cylindrical viewer for displaying curated news content\n- Zustand state management, viewer system in /viewer/\n\n### Bot Project Structure\n- Chrome extension (Manifest v3) for tagging Twitter, YouTube, Reddit, Bluesky\n- Next.js 15.5.4 web app with extensive API routes\n- Different Supabase schema: users, tags (hierarchical), content (unified), creators, comments, tag_relationships, tag_co_occurrence\n- Smart tag suggestions using semantic relationships + co-occurrence\n\n### Key Schema Differences\nMain's content table: version, content_type, content_url, content_id, thumbnail_url, submitted_by, category, categories[], description\nBot's content table: id (platform:contentId), platform, platform_content_id, url, title, description, content, author info, media_assets (JSONB), tags (JSONB), metadata (JSONB)\n\n### Integration Requirements\n1. Merge database schemas (add bot's tables to main)\n2. Migrate API routes from bot/web/app/api/ to main app/api/\n3. Copy services (CreatorService, MetadataExtractor, content processors)\n4. Create page routes for dashboard, admin, episodes\n5. Update Chrome extension to point to main project's API\n6. Reconcile content table structures",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "database",
+        "api",
+        "bot-integration",
+        "architecture",
+        "planning"
+      ],
+      "timestamp": "2025-11-26T22:37:11.807Z",
+      "context": "Analysis of merging bot directory (Chrome extension + admin dashboard) into main fivethirty project",
+      "accessCount": 4,
+      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "lastVerified": "2025-11-26T22:37:11.807Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764276456303_2yjutl0gf",
+      "content": "## 530 News Chrome Extension - Popup & Data Structure Exploration Complete\n\n### Extension Location\n- Path: `/Users/patrickmacom/MainQuests/530News/fivethirty/bot/extension/`\n- Backend: `/Users/patrickmacom/MainQuests/530News/fivethirty/bot/web/`\n\n### Extension Structure\n- Manifest V3 Chrome extension\n- Multi-platform support: X.com/Twitter, YouTube, Reddit (new & old), Bluesky\n- Total: 4000+ lines of JavaScript across content scripts, background service, and UI\n\n### Current Popup Implementation\n**File**: `/bot/extension/public/popup.html` and `/bot/extension/public/popup.js` (144 lines)\n- Width: 350px, min-height: 400px\n- Purple gradient design (667eea to 764ba2)\n- Displays stats: Total Tags, Today's Tags, Content Items, Status\n- Shows 5 most recent tags with author, content preview, tags, and timestamp\n- Refresh interval: 5 seconds\n- Button to configure Supabase\n- Empty state with emoji when no tags\n\n### Tag System Currently Implemented\n**Simple Categories (tag-modal.js)**:\n1. Content Type: Article, Thread, Meme, News, Tutorial, Opinion, Question\n2. Topic: Tech, AI/ML, Design, Business, Politics, Science, Sports, Entertainment\n3. Quality: Must Read, Important, Interesting, Controversial, Funny, Inspirational\n4. Action: Read Later, Research, Share, Follow Up, Bookmark, Archive\n\n**Hierarchical System (tag-hierarchy-modal.js)**:\n- Loads from API endpoint `/api/tags/hierarchy`\n- Tree structure with parent-child relationships\n- Mock data fallback with 2 root categories:\n  - Artificial Intelligence (with 3 children: LLM, AI Art, Computer Vision)\n  - Web Development (with 2 children: Frontend Frameworks, APIs)\n\n### Data Structures\n\n#### Tag Database Schema (from /api/tags/hierarchy/route.ts)\n```\nTags table: {\n  id: string\n  slug: string\n  name: string\n  description: string | null\n  parent_id: string | null\n  depth: number\n  path: string\n}\n```\n\n#### Content/Post Data Structure (from background.js)\n```\n{\n  platform: 'twitter' | 'youtube' | 'reddit' | 'bluesky' | 'generic'\n  platformContentId: string (tweet ID, video ID, etc.)\n  url: string\n  tags: string[] (array of tag slugs)\n  title?: string\n  description?: string\n  content?: string\n  author?: string\n  authorUsername?: string\n  authorUrl?: string\n  authorAvatarUrl?: string\n  thumbnailUrl?: string\n  mediaAssets?: [{type, url, width?, height?, duration?, mimeType?}]\n  metadata?: Record<string, any>\n  contentCreatedAt?: string (ISO timestamp)\n}\n```\n\n#### Media Assets\n```\n{\n  type: 'image' | 'video' | 'audio' | 'embed'\n  url: string\n  width?: number\n  height?: number\n  duration?: number (seconds)\n  mimeType?: string\n}\n```\n\n### API Endpoints\n- GET `/api/tags/hierarchy` - Get full tag hierarchy\n- POST `/api/content` - Save tagged content\n- GET `/api/content/check?platform=X&contentId=Y` - Check if content exists\n- POST `/api/posts` - Legacy Twitter posting (deprecated)\n- GET `/api/tags/co-occurrence` - Tag co-occurrence tracking\n- POST `/api/comments` - Save comments on content\n\n### Key Files to Modify\n1. **Popup UI**: `/bot/extension/public/popup.html` and `/bot/extension/public/popup.js`\n2. **Tag Modal**: `/bot/extension/public/tag-hierarchy-modal.js` (796 lines)\n3. **Tag Categories**: `/bot/extension/public/tag-modal.js` (simple version)\n4. **Background Service**: `/bot/extension/public/background.js` (583 lines)\n5. **Backend API Routes**: `/bot/web/app/api/content/route.ts`, `/bot/web/app/api/tags/hierarchy/route.ts`\n6. **Backend Types**: `/bot/web/lib/content-processors/types.ts`\n\n### Current Popup Features\n- Shows recent tags with author and content preview\n- Displays statistics (total, today, content count, status)\n- CSS scrollbar styling for tag list\n- Responsive grid for tag badges\n- Time-ago formatting for timestamps\n- HTML escaping for security\n\n### Next Steps for Channel/Category Implementation\n1. Extend tag hierarchy to include \"channels\" or \"groups\" as first-level categories\n2. Modify popup to show channel selection UI\n3. Update content POST endpoint to accept channel assignment\n4. Modify tag modal to show channel-organized tags\n5. Add channel filtering/management to admin interface\n",
+      "type": "config",
+      "tags": [
+        "config",
+        "javascript",
+        "api",
+        "database",
+        "extension",
+        "popup",
+        "data-structures",
+        "chrome-extension",
+        "530-project"
+      ],
+      "timestamp": "2025-11-27T20:47:36.303Z",
+      "accessCount": 5,
+      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "lastVerified": "2025-11-27T20:47:36.303Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764276517989_s8w2kd3f1",
+      "content": "Extension Popup Update Plan - November 2024\n\nCurrent State:\n- Extension uses vanilla JavaScript (no React)\n- TagHierarchyModal (tag-hierarchy-modal.js) shows full-screen overlay when user clicks 530 button\n- Current tag system: hierarchical tree structure fetched from /api/tags/hierarchy\n- popup.html/js shows stats only (not the tag selection)\n\nUser Request:\n- Replace current tag hierarchy with channel/group organization (like Discord channels)\n- Use SmartPopover-style UI (CSS anchor positioning, horizontal category icons)\n- ChannelSelector pattern: category icons → sub-popover with channels → selected tags area\n\nKey Technical Considerations:\n1. Example code is React/Next.js - needs adaptation to vanilla JS\n2. SmartPopover uses CSS anchor positioning (new CSS feature) with JS fallback\n3. channelGroups data structure: { id, name, icon, channels: [{id, name, description, icon}] }\n4. Primary channel concept (first selected = primary, shown with star)\n\nFiles to modify:\n- tag-hierarchy-modal.js → convert to channel selector pattern\n- tag-hierarchy-modal.css → new styling for category buttons/sub-popovers\n- backend API needed: channel groups data structure",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "javascript",
+        "react",
+        "api",
+        "extension",
+        "popup",
+        "channels",
+        "plan",
+        "530"
+      ],
+      "timestamp": "2025-11-27T20:48:37.989Z",
+      "context": "User wants to update Chrome extension tag selection modal to use new SmartPopover/ChannelSelector design pattern",
+      "accessCount": 4,
+      "lastAccessed": "2025-11-28T03:16:16.479Z",
+      "lastVerified": "2025-11-27T20:48:37.989Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764277082515_fgay3po05",
+      "content": "# Data Model Migration Plan: Tags to Channels\n\n## Overview\nMigrate 530 News from hierarchical tags to Discord-like channel/group organization.\n\n## New Schema\n\n### channel_groups table:\n- id (UUID, PK)\n- slug (TEXT, unique)\n- name (TEXT)\n- icon (TEXT - emoji)\n- description (TEXT)\n- display_order (INTEGER)\n- is_active (BOOLEAN)\n- created_at, updated_at (TIMESTAMPTZ)\n\n### channels table:\n- id (UUID, PK)\n- group_id (UUID, FK to channel_groups)\n- slug (TEXT, unique within group)\n- name (TEXT)\n- icon (TEXT - emoji)\n- description (TEXT)\n- display_order (INTEGER)\n- is_active (BOOLEAN)\n- created_at, updated_at (TIMESTAMPTZ)\n\n## Channel Groups (7):\n1. general (📢) - Main Events, Intros, Job Hunt\n2. thirddimension (🎮) - 3D Models, Blender, Godot, PlayCanvas, Splats, Three.js, Unity, Unreal, Shaders\n3. ai (🤖) - AI Tips, Art, Audio, LLM, Showcase, Video, Workflows\n4. code (💻) - Code, NoCode, Design, UX\n5. misc (🔮) - Science, Law, Robotics, Medicine, Security, Energy, Crypto\n6. offtopic (💬) - Sense, Nonsense, Society\n7. metaverse (🌐) - DCL, Hyperfy, Metaverse General, OnCyber, Portals, Virtual\n\n## Migration Steps:\n1. Create channel_groups + channels tables\n2. Seed with 7 groups and ~40 channels\n3. Clear content.tags (keep content, clear associations)\n4. Create new API: /api/channels\n5. Update extension to use new structure\n6. (Optional) Drop old tags tables\n\n## Key Files:\n- /bot/supabase/migrations/YYYYMMDD_channels_migration.sql\n- /bot/web/app/api/channels/route.ts\n- /bot/extension/public/background.js\n- /bot/extension/public/tag-hierarchy-modal.js",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "migration",
+        "database",
+        "channels",
+        "schema",
+        "530-project",
+        "plan"
+      ],
+      "timestamp": "2025-11-27T20:58:02.515Z",
+      "context": "Planning data model migration from hierarchical tags to channel/group organization for 530 News Chrome extension",
+      "accessCount": 4,
+      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "lastVerified": "2025-11-27T20:58:02.515Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764284119545_7aetcecoo",
+      "content": "## 530 Extension Verification - November 2025\n\n### Extension Architecture Verified ✓\n\n**Post Identification (per platform):**\n- **Twitter/X** (`content.js`): Uses `article[data-testid=\"tweet\"]` selector, extracts tweet ID from `/status/` URLs\n- **YouTube** (`content-youtube.js`): Uses URL param `?v=`, injects in `#top-level-buttons-computed` action bar\n- **Reddit** (`content-reddit.js`): Handles both old Reddit (`.thing.link`) and new Reddit (`shreddit-post` shadow DOM elements)\n- **Bluesky** (`content-bluesky.js`): Uses `/profile/{handle}/post/{postId}` URL pattern\n\n**530 Button Injection ✓:**\n- Each platform script creates styled gradient button (purple: untagged, green: tagged)\n- Button appears in post action bars alongside native buttons\n- Button shows \"530 ✓\" when post is already tagged\n\n**API Integration ✓:**\n- `background.js` handles message routing to Next.js API at `localhost:3000/api`\n- `getChannelGroups` action → `GET /api/channels` returns channel groups with nested channels\n- `updateContentChannels` action → `POST /api/content` saves content with channels\n- `checkContentExists`/`checkPostExists` actions verify if content already tagged\n\n**Channel Selector Popup ✓:**\n- `ChannelSelector` class (`channel-selector.js`) displays popover with category icons\n- Uses `SmartPopover` for positioning (with CSS anchor positioning + JS fallback)\n- Shows channel groups as icon buttons at bottom\n- Clicking group opens sub-popover with individual channels\n- Selected channels appear as chips with star for primary\n- Auto-saves on selection\n\n**API Endpoints Verified:**\n- `GET /api/channels` - Returns channel_groups with nested channels from Supabase\n- `POST /api/content` - Creates/updates content with channels array and primary_channel\n- `GET /api/content/check` - Checks if content exists by platform+contentId",
+      "type": "code",
+      "tags": [
+        "code",
+        "api",
+        "extension",
+        "530",
+        "verification",
+        "channels",
+        "qa"
+      ],
+      "timestamp": "2025-11-27T22:55:19.545Z",
+      "context": "Comprehensive verification of 530 browser extension functionality for QA process",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-27T22:55:19.545Z",
+      "lastVerified": "2025-11-27T22:55:19.545Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764291271310_37lgz6wyw",
+      "content": "## Extension Converted to React - November 2025\n\n### Build Setup\n- Vite config: `extension/vite.config.ts`\n- Source: `extension/src/content.tsx` + `extension/src/components/ChannelSelector.tsx`\n- Output: `extension/dist/content.js`\n- Build command: `pnpm run ext:build`\n- Watch command: `pnpm run ext:watch`\n\n### Architecture\n- React 19 + lucide-react icons\n- Shadow DOM for style isolation\n- Inline CSS in shadow DOM (no external stylesheets needed)\n- IIFE bundle format for Chrome extension content scripts\n\n### Key Files\n- `extension/src/content.tsx` - Main entry, post detection, button injection\n- `extension/src/components/ChannelSelector.tsx` - React popup with lucide icons\n- `extension/vite.config.ts` - Vite build config\n\n### Manifest Updated\n- Twitter/X now uses React build: `dist/content.js`\n- Other platforms still use vanilla JS (incremental migration)\n- Added localhost:3000 to host_permissions",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "extension",
+        "vite",
+        "build",
+        "530"
+      ],
+      "timestamp": "2025-11-28T00:54:31.310Z",
+      "context": "Extension converted from vanilla JS to React with Vite build",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-28T03:16:16.479Z",
+      "lastVerified": "2025-11-28T00:54:31.310Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764292557982_zyp12al9k",
+      "content": "Extension React conversion complete for Twitter/X platform. Key implementation details:\n\nBuild: `pnpm ext:build` runs vite build from extension/vite.config.ts, outputs to extension/dist/content.js (622KB)\n\nFiles:\n- extension/vite.config.ts - IIFE format, root: __dirname, inlineDynamicImports\n- extension/src/content.tsx - Shadow DOM injection, dark theme inline styles\n- extension/src/components/ChannelSelector.tsx - lucide-react icons, stopPropagation on clicks\n\nClick handling fix: Added stopPropagation() on both onClick AND onMouseDown for popup container and group buttons to prevent click-outside handler from triggering.\n\nExtension context fix: Check chrome.runtime?.id before API calls, catch \"Extension context invalidated\" errors gracefully.\n\nManifest.json: Twitter/X uses dist/content.js, other platforms (YouTube, Reddit, Bluesky) still use vanilla JS files.",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "api",
+        "extension",
+        "vite",
+        "twitter",
+        "chrome-extension",
+        "implementation"
+      ],
+      "timestamp": "2025-11-28T01:15:57.982Z",
+      "context": "Browser extension migration from vanilla JS to React for 530News project",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-28T03:16:16.479Z",
+      "lastVerified": "2025-11-28T01:15:57.982Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764293705675_rcjiytjwe",
+      "content": "Extension React conversion complete for ALL platforms (Twitter, YouTube, Reddit, Bluesky).\n\nFiles created:\n- extension/src/shared/popup.tsx - Shared popup utilities (showPopup, closePopup, createButton, updateButtonAppearance)\n- extension/src/content-youtube.tsx - YouTube React content script\n- extension/src/content-reddit.tsx - Reddit React content script  \n- extension/src/content-bluesky.tsx - Bluesky React content script\n\nVite config updated: extension/vite.config.ts\n- Multiple entry points for all platforms\n- ES module format (required for multiple inputs)\n- Shared chunks: shared-popup.js, shared-ChannelSelector.js\n\nManifest.json updated:\n- All content scripts now use dist/*.js builds\n- Added \"type\": \"module\" to all content scripts\n- Added dist/*.js to web_accessible_resources for ES module imports\n\nBuild command: pnpm ext:build\nOutput files in extension/dist/",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "extension",
+        "youtube",
+        "reddit",
+        "bluesky",
+        "vite",
+        "implementation"
+      ],
+      "timestamp": "2025-11-28T01:35:05.675Z",
+      "context": "Completed multi-platform React extension conversion for 530News",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-28T01:35:05.675Z",
+      "lastVerified": "2025-11-28T01:35:05.675Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764293827211_k5tihob7m",
+      "content": "Multi-platform React extension conversion completed successfully (Nov 27, 2025):\n- All 4 platforms now use React-based channel selector popup\n- Build output: content.js (Twitter), content-youtube.js, content-reddit.js, content-bluesky.js\n- Shared modules: shared-popup.js, shared-ChannelSelector.js (580KB)\n- Manifest.json updated with \"type\": \"module\" for ES modules\n- dist/*.js added to web_accessible_resources\n- API route fixed: content field now maps to description column in database",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "react",
+        "api",
+        "database",
+        "extension",
+        "530news",
+        "completed"
+      ],
+      "timestamp": "2025-11-28T01:37:07.211Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-28T01:37:07.211Z",
+      "lastVerified": "2025-11-28T01:37:07.211Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764299620151_nj5qasj46",
+      "content": "CODEBASE EXPLORATION FINDINGS - 530News Project\n\nAUTH & USER MANAGEMENT:\n- NO authentication implementation found (no NextAuth, no Discord OAuth)\n- Supabase is used but ONLY for database (supabase/ssr library)\n- No user tables in database schema\n- All API endpoints have CORS enabled with '*' origin (public, no auth required)\n- Content can be submitted anonymously with 'extension' as default submitter\n\nDATABASE SCHEMA (Main Instance at /app):\n- content table: id (UUID), platform, platform_content_id, url, title, description, channels (JSONB array), primary_channel (text), tags (JSONB array), author_name, author_username, author_url, author_avatar_url, thumbnail_url, media_assets, metadata, content_created_at, submitted_by, created_at, updated_at\n- channels table (NEW): id (UUID), group_id (FK), slug (unique), name, icon, description, display_order, is_active\n- channel_groups table (NEW): id (UUID), slug (unique), name, icon, description, display_order, is_active\n- Old tables: episodes, content_blocks, content_block_items, tweets\n\nCHANNEL SYSTEM (Latest Migration 2024-11-27):\n- Hierarchical structure: channel_groups → channels (one-to-many)\n- Groups: General, ThirdDimension, AI, Code, Misc\n- Each group has multiple channels (e.g., General has main-events, intros, jobhunt)\n- RLS policies: Public read/insert/update (no auth required)\n- Uses flat JSONB arrays for channels/tags in content table\n- Each content item can have multiple channels + primary_channel designator\n\nPOPUP UI STRUCTURE (ChannelSelector.tsx):\n- React component with TypeScript\n- Two-level popup system:\n  1. Main popup: Shows group icons + selected channels + done button\n  2. Sub-popup: Shows channels within active group\n- Style isolation: Shadow DOM with embedded CSS\n- Features: Icon mapping (lucide-react), multi-select, primary channel designation\n- Positioning: Smart repositioning to avoid going off-screen\n- State management: Uses useState for channels, primary channel, active group\n- Communication: Uses chrome.runtime.sendMessage to background worker\n- Actions: 'getChannelGroups', 'updateContentChannels'\n\nENV VARIABLES:\n- Local development: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY\n- No auth secrets needed (public anon key only)\n- No API key requirement for endpoints\n\nEXTENSION ARCHITECTURE:\n- Background service worker (background.js): Handles API calls via chrome.runtime.onMessage\n- Content scripts (content.tsx, content-youtube.tsx, etc): Platform-specific button injection\n- Popup system (popup.tsx): Shared popup styling and management\n- API base URL from storage: Default http://localhost:3000/api\n- Message handlers: tagPost, getTags, checkPostExists, updatePostTags, updateContentChannels, getChannelGroups",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "typescript",
+        "react",
+        "authentication",
+        "database",
+        "api",
+        "auth",
+        "database-schema",
+        "api-routes",
+        "popup-ui",
+        "extension"
+      ],
+      "timestamp": "2025-11-28T03:13:40.151Z",
+      "context": "Comprehensive codebase exploration for 530News extension project - understanding auth, database, and UI",
+      "accessCount": 3,
+      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "lastVerified": "2025-11-28T03:13:40.151Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764301082507_3muwx2tqh",
+      "content": "Implemented Discord OAuth + Notes feature for 530 extension:\n\n1. Database: Created migration with users table (discord auth, session tokens) and content_notes table (280 char limit, one per user per content)\n\n2. API Routes:\n   - /api/auth/discord - OAuth initiation\n   - /api/auth/discord/callback - OAuth callback, guild verification\n   - /api/auth/verify - Session validation\n   - /api/content/[id]/notes - Notes CRUD (GET/POST/DELETE)\n\n3. Background.js: Added handlers for getAuthState, login, logout, verifySession, getNotes, saveUserNote, deleteUserNote\n\n4. Frontend:\n   - NotesSection.tsx - Collapsible notes with auto-save, 280 char limit\n   - Integrated into ChannelSelectorPopup\n   - Added notesStyles to popup.tsx\n\nPending:\n- User needs to create Discord Developer App\n- Set DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET in .env.local\n- Guild verification uses server ID: 1031322428288278539\n- Content scripts still need auth gating (currently always show button)",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "database",
+        "api",
+        "530-extension",
+        "discord-auth",
+        "notes-feature",
+        "implementation"
+      ],
+      "timestamp": "2025-11-28T03:38:02.507Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-28T03:38:02.507Z",
+      "lastVerified": "2025-11-28T03:38:02.507Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764352552446_ba98f8e14",
+      "content": "Homepage content filter: Added 7-day date filter to fetchLatestEpisode() in viewer/core/store/contentStore.tsx. Uses `.gte('submitted_at', oneWeekAgo.toISOString())` to only show content from the last week. Local Supabase already configured at http://127.0.0.1:54321.",
+      "type": "general",
+      "tags": [
+        "general",
+        "530news",
+        "supabase",
+        "contentStore",
+        "date-filter"
+      ],
+      "timestamp": "2025-11-28T17:55:52.446Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-28T17:55:52.446Z",
+      "lastVerified": "2025-11-28T17:55:52.446Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764353349774_na37fyinh",
+      "content": "Discord auth for React web app implemented:\n- `/api/auth/discord?web=true` - initiates OAuth for web (sets isWebLogin in state)\n- `/api/auth/discord/callback` - updated to set cookies (530_session, 530_user) for web login and redirect to /\n- `/api/auth/session` - returns current user from cookie\n- `/api/auth/logout` - clears session and redirects to /login\n- `middleware.ts` - protects routes, redirects to /login if not authenticated\n- `contexts/AuthContext.tsx` - React context with useAuth() hook\n- `app/login/page.tsx` - Discord login page with 530 branding\n- `app/layout.tsx` - wrapped with AuthProvider\n\nSession uses cookies: 530_session (HttpOnly) and 530_user (readable by JS). 30-day expiry.",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "api",
+        "530news",
+        "discord-auth",
+        "next.js",
+        "oauth"
+      ],
+      "timestamp": "2025-11-28T18:09:09.774Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-28T18:09:09.774Z",
+      "lastVerified": "2025-11-28T18:09:09.774Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-19T21:13:51.772Z"
+  "lastUpdated": "2025-11-28T18:09:09.774Z"
 }

@@ -2,12 +2,17 @@ import React, { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useContentStore } from '../../core/store/contentStore';
 import useChyronStore from './store';
+import { useStageSelectStore } from '../stageselect/store';
 import './styles.css';
 
 export const Chyron = () => {
   const isVisible = useChyronStore(state => state.isVisible);
   const currentCategory = useChyronStore(state => state.currentCategory);
   const showChyron = useChyronStore(state => state.showChyron);
+
+  // Hide Chyron when splash screen or stage select is showing
+  const showSplash = useStageSelectStore(state => state.showSplash);
+  const showStageSelect = useStageSelectStore(state => state.showStageSelect);
 
   const activeCategoryIndex = useContentStore(state => state.activeCategoryIndex);
   const categoryTitles = useContentStore(state => state.categoryTitles);
@@ -38,6 +43,9 @@ export const Chyron = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategoryIndex]);
+
+  // Don't render Chyron when splash screen or stage select is showing
+  if (showSplash || showStageSelect) return null;
 
   return (
     <AnimatePresence>

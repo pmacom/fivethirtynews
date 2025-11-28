@@ -1,0 +1,846 @@
+/* 530 Hierarchical Tag Modal Styles */
+
+/* Critical: Overlay must be above everything on X.com */
+.five-thirty-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(4px) !important;
+  z-index: 2147483647 !important; /* Maximum z-index value */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  animation: five-thirty-fadeIn 0.2s ease !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+}
+
+@keyframes five-thirty-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.five-thirty-modal {
+  position: relative !important;
+  background: #1e1e1e !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
+  animation: five-thirty-slideUp 0.3s ease !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+  color: #e4e4e4 !important;
+  z-index: 2147483647 !important;
+  max-width: 700px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border: 1px solid #333 !important;
+}
+
+@keyframes five-thirty-slideUp {
+  from {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.five-thirty-hierarchy-modal {
+  max-height: 90vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.five-thirty-modal-body {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 300px !important;
+  background: #1e1e1e !important;
+}
+
+.five-thirty-modal-header {
+  border-bottom: 1px solid #333 !important;
+  padding: 12px 16px !important;
+  background: #1e1e1e !important;
+  max-height: 40vh !important;
+  overflow-y: auto !important;
+  flex-shrink: 0 !important;
+}
+
+.five-thirty-modal-header h2 {
+  margin: 0 0 4px 0 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #e4e4e4 !important;
+  line-height: 1.3 !important;
+}
+
+.five-thirty-post-author {
+  margin: 0 !important;
+  font-size: 12px !important;
+  color: #999 !important;
+  line-height: 1.3 !important;
+}
+
+.five-thirty-existing-badge,
+.five-thirty-new-badge {
+  display: inline-block !important;
+  margin-top: 2px !important;
+  padding: 1px 6px !important;
+  border-radius: 6px !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+}
+
+.five-thirty-existing-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+}
+
+.five-thirty-new-badge {
+  background: #333 !important;
+  color: #999 !important;
+}
+
+.five-thirty-loading,
+.five-thirty-error {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 300px !important;
+  color: #999 !important;
+  font-size: 14px !important;
+}
+
+.five-thirty-error {
+  color: #ef4444 !important;
+}
+
+.five-thirty-search-box {
+  padding: 8px 12px !important;
+  border-bottom: 1px solid #333 !important;
+  background: #1e1e1e !important;
+}
+
+.five-thirty-search-input {
+  width: 100% !important;
+  padding: 6px 12px !important;
+  border: 1px solid #444 !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  outline: none !important;
+  transition: border-color 0.2s !important;
+  background: #2a2a2a !important;
+  color: #e4e4e4 !important;
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+}
+
+.five-thirty-search-input:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+}
+
+.five-thirty-hierarchy-container {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 4px 8px !important;
+  background: #1e1e1e !important;
+}
+
+.five-thirty-tag-row {
+  margin-bottom: 1px !important;
+}
+
+.five-thirty-tag-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+  border: 1px solid transparent !important;
+  background: #252525 !important;
+  box-sizing: border-box !important;
+  min-height: 28px !important;
+}
+
+.five-thirty-tag-item:hover {
+  background: #2f2f2f !important;
+  border-color: #444 !important;
+}
+
+.five-thirty-tag-item.selected {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.25) 0%, rgba(118, 75, 162, 0.25) 100%) !important;
+  border-color: #667eea !important;
+  box-shadow: 0 1px 4px rgba(102, 126, 234, 0.3) !important;
+}
+
+.five-thirty-expand-btn {
+  flex-shrink: 0 !important;
+  width: 18px !important;
+  height: 18px !important;
+  background: #333 !important;
+  border: 1px solid #444 !important;
+  cursor: pointer !important;
+  color: #aaa !important;
+  font-size: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 3px !important;
+  transition: all 0.2s !important;
+  padding: 0 !important;
+}
+
+.five-thirty-expand-btn:hover {
+  background: #3a3a3a !important;
+  border-color: #555 !important;
+}
+
+.five-thirty-no-expand {
+  width: 18px !important;
+  flex-shrink: 0 !important;
+  display: inline-block !important;
+}
+
+.five-thirty-tag-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 1px !important;
+}
+
+.five-thirty-tag-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.five-thirty-tag-name {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #e4e4e4 !important;
+  line-height: 1.3 !important;
+}
+
+.five-thirty-tag-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 16px !important;
+  height: 16px !important;
+  padding: 0 4px !important;
+  background: #667eea !important;
+  color: white !important;
+  border-radius: 8px !important;
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+}
+
+.five-thirty-tag-desc {
+  font-size: 11px !important;
+  color: #888 !important;
+  line-height: 1.4 !important;
+  font-style: italic !important;
+}
+
+.five-thirty-tag-checkbox {
+  flex-shrink: 0 !important;
+}
+
+.five-thirty-checkbox {
+  width: 14px !important;
+  height: 14px !important;
+  cursor: pointer !important;
+  accent-color: #667eea !important;
+  margin: 0 !important;
+}
+
+.five-thirty-children {
+  margin-left: 24px !important;
+  margin-top: 1px !important;
+  padding-left: 6px !important;
+  border-left: 1px solid #333 !important;
+}
+
+.five-thirty-tag-row[data-level="0"] .five-thirty-tag-item {
+  background: #2a2a2a !important;
+  border: 1px solid #444 !important;
+}
+
+.five-thirty-tag-row[data-level="0"] .five-thirty-tag-item:hover {
+  background: #333 !important;
+  border-color: #555 !important;
+}
+
+.five-thirty-tag-row[data-level="0"] .five-thirty-tag-item.selected {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%) !important;
+  border-color: #667eea !important;
+}
+
+.five-thirty-modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 8px 12px !important;
+  border-top: 1px solid #333 !important;
+  gap: 8px !important;
+  background: #1e1e1e !important;
+}
+
+.five-thirty-selected-count {
+  font-size: 11px !important;
+  color: #999 !important;
+  line-height: 1.3 !important;
+}
+
+.five-thirty-selected-count span {
+  font-weight: 600 !important;
+  color: #667eea !important;
+}
+
+.five-thirty-modal-actions {
+  display: flex !important;
+  gap: 6px !important;
+}
+
+.five-thirty-modal-button {
+  padding: 5px 14px !important;
+  border-radius: 5px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  font-family: inherit !important;
+  line-height: 1.3 !important;
+  border: none !important;
+  outline: none !important;
+}
+
+.five-thirty-modal-button.cancel {
+  background: #2a2a2a !important;
+  color: #aaa !important;
+  border: 1px solid #444 !important;
+}
+
+.five-thirty-modal-button.cancel:hover {
+  background: #333 !important;
+}
+
+.five-thirty-modal-button.save {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+}
+
+.five-thirty-modal-button.save:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+}
+
+.five-thirty-modal-button.save:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+/* Scrollbar styling */
+.five-thirty-hierarchy-container::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.five-thirty-hierarchy-container::-webkit-scrollbar-track {
+  background: #2a2a2a !important;
+  border-radius: 4px !important;
+}
+
+.five-thirty-hierarchy-container::-webkit-scrollbar-thumb {
+  background: #444 !important;
+  border-radius: 4px !important;
+}
+
+.five-thirty-hierarchy-container::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
+}
+
+/* Animation for expand/collapse */
+.five-thirty-expand-btn {
+  transition: transform 0.2s !important;
+}
+
+.five-thirty-expand-btn.expanded {
+  transform: rotate(0deg) !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .five-thirty-hierarchy-modal {
+    max-width: 95vw !important;
+    max-height: 90vh !important;
+  }
+
+  .five-thirty-modal-header h2 {
+    font-size: 18px !important;
+  }
+
+  .five-thirty-modal-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .five-thirty-modal-actions {
+    width: 100% !important;
+  }
+
+  .five-thirty-modal-button {
+    flex: 1 !important;
+  }
+}
+
+/* Ensure all text elements use proper styling */
+.five-thirty-modal * {
+  box-sizing: border-box !important;
+}
+
+.five-thirty-modal p,
+.five-thirty-modal span,
+.five-thirty-modal div,
+.five-thirty-modal button,
+.five-thirty-modal input {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+/* Force visible text colors - override X.com's styles */
+.five-thirty-tag-name {
+  color: #e4e4e4 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.five-thirty-tag-desc {
+  color: #888 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.five-thirty-selected-count,
+.five-thirty-post-author {
+  color: #999 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.five-thirty-modal h2 {
+  color: #e4e4e4 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.five-thirty-modal-button {
+  color: #aaa !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.five-thirty-modal-button.save {
+  color: white !important;
+}
+
+/* Header Title Section */
+.five-thirty-header-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 12px !important;
+}
+
+.five-thirty-header-title h2 {
+  margin: 0 !important;
+}
+
+/* Content Preview Section */
+.five-thirty-content-preview {
+  padding: 12px !important;
+  background: #2a2a2a !important;
+  border-radius: 8px !important;
+  border: 1px solid #333 !important;
+}
+
+.five-thirty-preview-layout {
+  display: flex !important;
+  gap: 16px !important;
+}
+
+/* Author Section (Left) */
+.five-thirty-preview-author {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 100px !important;
+}
+
+.five-thirty-author-avatar {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  border: 2px solid #444 !important;
+}
+
+.five-thirty-author-avatar-placeholder {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  border: 2px solid #444 !important;
+}
+
+.five-thirty-author-info {
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.five-thirty-author-name {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #e4e4e4 !important;
+  line-height: 1.2 !important;
+  word-break: break-word !important;
+}
+
+.five-thirty-author-username {
+  font-size: 10px !important;
+  color: #999 !important;
+  line-height: 1.2 !important;
+}
+
+/* Content Section (Right) */
+.five-thirty-preview-content {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.five-thirty-preview-title {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #e4e4e4 !important;
+  margin-bottom: 8px !important;
+  line-height: 1.4 !important;
+}
+
+.five-thirty-preview-text {
+  font-size: 13px !important;
+  color: #b4b4b4 !important;
+  line-height: 1.5 !important;
+  margin-bottom: 8px !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+}
+
+.five-thirty-expand-text {
+  background: none !important;
+  border: none !important;
+  color: #667eea !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  padding: 4px 0 !important;
+  margin-bottom: 8px !important;
+  display: block !important;
+  text-align: left !important;
+  transition: color 0.2s !important;
+}
+
+.five-thirty-expand-text:hover {
+  color: #7b8ff5 !important;
+  text-decoration: underline !important;
+}
+
+.five-thirty-preview-media {
+  position: relative !important;
+  margin-bottom: 8px !important;
+  border-radius: 6px !important;
+  overflow: hidden !important;
+  max-height: 200px !important;
+}
+
+.five-thirty-preview-thumbnail {
+  width: 100% !important;
+  height: auto !important;
+  display: block !important;
+  border-radius: 6px !important;
+  object-fit: cover !important;
+  max-height: 200px !important;
+}
+
+.five-thirty-media-count {
+  position: absolute !important;
+  bottom: 8px !important;
+  right: 8px !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: white !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+.five-thirty-preview-meta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+
+.five-thirty-platform-badge {
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  background: #667eea !important;
+  color: white !important;
+  text-transform: capitalize !important;
+  display: inline-block !important;
+}
+
+.five-thirty-preview-link {
+  font-size: 11px !important;
+  color: #667eea !important;
+  text-decoration: none !important;
+  transition: color 0.2s !important;
+  display: inline-block !important;
+  margin-top: 8px !important;
+}
+
+.five-thirty-preview-link:hover {
+  color: #7b8ff5 !important;
+  text-decoration: underline !important;
+}
+
+/* Ensure all text in modal is visible */
+.five-thirty-modal span,
+.five-thirty-modal p,
+.five-thirty-modal div,
+.five-thirty-modal label,
+.five-thirty-modal input {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* ========================================
+   Tagify Section Styles
+   ======================================== */
+
+.five-thirty-tagify-section {
+  padding: 16px 20px !important;
+  background: rgba(102, 126, 234, 0.05) !important;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.2) !important;
+  margin: 0 !important;
+}
+
+.five-thirty-tagify-label {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  margin-bottom: 10px !important;
+}
+
+.five-thirty-tagify-label-text {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #e4e4e4 !important;
+}
+
+.five-thirty-tagify-hint {
+  font-size: 12px !important;
+  color: #94a3b8 !important;
+  font-weight: 400 !important;
+}
+
+.five-thirty-tagify-input {
+  width: 100% !important;
+  padding: 8px 12px !important;
+  background: #2a2a2a !important;
+  border: 2px solid #3a3a3a !important;
+  border-radius: 8px !important;
+  color: #e4e4e4 !important;
+  font-size: 14px !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.2s ease !important;
+}
+
+.five-thirty-tagify-input:focus {
+  outline: none !important;
+  border-color: #667eea !important;
+}
+
+/* Section divider between Tagify and hierarchy browser */
+.five-thirty-section-divider {
+  text-align: center !important;
+  padding: 16px 20px !important;
+  position: relative !important;
+  color: #64748b !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+}
+
+.five-thirty-section-divider::before,
+.five-thirty-section-divider::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  width: 40% !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, #3a3a3a, transparent) !important;
+}
+
+.five-thirty-section-divider::before {
+  left: 0 !important;
+}
+
+.five-thirty-section-divider::after {
+  right: 0 !important;
+}
+
+/* Tagify library overrides for dark theme */
+.five-thirty-modal .tagify {
+  border: 2px solid #3a3a3a !important;
+  background: #2a2a2a !important;
+  border-radius: 8px !important;
+}
+
+.five-thirty-modal .tagify:hover {
+  border-color: #4a4a4a !important;
+}
+
+.five-thirty-modal .tagify.tagify--focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+.five-thirty-modal .tagify__input {
+  color: #e4e4e4 !important;
+  padding: 6px !important;
+  min-width: 120px !important;
+}
+
+.five-thirty-modal .tagify__input::before {
+  color: #64748b !important;
+}
+
+/* Tag chips */
+.five-thirty-modal .tagify__tag {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border: none !important;
+  margin: 3px !important;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.five-thirty-modal .tagify__tag:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3) !important;
+}
+
+.five-thirty-modal .tagify__tag__removeBtn {
+  color: white !important;
+  opacity: 0.7 !important;
+  font-size: 14px !important;
+  margin-left: 6px !important;
+}
+
+.five-thirty-modal .tagify__tag__removeBtn:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Dropdown suggestions */
+.five-thirty-modal .tagify__dropdown {
+  background: #2a2a2a !important;
+  border: 1px solid #3a3a3a !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+  z-index: 2147483647 !important;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+}
+
+.five-thirty-modal .tagify__dropdown__wrapper {
+  background: transparent !important;
+  border: none !important;
+}
+
+.five-thirty-modal .tagify__dropdown__item {
+  padding: 10px 12px !important;
+  color: #e4e4e4 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease !important;
+}
+
+.five-thirty-modal .tagify__dropdown__item:hover,
+.five-thirty-modal .tagify__dropdown__item--active {
+  background: rgba(102, 126, 234, 0.2) !important;
+}
+
+.five-thirty-modal .tagify__dropdown__item:last-child {
+  border-bottom: none !important;
+}
+
+/* Loading state */
+.five-thirty-modal .tagify.tagify--loading .tagify__input::before {
+  content: 'Loading suggestions...' !important;
+  color: #667eea !important;
+  animation: five-thirty-pulse 1.5s ease-in-out infinite !important;
+}
+
+@keyframes five-thirty-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Scrollbar for dropdown */
+.five-thirty-modal .tagify__dropdown::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.five-thirty-modal .tagify__dropdown::-webkit-scrollbar-track {
+  background: #1e1e1e !important;
+  border-radius: 3px !important;
+}
+
+.five-thirty-modal .tagify__dropdown::-webkit-scrollbar-thumb {
+  background: #4a4a4a !important;
+  border-radius: 3px !important;
+}
+
+.five-thirty-modal .tagify__dropdown::-webkit-scrollbar-thumb:hover {
+  background: #5a5a5a !important;
+}

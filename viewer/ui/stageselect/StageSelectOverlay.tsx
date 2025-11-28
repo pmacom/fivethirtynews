@@ -96,8 +96,11 @@ export function StageSelectOverlay() {
   }
 
   const selectLevel = (index: number) => {
+    console.log('[StageSelect] selectLevel called with index:', index)
     const level = levels[index]
     const categoryIndex = getCategoryIndexForLevel(level.id)
+
+    console.log('[StageSelect] Level:', level.name, 'categoryIndex:', categoryIndex, 'categoryIds:', categoryIds[categoryIndex], 'itemIds:', itemIds[categoryIndex]?.[0])
 
     if (categoryIndex >= 0 && categoryIds[categoryIndex] && itemIds[categoryIndex]?.[0]) {
       // Start closing animation
@@ -105,6 +108,8 @@ export function StageSelectOverlay() {
 
       // Wait for animation before updating content store
       setTimeout(() => {
+        console.log('[StageSelect] Selecting level:', level.name, 'categoryIndex:', categoryIndex)
+
         useContentStore.setState({
           activeCategoryIndex: categoryIndex,
           activeCategoryId: categoryIds[categoryIndex],
@@ -112,8 +117,12 @@ export function StageSelectOverlay() {
           activeItemId: itemIds[categoryIndex][0]
         })
 
-        // Close the overlay
-        useStageSelectStore.setState({ showStageSelect: false })
+        console.log('[StageSelect] Hiding splash and stage select to show pillar')
+        // Close both the stage select and splash screen to reveal the pillar
+        useStageSelectStore.setState({
+          showStageSelect: false,
+          showSplash: false
+        })
         setIsClosing(false)
       }, 600) // Match animation duration
     }

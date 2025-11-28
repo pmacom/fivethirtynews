@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate 530 Icons</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .icon-container {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    canvas {
+      border: 2px solid #ddd;
+      background: white;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #5568d3;
+    }
+    .instructions {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      max-width: 600px;
+    }
+  </style>
+</head>
+<body>
+  <h1>530 Icon Generator</h1>
+  <div class="icon-container" id="icons"></div>
+  <div>
+    <button onclick="downloadAll()">Download All Icons</button>
+  </div>
+
+  <div class="instructions">
+    <h3>Instructions:</h3>
+    <ol>
+      <li>Click "Download All Icons" to save icon16.png, icon48.png, and icon128.png</li>
+      <li>Place the downloaded PNG files in the extension/public/icons/ directory</li>
+      <li>Delete this HTML file after generating icons</li>
+    </ol>
+  </div>
+
+  <script>
+    const sizes = [16, 48, 128];
+
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      canvas.style.width = size + 'px';
+      canvas.style.height = size + 'px';
+
+      ctx.scale(dpr, dpr);
+
+      // Draw gradient background with rounded corners
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#667eea');
+      gradient.addColorStop(1, '#764ba2');
+
+      const radius = size * 0.15;
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      // Draw "530" text
+      ctx.fillStyle = 'white';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `bold ${size * 0.4}px Arial, sans-serif`;
+      ctx.fillText('530', size / 2, size / 2 + size * 0.02);
+    }
+
+    function downloadCanvas(canvas, filename) {
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    function downloadAll() {
+      sizes.forEach((size, index) => {
+        setTimeout(() => {
+          const canvas = document.getElementById(`canvas-${size}`);
+          downloadCanvas(canvas, `icon${size}.png`);
+        }, index * 300);
+      });
+    }
+
+    // Generate icons
+    const container = document.getElementById('icons');
+    sizes.forEach(size => {
+      const wrapper = document.createElement('div');
+      wrapper.style.textAlign = 'center';
+
+      const canvas = document.createElement('canvas');
+      canvas.id = `canvas-${size}`;
+      drawIcon(canvas, size);
+
+      const label = document.createElement('div');
+      label.textContent = `${size}x${size}`;
+      label.style.marginTop = '5px';
+      label.style.fontSize = '12px';
+
+      wrapper.appendChild(canvas);
+      wrapper.appendChild(label);
+      container.appendChild(wrapper);
+    });
+  </script>
+</body>
+</html>

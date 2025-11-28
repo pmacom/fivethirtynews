@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { useUIStore } from './store';
+import { useStageSelectStore } from './stageselect/store';
 import RevealOnMovement from './components/RevealOnMovement';
 import './styles.css'
 
@@ -7,6 +8,11 @@ interface WTFUIProps {
   children?: React.ReactNode
 }
 export const UI = ({ children }:WTFUIProps) => {
+  // Hide UI when splash screen or stage select is showing
+  const showSplash = useStageSelectStore(state => state.showSplash);
+  const showStageSelect = useStageSelectStore(state => state.showStageSelect);
+
+  if (showSplash || showStageSelect) return null;
 
   return (
     <>
