@@ -118,17 +118,23 @@ async function fetchGuildMember(accessToken: string): Promise<DiscordGuildMember
   return response.json();
 }
 
-// Moderator role IDs in 530 Society Discord
-// These should be configured via env var, but fallback to common role names check
+// Role IDs in 530 Society Discord - configured via env vars
+const ADMIN_ROLE_IDS = process.env.DISCORD_ADMIN_ROLE_IDS?.split(',') || [];
 const MODERATOR_ROLE_IDS = process.env.DISCORD_MODERATOR_ROLE_IDS?.split(',') || [];
+
+// Check if user has admin permissions based on roles
+function checkAdminStatus(roles: string[]): boolean {
+  if (ADMIN_ROLE_IDS.length > 0) {
+    return roles.some((role) => ADMIN_ROLE_IDS.includes(role));
+  }
+  return false;
+}
 
 // Check if user has moderator permissions based on roles
 function checkModeratorStatus(roles: string[]): boolean {
-  // If specific role IDs are configured, check against them
   if (MODERATOR_ROLE_IDS.length > 0) {
     return roles.some((role) => MODERATOR_ROLE_IDS.includes(role));
   }
-  // Default: no moderator status without configured roles
   return false;
 }
 
@@ -311,8 +317,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 4. Check moderator status
-    const isModerator = checkModeratorStatus(guildMember.roles);
+    // 4. Check admin and moderator status (hierarchical: admin implies moderator)
+    const isAdmin = checkAdminStatus(guildMember.roles);
+    const isModerator = isAdmin || checkModeratorStatus(guildMember.roles);
 
     // 5. Create or update user in database
     const supabase = await createClient();
@@ -325,6 +332,7 @@ export async function GET(request: NextRequest) {
       discord_avatar: getAvatarUrl(discordUser.id, discordUser.avatar),
       display_name: guildMember.nick || discordUser.global_name || discordUser.username,
       is_guild_member: true,
+      is_admin: isAdmin,
       is_moderator: isModerator,
       discord_roles: guildMember.roles,
       session_token: sessionToken,
@@ -356,6 +364,7 @@ export async function GET(request: NextRequest) {
         discord_id: discordUser.id,
         display_name: userData.display_name,
         avatar: userData.discord_avatar,
+        is_admin: isAdmin,
         is_moderator: isModerator,
       },
     };
@@ -379,6 +388,7 @@ export async function GET(request: NextRequest) {
         discord_id: discordUser.id,
         display_name: userData.display_name,
         avatar: userData.discord_avatar,
+        is_admin: isAdmin,
         is_moderator: isModerator,
       }), {
         httpOnly: false,

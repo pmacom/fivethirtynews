@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     // Find user by session token
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, discord_id, discord_username, discord_avatar, display_name, is_guild_member, is_moderator, session_expires_at')
+      .select('id, discord_id, discord_username, discord_avatar, display_name, is_guild_member, is_admin, is_moderator, session_expires_at')
       .eq('session_token', sessionToken)
       .single();
 
@@ -69,6 +69,7 @@ export async function GET(request: NextRequest) {
         discord_id: user.discord_id,
         display_name: user.display_name,
         avatar: user.discord_avatar,
+        is_admin: user.is_admin,
         is_moderator: user.is_moderator,
       },
     });

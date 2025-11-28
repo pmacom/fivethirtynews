@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 
 // CORS headers for Chrome extension
@@ -43,6 +44,31 @@ export async function POST(request: NextRequest) {
       metadata,
       contentCreatedAt
     } = body;
+
+    // Check user authentication and role for approval workflow
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('530_session')?.value;
+    // Also check Authorization header for extension/API clients
+    const authHeader = request.headers.get('Authorization');
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.replace('Bearer ', '') : null;
+    const token = sessionToken || bearerToken;
+
+    let submitterUserId: string | null = null;
+    let autoApprove = false;
+
+    if (token) {
+      const { data: user } = await supabase
+        .from('users')
+        .select('id, is_admin, is_moderator')
+        .eq('session_token', token)
+        .single();
+
+      if (user) {
+        submitterUserId = user.id;
+        // Admins and moderators get auto-approved (hierarchical)
+        autoApprove = user.is_admin || user.is_moderator;
+      }
+    }
 
     // Validate required fields
     if (!platform || !platformContentId || !url) {
@@ -151,7 +177,12 @@ export async function POST(request: NextRequest) {
         thumbnail_url: thumbnailUrl || null,
         media_assets: mediaAssets || [],
         metadata: metadata || {},
-        content_created_at: contentCreatedAt || null
+        content_created_at: contentCreatedAt || null,
+        // Approval workflow fields
+        submitted_by_user_id: submitterUserId,
+        approval_status: autoApprove ? 'approved' : 'pending',
+        approved_by: autoApprove ? submitterUserId : null,
+        approved_at: autoApprove ? new Date().toISOString() : null,
       };
 
       const { data, error } = await supabase

@@ -245,11 +245,12 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-      // Get all content with categories from the last week
+      // Get all approved content with categories from the last week
       const { data: allContent, error: contentError } = await supabase
         .from('content')
         .select('*')
         .not('category', 'is', null)
+        .eq('approval_status', 'approved')
         .gte('submitted_at', oneWeekAgo.toISOString())
         .order('submitted_at', { ascending: false });
 

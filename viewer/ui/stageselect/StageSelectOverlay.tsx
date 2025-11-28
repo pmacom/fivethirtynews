@@ -68,6 +68,22 @@ const levels: Level[] = [
     stats: { difficulty: 3, complexity: 5, players: 'MMO' }
   },
   {
+    id: 'robotics',
+    name: 'Robotics',
+    icon: '🦾',
+    color: 'text-orange-400',
+    description: 'MECH FACTORY',
+    stats: { difficulty: 4, complexity: 4, players: 'BOTS' }
+  },
+  {
+    id: 'medicine',
+    name: 'Medicine',
+    icon: '🧬',
+    color: 'text-rose-400',
+    description: 'BIO LAB',
+    stats: { difficulty: 5, complexity: 5, players: 'DOCS' }
+  },
+  {
     id: 'misc',
     name: 'Misc',
     icon: '✨',

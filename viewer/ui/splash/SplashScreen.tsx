@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef, Suspense } from 'react'
+import { useEffect, useState, useRef, Suspense, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import {
   Environment,
@@ -15,6 +15,8 @@ import { EffectComposer, Bloom, DepthOfField, ChromaticAberration, Vignette } fr
 import { BlendFunction } from 'postprocessing'
 import * as THREE from 'three'
 import { useStageSelectStore } from '../stageselect/store'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 // --- 3D Components ---
 
@@ -157,47 +159,82 @@ export const SplashScreen = () => {
   const [menuState, setMenuState] = useState<MenuState>('initial')
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isPressed, setIsPressed] = useState(false)
+  const { user } = useAuth()
+  const router = useRouter()
 
-  const menuItems: MenuItem[] = [
-    {
-      label: 'START GAME',
-      action: () => {
-        setMenuState('transitioning')
-        setTimeout(() => {
-          useStageSelectStore.setState({
-            showSplash: false,
-            showStageSelect: false
-          })
-        }, 800)
+  // Build menu items dynamically based on user role
+  const menuItems: MenuItem[] = useMemo(() => {
+    const items: MenuItem[] = [
+      {
+        label: 'START GAME',
+        action: () => {
+          setMenuState('transitioning')
+          setTimeout(() => {
+            useStageSelectStore.setState({
+              showSplash: false,
+              showStageSelect: false
+            })
+          }, 800)
+        }
+      },
+      {
+        label: 'STAGE SELECT',
+        action: () => {
+          setMenuState('transitioning')
+          setTimeout(() => {
+            useStageSelectStore.setState({
+              showSplash: false,
+              showStageSelect: true
+            })
+          }, 800)
+        }
+      },
+      {
+        label: 'OPTIONS',
+        action: () => {
+          // TODO: Open settings
+          console.log('OPTIONS selected')
+        }
       }
-    },
-    {
-      label: 'STAGE SELECT',
-      action: () => {
-        setMenuState('transitioning')
-        setTimeout(() => {
-          useStageSelectStore.setState({
-            showSplash: false,
-            showStageSelect: true
-          })
-        }, 800)
-      }
-    },
-    {
-      label: 'OPTIONS',
-      action: () => {
-        // TODO: Open settings
-        console.log('OPTIONS selected')
-      }
-    },
-    {
+    ]
+
+    // Add MODERATE option for moderators and admins (hierarchical)
+    if (user?.is_moderator) {
+      items.push({
+        label: 'MODERATE',
+        action: () => {
+          setMenuState('transitioning')
+          setTimeout(() => {
+            router.push('/moderate')
+          }, 800)
+        }
+      })
+    }
+
+    // Add ADMIN option for admins only
+    if (user?.is_admin) {
+      items.push({
+        label: 'ADMIN',
+        action: () => {
+          setMenuState('transitioning')
+          setTimeout(() => {
+            router.push('/admin')
+          }, 800)
+        }
+      })
+    }
+
+    // Credits always last
+    items.push({
       label: 'CREDITS',
       action: () => {
         // TODO: Show credits screen
         console.log('CREDITS selected')
       }
-    }
-  ]
+    })
+
+    return items
+  }, [user, router])
 
   const handleStart = () => {
     setIsPressed(true)

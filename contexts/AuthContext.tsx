@@ -7,6 +7,7 @@ interface User {
   discord_id: string;
   display_name: string;
   avatar: string | null;
+  is_admin: boolean;
   is_moderator: boolean;
 }
 

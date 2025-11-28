@@ -67,8 +67,8 @@
       ],
       "timestamp": "2025-11-17T20:42:55.707Z",
       "context": "Project: fivethirty - Local Supabase database setup for content viewer",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-28T18:59:35.722Z",
       "lastVerified": "2025-11-17T20:42:55.707Z",
       "status": "fresh"
     },
@@ -123,8 +123,8 @@
       ],
       "timestamp": "2025-11-18T03:45:28.704Z",
       "context": "viewer/viewer.tsx lines 9, 28 - Imported and added Pillar component to Canvas",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T03:45:28.704Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-28T18:59:35.722Z",
       "lastVerified": "2025-11-18T03:45:28.704Z",
       "status": "fresh"
     },
@@ -842,8 +842,8 @@
       ],
       "timestamp": "2025-11-18T19:27:05.155Z",
       "context": "Fixed TweetCard element sizing - scaled from absolute pixels to relative 3D units",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T19:27:05.155Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-28T18:59:34.413Z",
       "lastVerified": "2025-11-18T19:27:05.155Z",
       "status": "fresh"
     },
@@ -984,8 +984,8 @@
         "performance"
       ],
       "timestamp": "2025-11-19T02:37:34.819Z",
-      "accessCount": 2,
-      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-11-28T18:59:35.722Z",
       "lastVerified": "2025-11-19T02:37:34.819Z",
       "status": "fresh"
     },
@@ -1002,8 +1002,8 @@
         "batch-fetch"
       ],
       "timestamp": "2025-11-19T02:46:32.994Z",
-      "accessCount": 2,
-      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-11-28T18:59:35.722Z",
       "lastVerified": "2025-11-19T02:46:32.994Z",
       "status": "fresh"
     },
@@ -1439,8 +1439,8 @@
       ],
       "timestamp": "2025-11-26T22:37:11.807Z",
       "context": "Analysis of merging bot directory (Chrome extension + admin dashboard) into main fivethirty project",
-      "accessCount": 4,
-      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "accessCount": 5,
+      "lastAccessed": "2025-11-28T18:59:35.722Z",
       "lastVerified": "2025-11-26T22:37:11.807Z",
       "status": "fresh"
     },
@@ -1460,8 +1460,8 @@
         "530-project"
       ],
       "timestamp": "2025-11-27T20:47:36.303Z",
-      "accessCount": 5,
-      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "accessCount": 6,
+      "lastAccessed": "2025-11-28T18:59:35.722Z",
       "lastVerified": "2025-11-27T20:47:36.303Z",
       "status": "fresh"
     },
@@ -1627,8 +1627,8 @@
       ],
       "timestamp": "2025-11-28T03:13:40.151Z",
       "context": "Comprehensive codebase exploration for 530News extension project - understanding auth, database, and UI",
-      "accessCount": 3,
-      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "accessCount": 4,
+      "lastAccessed": "2025-11-28T18:59:35.722Z",
       "lastVerified": "2025-11-28T03:13:40.151Z",
       "status": "fresh"
     },
@@ -1646,8 +1646,8 @@
         "implementation"
       ],
       "timestamp": "2025-11-28T03:38:02.507Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-28T03:38:02.507Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-28T18:59:35.722Z",
       "lastVerified": "2025-11-28T03:38:02.507Z",
       "status": "fresh"
     },
@@ -1682,11 +1682,125 @@
         "oauth"
       ],
       "timestamp": "2025-11-28T18:09:09.774Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-28T18:09:09.774Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-28T18:59:34.413Z",
       "lastVerified": "2025-11-28T18:09:09.774Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764355286248_ilko837z5",
+      "content": "Role-based permissions and content approval system implemented for 530:\n\n**Discord Role IDs:**\n- Admin/Host: 1031742110497509377\n- Moderator/Co-host: 1031743603808145501\n\n**Role Hierarchy:** Admin > Moderator > User (hierarchical)\n\n**Database changes:**\n- users.is_admin (boolean)\n- content.approval_status ('pending', 'approved', 'rejected')\n- content.submitted_by_user_id (UUID FK)\n- content.approved_by (UUID FK)\n- content.approved_at (timestamp)\n- content.approval_reason (text)\n\n**API Endpoints:**\n- GET /api/content/pending - List pending content (mods/admins only)\n- POST /api/content/[id]/approve - Approve content\n- POST /api/content/[id]/approve?action=reject - Reject content\n\n**Behavior:**\n- Admins and moderators: content auto-approved\n- Regular users: content set to 'pending'\n- Public queries filter to approval_status='approved'\n- Rejected content kept for audit trail",
+      "type": "general",
+      "tags": [
+        "general",
+        "database",
+        "api",
+        "530news",
+        "discord-roles",
+        "permissions",
+        "content-approval",
+        "admin",
+        "moderator"
+      ],
+      "timestamp": "2025-11-28T18:41:26.248Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-11-28T18:59:35.722Z",
+      "lastVerified": "2025-11-28T18:41:26.248Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764355698250_c5rnzpvsz",
+      "content": "Role-based menu items and admin pages implemented for 530:\n\n**SplashScreen changes:**\n- Added useAuth and useRouter hooks\n- Menu items dynamically built based on user role\n- MODERATE shown for moderators and admins\n- ADMIN shown only for admins\n- Both appear between OPTIONS and CREDITS\n\n**New pages:**\n- /moderate - Content moderation queue with approve/reject\n- /admin - Admin dashboard with stats and quick actions\n\n**Middleware protection:**\n- /admin routes require is_admin\n- /moderate routes require is_moderator (admins can also access)\n- Role info read from 530_user cookie (not HttpOnly)",
+      "type": "general",
+      "tags": [
+        "general",
+        "530news",
+        "admin",
+        "moderate",
+        "menu",
+        "splash-screen",
+        "routes"
+      ],
+      "timestamp": "2025-11-28T18:48:18.250Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-28T18:48:18.250Z",
+      "lastVerified": "2025-11-28T18:48:18.250Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764356193241_s3qbajn5y",
+      "content": "Database Schema Structure for Categories, Channels, and Tags\n\nCURRENT DATA MODEL (as of 2024-11-28):\n\nTwo Parallel Systems:\n1. CHANNEL SYSTEM (newer, primary): Flat hierarchy of groups and channels\n   - channel_groups table: top-level categories (General, ThirdDimension, AI, Code, Misc)\n   - channels table: individual channels within groups (e.g., blender, unity, ai-tips)\n   - Content relationship: channels array in content table + primary_channel field\n\n2. TAG SYSTEM (legacy, being phased out): Hierarchical tag structure\n   - tags table: hierarchical with parent_id, slug, name, description\n   - tag_relationships: SKOS-based semantic relationships (tool_of, technique_of, part_of, related)\n   - tag_co_occurrence table: track tag combinations\n   - Content relationship: tags array in content table (being cleared per migration)\n\nKEY TABLES IN MAIN DB (/Users/patrickmacom/MainQuests/530News/fivethirty/supabase/):\n- episodes: timestamped episodes\n- content: multi-platform content with id format \"platform:platformContentId\"\n- content_blocks: organizational blocks within episodes\n- content_block_items: junction linking blocks to content\n- tweets: cached Twitter data\n- users: Discord OAuth users with is_admin, is_moderator roles\n- content_notes: user annotations (280 char max) with unique(content_id, user_id)\n\nCONTENT TABLE STRUCTURE:\n- id (TEXT: \"platform:platformContentId\")\n- platform (twitter, youtube, etc)\n- platform_content_id, url\n- channels (JSONB array of channel slugs)\n- primary_channel (TEXT slug)\n- tags (JSONB array - being deprecated per migration 20251127)\n- approval_status (pending/approved/rejected)\n- submitted_by_user_id (UUID)\n- approved_by, approved_at, approval_reason\n- Media: thumbnail_url, media_assets (JSONB array), metadata (JSONB)\n- Author info: author_name, author_username, author_url, author_avatar_url\n\nCHANNEL DATA STRUCTURE (from API response):\n- ChannelGroup: {id, slug, name, icon, description, display_order, channels[]}\n- Channel: {id, slug, name, icon, description, display_order}\n- 5 groups: general, thirddimension, ai, code, misc\n- ~30 total channels across all groups",
+      "type": "general",
+      "tags": [
+        "general",
+        "database",
+        "api",
+        "schema",
+        "channels",
+        "tags",
+        "content"
+      ],
+      "timestamp": "2025-11-28T18:56:33.241Z",
+      "context": "Explored codebase to understand data model for categories, channels, tags",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-28T18:59:35.722Z",
+      "lastVerified": "2025-11-28T18:56:33.241Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764364234385_xy2u0tiep",
+      "content": "Tag Master gamified content tagging system implemented:\n- API: /api/admin/tagmaster (GET for stats/next item, POST to tag)\n- UI: /admin/tagmaster - arcade-style game interface\n- Features: Score, combo multipliers, session tracking, keyboard shortcuts (Enter/Escape)\n- Channel picker: Click to select, double-click for primary\n- Progress bar shows tagged vs total\n- Link added to admin dashboard Quick Actions section\n- Only processes content with valid platform (excludes 8803 empty placeholder records)",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "tagmaster",
+        "admin",
+        "gamification",
+        "content-tagging",
+        "feature"
+      ],
+      "timestamp": "2025-11-28T21:10:34.385Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-28T21:10:34.385Z",
+      "lastVerified": "2025-11-28T21:10:34.385Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764365874006_c75bzng2r",
+      "content": "Content migration completed successfully:\n- Script: scripts/migrate-content.ts\n- Migrated 8,785 records from old schema to new schema\n- Platform distribution: 8,736 twitter, 45 website, 8 youtube, 1 farcaster\n- 1,767 records auto-tagged with channels based on old categories\n- 7,023 records still need tagging (available in Tag Master)\n- 160 records skipped due to corrupted JSON in categories field\n- Script is idempotent and can be re-run safely",
+      "type": "general",
+      "tags": [
+        "general",
+        "migration",
+        "database",
+        "content",
+        "completed"
+      ],
+      "timestamp": "2025-11-28T21:37:54.006Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-28T21:37:54.006Z",
+      "lastVerified": "2025-11-28T21:37:54.006Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764366409232_gb0pmnhzi",
+      "content": "Tag Master updated to use react-tweet for Twitter content:\n- Installed react-tweet package\n- Twitter posts now render as full embeds with videos auto-playing\n- Non-Twitter content (youtube, website, etc.) uses thumbnail preview\n- Tweet component uses platform_content_id (tweet ID) to fetch and render",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "tagmaster",
+        "react-tweet",
+        "twitter",
+        "ui"
+      ],
+      "timestamp": "2025-11-28T21:46:49.231Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-28T21:46:49.231Z",
+      "lastVerified": "2025-11-28T21:46:49.231Z",
       "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-28T18:09:09.774Z"
+  "lastUpdated": "2025-11-28T21:46:49.231Z"
 }
