@@ -1,8 +1,8 @@
 /* 530 ChannelSelector Styles - Light Theme */
 
-/* Main container */
+/* Main container - TWO-COLUMN LAYOUT */
 .five-thirty-channel-selector {
-  width: 360px !important;
+  width: 520px !important;
   max-width: calc(100vw - 32px) !important;
   padding: 0 !important;
   overflow: hidden !important;
@@ -17,14 +17,301 @@
   flex-direction: column !important;
 }
 
-/* Group buttons bar - NOW AT TOP */
-.five-thirty-cs-groups {
+/* Two-column body layout */
+.five-thirty-cs-body {
   display: flex !important;
-  justify-content: center !important;
+  min-height: 280px !important;
+  max-height: 380px !important;
+}
+
+/* Left column - Categories (vertical stack) */
+.five-thirty-cs-categories-column {
+  width: 150px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
   gap: 4px !important;
-  padding: 16px 12px !important;
+  padding: 12px !important;
+  border-right: 1px solid #f0f0f0 !important;
+  overflow-y: auto !important;
+  background: #fafafa !important;
+}
+
+.five-thirty-cs-category-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 12px !important;
   background: #ffffff !important;
-  border-bottom: 1px solid #f0f0f0 !important;
+  border: 2px solid transparent !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  text-align: left !important;
+}
+
+.five-thirty-cs-category-btn:hover {
+  background: #f5f5f5 !important;
+  border-color: #e8e8e8 !important;
+}
+
+.five-thirty-cs-category-btn--active {
+  background: #f0f0f0 !important;
+  border-color: #d0d0d0 !important;
+}
+
+.five-thirty-cs-category-btn--has-selection {
+  background: #f8f8f8 !important;
+}
+
+.five-thirty-cs-category-btn--has-primary {
+  background: rgba(245, 158, 11, 0.08) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.five-thirty-cs-category-icon {
+  font-size: 18px !important;
+  line-height: 1 !important;
+  flex-shrink: 0 !important;
+}
+
+.five-thirty-cs-category-name {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #333 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.five-thirty-cs-category-star {
+  font-size: 10px !important;
+  color: #f59e0b !important;
+  margin-left: auto !important;
+}
+
+.five-thirty-cs-category-dot {
+  width: 6px !important;
+  height: 6px !important;
+  background: #333 !important;
+  border-radius: 50% !important;
+  margin-left: auto !important;
+}
+
+/* Right panel - Tabs */
+.five-thirty-cs-right-panel {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 12px !important;
+  min-width: 0 !important;
+}
+
+/* Tab bar */
+.five-thirty-cs-tab-bar {
+  display: flex !important;
+  gap: 4px !important;
+  margin-bottom: 12px !important;
+}
+
+.five-thirty-cs-tab-btn {
+  flex: 1 !important;
+  padding: 8px 12px !important;
+  background: #f5f5f5 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #666 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.five-thirty-cs-tab-btn:hover {
+  background: #eeeeee !important;
+  color: #333 !important;
+}
+
+.five-thirty-cs-tab-btn--active {
+  background: #333 !important;
+  color: #fff !important;
+}
+
+/* Tab content */
+.five-thirty-cs-tab-content {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* Tags tab - Autocomplete input */
+.five-thirty-cs-tag-input-container {
+  position: relative !important;
+  margin-bottom: 12px !important;
+}
+
+.five-thirty-cs-tag-search-input {
+  width: 100% !important;
+  padding: 10px 12px !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  outline: none !important;
+  transition: border-color 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+.five-thirty-cs-tag-search-input:focus {
+  border-color: #333 !important;
+}
+
+.five-thirty-cs-tag-search-input::placeholder {
+  color: #999 !important;
+}
+
+/* Autocomplete dropdown */
+.five-thirty-cs-autocomplete-dropdown {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: #ffffff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  z-index: 100 !important;
+  margin-top: 4px !important;
+}
+
+.five-thirty-cs-autocomplete-dropdown.hidden {
+  display: none !important;
+}
+
+.five-thirty-cs-autocomplete-item {
+  padding: 10px 12px !important;
+  cursor: pointer !important;
+  transition: background 0.1s ease !important;
+  font-size: 13px !important;
+  color: #333 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.five-thirty-cs-autocomplete-item:hover {
+  background: #f5f5f5 !important;
+}
+
+.five-thirty-cs-autocomplete-item.create-new {
+  color: #059669 !important;
+  font-weight: 500 !important;
+}
+
+.five-thirty-cs-usage-count {
+  font-size: 11px !important;
+  color: #999 !important;
+}
+
+/* Selected tags container */
+.five-thirty-cs-selected-tags {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  overflow-y: auto !important;
+  flex: 1 !important;
+  align-content: flex-start !important;
+}
+
+.five-thirty-cs-tag-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 6px 10px !important;
+  background: #dcfce7 !important;
+  border: 1px solid #86efac !important;
+  border-radius: 16px !important;
+  font-size: 12px !important;
+  color: #166534 !important;
+  max-width: 150px !important;
+}
+
+.five-thirty-cs-tag-chip-name {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.five-thirty-cs-tag-chip-remove {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  font-size: 12px !important;
+  color: #166534 !important;
+  cursor: pointer !important;
+  transition: all 0.1s ease !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+.five-thirty-cs-tag-chip-remove:hover {
+  background: #166534 !important;
+  color: #fff !important;
+}
+
+.five-thirty-cs-tags-empty {
+  font-size: 12px !important;
+  color: #999 !important;
+  text-align: center !important;
+  padding: 20px !important;
+}
+
+.five-thirty-cs-tags-hint {
+  font-size: 11px !important;
+  color: #999 !important;
+  margin-top: 8px !important;
+}
+
+/* Notes tab */
+.five-thirty-cs-notes-textarea {
+  width: 100% !important;
+  flex: 1 !important;
+  min-height: 120px !important;
+  padding: 10px 12px !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+  resize: none !important;
+  outline: none !important;
+  transition: border-color 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+.five-thirty-cs-notes-textarea:focus {
+  border-color: #333 !important;
+}
+
+.five-thirty-cs-notes-textarea::placeholder {
+  color: #999 !important;
+}
+
+.five-thirty-cs-notes-hint {
+  font-size: 11px !important;
+  color: #999 !important;
+  margin-top: 8px !important;
+}
+
+/* OLD Group buttons bar - KEPT FOR BACKWARD COMPAT, NOW HIDDEN */
+.five-thirty-cs-groups {
+  display: none !important;
 }
 
 .five-thirty-cs-group-btn {
@@ -375,7 +662,7 @@
 }
 
 /* Mobile responsiveness */
-@media (max-width: 480px) {
+@media (max-width: 560px) {
   .five-thirty-channel-selector {
     position: fixed !important;
     left: 0 !important;
@@ -385,6 +672,32 @@
     width: 100% !important;
     max-width: none !important;
     border-radius: 16px 16px 0 0 !important;
+    max-height: 85vh !important;
+  }
+
+  .five-thirty-cs-body {
+    flex-direction: column !important;
+    max-height: none !important;
+  }
+
+  .five-thirty-cs-categories-column {
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    border-right: none !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    padding: 8px !important;
+    max-height: 120px !important;
+    overflow-y: auto !important;
+  }
+
+  .five-thirty-cs-category-btn {
+    padding: 8px 10px !important;
+    flex: 0 0 auto !important;
+  }
+
+  .five-thirty-cs-right-panel {
+    min-height: 200px !important;
   }
 
   .five-thirty-channel-selector-sub {

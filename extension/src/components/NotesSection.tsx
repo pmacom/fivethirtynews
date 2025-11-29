@@ -28,6 +28,9 @@ interface NotesSectionProps {
   contentId: string | null; // UUID of the content in database
   currentUser: User | null;
   onAuthRequired: () => void;
+  embedded?: boolean; // When true, hide collapsible header and default to expanded
+  pendingNote?: string; // Draft note before content is saved
+  onPendingNoteChange?: (text: string) => void; // Callback for draft note changes
 }
 
 // Debounce hook
@@ -47,8 +50,8 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-export function NotesSection({ contentId, currentUser, onAuthRequired }: NotesSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export function NotesSection({ contentId, currentUser, onAuthRequired, embedded = false, pendingNote, onPendingNoteChange }: NotesSectionProps) {
+  const [isExpanded, setIsExpanded] = useState(embedded);
   const [notes, setNotes] = useState<Note[]>([]);
   const [myNoteText, setMyNoteText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -183,19 +186,21 @@ export function NotesSection({ contentId, currentUser, onAuthRequired }: NotesSe
   const charCount = myNoteText.length;
 
   return (
-    <div className="ft-notes">
-      {/* Header - always visible */}
-      <div
-        className={`ft-notes-header ${isExpanded ? 'expanded' : ''}`}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
-        <span className="label">Notes</span>
-        {noteCount > 0 && <span className="badge">{noteCount}</span>}
-      </div>
+    <div className={`ft-notes ${embedded ? 'embedded' : ''}`}>
+      {/* Header - hidden when embedded */}
+      {!embedded && (
+        <div
+          className={`ft-notes-header ${isExpanded ? 'expanded' : ''}`}
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <span className="arrow">{isExpanded ? '▼' : '▶'}</span>
+          <span className="label">Notes</span>
+          {noteCount > 0 && <span className="badge">{noteCount}</span>}
+        </div>
+      )}
 
-      {/* Content - only when expanded */}
-      {isExpanded && (
+      {/* Content - only when expanded (or always when embedded) */}
+      {(isExpanded || embedded) && (
         <div className="ft-notes-content">
           {isLoading ? (
             <div className="ft-notes-loading">Loading notes...</div>
@@ -211,7 +216,29 @@ export function NotesSection({ contentId, currentUser, onAuthRequired }: NotesSe
               <p style={{ fontSize: '11px', color: '#71717a', marginTop: '8px' }}>to add notes</p>
             </div>
           ) : !contentId ? (
-            <div className="ft-notes-empty">Save content first to add notes</div>
+            /* Draft note UI when content not saved yet */
+            <div className="ft-draft-note">
+              <div className="ft-draft-label">Draft Your Note</div>
+              <textarea
+                className="ft-my-note-textarea"
+                placeholder="Write a note (saves with content)..."
+                value={pendingNote || ''}
+                onChange={(e) => {
+                  if (e.target.value.length <= MAX_CHARS) {
+                    onPendingNoteChange?.(e.target.value);
+                  }
+                }}
+                maxLength={MAX_CHARS}
+              />
+              <div className="ft-my-note-footer">
+                <div className="ft-note-status-row">
+                  <span className={`ft-char-count ${(pendingNote?.length || 0) > MAX_CHARS - 20 ? ((pendingNote?.length || 0) >= MAX_CHARS ? 'at-limit' : 'near-limit') : ''}`}>
+                    {pendingNote?.length || 0}/{MAX_CHARS}
+                  </span>
+                </div>
+              </div>
+              <p className="ft-draft-hint">Your note will be saved when you click Done</p>
+            </div>
           ) : (
             <>
               {/* My Note Editor */}

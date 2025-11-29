@@ -4,16 +4,19 @@ console.log('530: Loading ChannelSelector...');
 /**
  * ChannelSelector - Main UI for selecting channels when tagging content
  * Uses SmartPopover for positioning and sub-menus
+ * New two-column layout with categories on left, tags/notes tabs on right
  */
 class ChannelSelector {
   constructor(options = {}) {
     this.postData = options.postData || {};
     this.existingChannels = options.existingChannels || [];
     this.existingPrimaryChannel = options.existingPrimaryChannel || null;
+    this.existingTags = options.existingTags || [];
+    this.existingNotes = options.notes || '';
     this.onSave = options.onSave || null;
     this.onCancel = options.onCancel || null;
 
-    // State
+    // Channel state
     this.selectedChannels = new Set(this.existingChannels);
     this.primaryChannel = this.existingPrimaryChannel || (this.existingChannels[0] || null);
     this.channelGroups = [];
@@ -22,12 +25,24 @@ class ChannelSelector {
     this.saving = false;
     this.activeGroupId = null;
 
+    // Tags state (NEW)
+    this.availableTags = [];
+    this.selectedTags = new Set(this.existingTags);
+    this.tagsLoading = true;
+
+    // Notes state (NEW)
+    this.noteText = this.existingNotes;
+
+    // UI state (NEW)
+    this.activeTab = 'tags'; // 'tags' or 'notes'
+
     // Popovers
     this.mainPopover = null;
     this.subPopover = null;
 
-    // Load channel data
+    // Load channel data and tags
     this._loadChannelGroups();
+    this._loadTags();
   }
 
   /**
@@ -99,6 +114,83 @@ class ChannelSelector {
     }
   }
 
+  /**
+   * Load available tags for autocomplete (preloaded on open)
+   */
+  async _loadTags() {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        action: 'fetchTags'
+      });
+
+      if (response.success) {
+        this.availableTags = response.tags || [];
+        console.log('530: Loaded', this.availableTags.length, 'tags for autocomplete');
+      } else {
+        console.error('530: Failed to load tags', response.error);
+        this.availableTags = [];
+      }
+    } catch (error) {
+      console.error('530: Error loading tags', error);
+      this.availableTags = [];
+    } finally {
+      this.tagsLoading = false;
+      this._updateMainContent();
+    }
+  }
+
+  /**
+   * Filter tags based on search query (min 3 chars)
+   */
+  _filterTags(query) {
+    if (!query || query.length < 3) return [];
+    const lower = query.toLowerCase();
+    return this.availableTags
+      .filter(t =>
+        (t.name && t.name.toLowerCase().includes(lower)) ||
+        (t.slug && t.slug.toLowerCase().includes(lower))
+      )
+      .filter(t => !this.selectedTags.has(t.slug)) // Exclude already selected
+      .slice(0, 10);
+  }
+
+  /**
+   * Add a tag to selected tags
+   */
+  _addTag(tagSlug, tagName) {
+    if (this.selectedTags.has(tagSlug)) return;
+    this.selectedTags.add(tagSlug);
+    this._updateMainContent();
+    this._autoSave();
+  }
+
+  /**
+   * Remove a tag from selected tags
+   */
+  _removeTag(tagSlug) {
+    if (!this.selectedTags.has(tagSlug)) return;
+    this.selectedTags.delete(tagSlug);
+    this._updateMainContent();
+    this._autoSave();
+  }
+
+  /**
+   * Update notes text
+   */
+  _updateNotes(text) {
+    this.noteText = text;
+    // Don't auto-save on every keystroke, will save on Done
+  }
+
+  /**
+   * Switch active tab
+   */
+  _switchTab(tab) {
+    if (this.activeTab === tab) return;
+    this.activeTab = tab;
+    this._updateMainContent();
+  }
+
   // ===== Channel Selection =====
 
   async selectChannel(channelSlug) {
@@ -147,7 +239,7 @@ class ChannelSelector {
 
   async _autoSave() {
     if (this.saving) return;
-    if (this.selectedChannels.size === 0) return;
+    if (this.selectedChannels.size === 0 && this.selectedTags.size === 0) return;
 
     this.saving = true;
 
@@ -158,6 +250,7 @@ class ChannelSelector {
         url: this.postData.url,
         channels: Array.from(this.selectedChannels),
         primaryChannel: this.primaryChannel,
+        tags: Array.from(this.selectedTags), // Include selected tags
         title: this.postData.title,
         description: this.postData.description,
         content: this.postData.content || this.postData.tweetText,
@@ -181,7 +274,8 @@ class ChannelSelector {
           this.onSave({
             ...response.data,
             channels: Array.from(this.selectedChannels),
-            primaryChannel: this.primaryChannel
+            primaryChannel: this.primaryChannel,
+            tags: Array.from(this.selectedTags)
           });
         }
       } else {
@@ -199,7 +293,10 @@ class ChannelSelector {
   _renderMain() {
     return `
       <div class="five-thirty-cs-main">
-        ${this._renderGroupBar()}
+        <div class="five-thirty-cs-body">
+          ${this._renderCategoriesColumn()}
+          ${this._renderRightPanel()}
+        </div>
         ${this._renderSelectedArea()}
         ${this._renderDoneButton()}
       </div>
@@ -207,9 +304,10 @@ class ChannelSelector {
   }
 
   _renderDoneButton() {
+    const hasContent = this.selectedChannels.size > 0 || this.selectedTags.size > 0;
     return `
       <div class="five-thirty-cs-done">
-        <button class="five-thirty-cs-done-btn" ${this.selectedChannels.size === 0 ? 'disabled' : ''}>
+        <button class="five-thirty-cs-done-btn" ${!hasContent ? 'disabled' : ''}>
           Done
         </button>
       </div>
@@ -228,7 +326,7 @@ class ChannelSelector {
     if (this.selectedChannels.size === 0) {
       return `
         <div class="five-thirty-cs-selected">
-          <div class="five-thirty-cs-empty">Click a category below to add channels</div>
+          <div class="five-thirty-cs-empty">Click a category to add channels</div>
         </div>
       `;
     }
@@ -260,6 +358,113 @@ class ChannelSelector {
     `;
   }
 
+  /**
+   * Render the left column with vertical category buttons
+   */
+  _renderCategoriesColumn() {
+    if (this.loading) {
+      return `
+        <div class="five-thirty-cs-categories-column">
+          <div class="five-thirty-cs-loading">Loading...</div>
+        </div>
+      `;
+    }
+
+    const buttons = this.channelGroups.map(group => {
+      const isActive = this.activeGroupId === group.id;
+      const hasSelection = this._groupHasSelection(group);
+      const hasPrimary = this._groupHasPrimary(group);
+
+      return `
+        <button
+          class="five-thirty-cs-category-btn ${isActive ? 'five-thirty-cs-category-btn--active' : ''} ${hasSelection ? 'five-thirty-cs-category-btn--has-selection' : ''} ${hasPrimary ? 'five-thirty-cs-category-btn--has-primary' : ''}"
+          data-group-id="${group.id}"
+          title="${this._escapeAttr(group.name)}"
+        >
+          <span class="five-thirty-cs-category-icon">${group.icon || '📁'}</span>
+          <span class="five-thirty-cs-category-name">${this._escapeHtml(group.name)}</span>
+          ${hasPrimary ? '<span class="five-thirty-cs-category-star">★</span>' : ''}
+          ${hasSelection && !hasPrimary ? '<span class="five-thirty-cs-category-dot"></span>' : ''}
+        </button>
+      `;
+    }).join('');
+
+    return `
+      <div class="five-thirty-cs-categories-column">
+        ${buttons}
+      </div>
+    `;
+  }
+
+  /**
+   * Render the right panel with tabs (Tags / Notes)
+   */
+  _renderRightPanel() {
+    return `
+      <div class="five-thirty-cs-right-panel">
+        <div class="five-thirty-cs-tab-bar">
+          <button class="five-thirty-cs-tab-btn ${this.activeTab === 'tags' ? 'five-thirty-cs-tab-btn--active' : ''}" data-tab="tags">
+            Additional Tags
+          </button>
+          <button class="five-thirty-cs-tab-btn ${this.activeTab === 'notes' ? 'five-thirty-cs-tab-btn--active' : ''}" data-tab="notes">
+            Notes
+          </button>
+        </div>
+        <div class="five-thirty-cs-tab-content">
+          ${this.activeTab === 'tags' ? this._renderTagsTab() : this._renderNotesTab()}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Render the Additional Tags tab content
+   */
+  _renderTagsTab() {
+    const selectedTagsHtml = this.selectedTags.size > 0
+      ? Array.from(this.selectedTags).map(slug => {
+          const tag = this.availableTags.find(t => t.slug === slug);
+          const name = tag ? tag.name : slug;
+          return `
+            <span class="five-thirty-cs-tag-chip">
+              <span class="five-thirty-cs-tag-chip-name">${this._escapeHtml(name)}</span>
+              <button class="five-thirty-cs-tag-chip-remove" data-tag="${this._escapeAttr(slug)}">×</button>
+            </span>
+          `;
+        }).join('')
+      : `<div class="five-thirty-cs-tags-empty">No tags added yet</div>`;
+
+    return `
+      <div class="five-thirty-cs-tag-input-container">
+        <input
+          type="text"
+          class="five-thirty-cs-tag-search-input"
+          placeholder="Search tags (type 3+ chars)..."
+          autocomplete="off"
+        >
+        <div class="five-thirty-cs-autocomplete-dropdown hidden"></div>
+      </div>
+      <div class="five-thirty-cs-selected-tags">
+        ${selectedTagsHtml}
+      </div>
+      ${this.tagsLoading ? '<div class="five-thirty-cs-tags-hint">Loading tags...</div>' : ''}
+    `;
+  }
+
+  /**
+   * Render the Notes tab content
+   */
+  _renderNotesTab() {
+    return `
+      <textarea
+        class="five-thirty-cs-notes-textarea"
+        placeholder="Add notes about this content..."
+      >${this._escapeHtml(this.noteText)}</textarea>
+      <div class="five-thirty-cs-notes-hint">Notes are saved with the content.</div>
+    `;
+  }
+
+  // Keep old _renderGroupBar for backward compatibility with sub-popover
   _renderGroupBar() {
     if (this.loading) {
       return '<div class="five-thirty-cs-groups"></div>';
@@ -355,7 +560,16 @@ class ChannelSelector {
 
     const container = this.mainPopover.popover;
 
-    // Group buttons
+    // Category buttons (left column)
+    container.querySelectorAll('.five-thirty-cs-category-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const groupId = btn.dataset.groupId;
+        this._toggleGroupPopover(groupId, btn);
+      });
+    });
+
+    // Legacy group buttons (for backward compat)
     container.querySelectorAll('.five-thirty-cs-group-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -363,6 +577,68 @@ class ChannelSelector {
         this._toggleGroupPopover(groupId, btn);
       });
     });
+
+    // Tab buttons
+    container.querySelectorAll('.five-thirty-cs-tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tab = btn.dataset.tab;
+        this._switchTab(tab);
+      });
+    });
+
+    // Tag search input
+    const tagInput = container.querySelector('.five-thirty-cs-tag-search-input');
+    if (tagInput) {
+      tagInput.addEventListener('input', (e) => {
+        this._handleTagInput(e);
+      });
+
+      // Close dropdown on blur (with delay to allow click)
+      tagInput.addEventListener('blur', () => {
+        setTimeout(() => {
+          const dropdown = container.querySelector('.five-thirty-cs-autocomplete-dropdown');
+          if (dropdown) dropdown.classList.add('hidden');
+        }, 200);
+      });
+    }
+
+    // Tag autocomplete dropdown clicks
+    const dropdown = container.querySelector('.five-thirty-cs-autocomplete-dropdown');
+    if (dropdown) {
+      dropdown.addEventListener('click', (e) => {
+        const item = e.target.closest('.five-thirty-cs-autocomplete-item');
+        if (item) {
+          e.stopPropagation();
+          const slug = item.dataset.slug;
+          const name = item.dataset.name || slug;
+          if (slug) {
+            this._addTag(slug, name);
+            // Clear the input
+            const input = container.querySelector('.five-thirty-cs-tag-search-input');
+            if (input) input.value = '';
+            dropdown.classList.add('hidden');
+          }
+        }
+      });
+    }
+
+    // Tag chip remove buttons
+    container.querySelectorAll('.five-thirty-cs-tag-chip-remove').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const tag = btn.dataset.tag;
+        if (tag) this._removeTag(tag);
+      });
+    });
+
+    // Notes textarea
+    const notesTextarea = container.querySelector('.five-thirty-cs-notes-textarea');
+    if (notesTextarea) {
+      notesTextarea.addEventListener('input', (e) => {
+        this._updateNotes(e.target.value);
+      });
+    }
 
     // Chip clicks (make primary)
     container.querySelectorAll('.five-thirty-cs-chip').forEach(chip => {
@@ -387,6 +663,43 @@ class ChannelSelector {
         this.close();
       });
     }
+  }
+
+  /**
+   * Handle tag input for autocomplete
+   */
+  _handleTagInput(e) {
+    const query = e.target.value.trim();
+    const container = this.mainPopover?.popover;
+    if (!container) return;
+
+    const dropdown = container.querySelector('.five-thirty-cs-autocomplete-dropdown');
+    if (!dropdown) return;
+
+    if (query.length < 3) {
+      dropdown.classList.add('hidden');
+      return;
+    }
+
+    const matches = this._filterTags(query);
+
+    if (matches.length === 0) {
+      // Show "Create new tag" option
+      dropdown.innerHTML = `
+        <div class="five-thirty-cs-autocomplete-item create-new" data-slug="${this._escapeAttr(query)}" data-name="${this._escapeAttr(query)}">
+          Create "${this._escapeHtml(query)}"
+        </div>
+      `;
+    } else {
+      dropdown.innerHTML = matches.map(t => `
+        <div class="five-thirty-cs-autocomplete-item" data-slug="${this._escapeAttr(t.slug)}" data-name="${this._escapeAttr(t.name)}">
+          <span>${this._escapeHtml(t.name)}</span>
+          <span class="five-thirty-cs-usage-count">(${t.usage_count || 0})</span>
+        </div>
+      `).join('');
+    }
+
+    dropdown.classList.remove('hidden');
   }
 
   _attachSubListeners() {

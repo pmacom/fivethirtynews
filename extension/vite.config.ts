@@ -19,10 +19,10 @@ export default defineConfig({
       output: {
         entryFileNames: '[name].js',
         assetFileNames: '[name].[ext]',
-        // IIFE format - self-contained, no imports needed
-        format: 'iife',
-        // Inline all dynamic imports
-        inlineDynamicImports: false,
+        // ES module format - Chrome supports ES modules in content scripts
+        format: 'es',
+        // Prevent code splitting - each entry should be self-contained
+        manualChunks: () => 'vendor',
       },
     },
     // Don't minify for easier debugging

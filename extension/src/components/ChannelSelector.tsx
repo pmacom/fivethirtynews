@@ -30,6 +30,9 @@ import {
   Palette,
   Target,
   Puzzle,
+  Search,
+  Tag,
+  FileText,
 } from 'lucide-react';
 import { NotesSection } from './NotesSection';
 
@@ -109,6 +112,13 @@ interface PostData {
   [key: string]: any;
 }
 
+interface AvailableTag {
+  id: string;
+  slug: string;
+  name: string;
+  usage_count: number;
+}
+
 interface User {
   id: string;
   discord_id: string;
@@ -143,9 +153,22 @@ export function ChannelSelectorPopup({
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [contentId, setContentId] = useState<string | null>(postData.contentId || null);
 
+  // Tags state (NEW)
+  const [availableTags, setAvailableTags] = useState<AvailableTag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  const [tagSearchQuery, setTagSearchQuery] = useState('');
+  const [tagsLoading, setTagsLoading] = useState(true);
+
+  // Tab state (NEW)
+  const [activeTab, setActiveTab] = useState<'tags' | 'notes'>('tags');
+
+  // Pending note state (for drafting before content is saved)
+  const [pendingNote, setPendingNote] = useState<string>('');
+
   const popupRef = useRef<HTMLDivElement>(null);
   const subPopupRef = useRef<HTMLDivElement>(null);
   const activeGroupBtnRef = useRef<HTMLButtonElement | null>(null);
+  const tagInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch channel groups on mount
   useEffect(() => {
@@ -162,6 +185,24 @@ export function ChannelSelectorPopup({
       }
     }
     fetchChannels();
+  }, []);
+
+  // Fetch available tags on mount (preload for autocomplete)
+  useEffect(() => {
+    async function fetchTags() {
+      try {
+        const response = await chrome.runtime.sendMessage({ action: 'fetchTags' });
+        if (response.success && response.tags) {
+          setAvailableTags(response.tags);
+          console.log('530: Loaded', response.tags.length, 'tags for autocomplete');
+        }
+      } catch (error) {
+        console.error('530: Failed to fetch tags', error);
+      } finally {
+        setTagsLoading(false);
+      }
+    }
+    fetchTags();
   }, []);
 
   // Fetch auth state on mount
@@ -231,53 +272,88 @@ export function ChannelSelectorPopup({
     };
   }, [anchorElement]);
 
-  // Position sub-popup near the active group button
+  // Position sub-popup near the active group button (with viewport bounds checking)
   useEffect(() => {
-    if (!activeGroup || !activeGroupBtnRef.current) return;
+    if (!activeGroup || !activeGroupBtnRef.current || !popupRef.current) return;
 
-    const rect = activeGroupBtnRef.current.getBoundingClientRect();
+    const btnRect = activeGroupBtnRef.current.getBoundingClientRect();
+    const popupRect = popupRef.current.getBoundingClientRect();
     const subWidth = 280;
+    const subHeight = 300; // Approximate max height of sub-popup
     const padding = 8;
 
-    let left = rect.right + padding;
+    // Horizontal positioning: prefer right of button, fall back to left
+    let left = btnRect.right + padding;
     if (left + subWidth > window.innerWidth - padding) {
-      left = rect.left - subWidth - padding;
+      left = btnRect.left - subWidth - padding;
     }
 
-    setSubPosition({ top: rect.top, left });
+    // Vertical positioning: align with button, but respect viewport bounds
+    let top = btnRect.top;
+
+    // Check if sub-popup would go off-screen bottom
+    if (top + subHeight > window.innerHeight - padding) {
+      // Option 1: Align bottom of sub-popup with bottom of viewport
+      top = window.innerHeight - subHeight - padding;
+
+      // Option 2: Don't go above the main popup's top
+      if (top < popupRect.top) {
+        top = popupRect.top;
+      }
+    }
+
+    // Don't let it go above the viewport
+    if (top < padding) {
+      top = padding;
+    }
+
+    setSubPosition({ top, left });
   }, [activeGroup]);
 
-  // Handle click outside to close
+  // Handle click outside to close (layered dismissal)
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       // Use composedPath() to properly detect clicks inside Shadow DOM
       const path = e.composedPath();
 
-      // Check if any element in the path is our popup or sub-popup
-      const clickedInsidePopup = path.some((el) => {
+      // Check if clicked inside sub-popup
+      const clickedInsideSubPopup = path.some((el) => {
         if (!(el instanceof HTMLElement)) return false;
-        // Check for our popup classes
-        if (el.classList?.contains('ft-popup')) return true;
-        if (el.classList?.contains('ft-sub-popup')) return true;
-        // Check refs as fallback
-        if (popupRef.current && el === popupRef.current) return true;
-        if (subPopupRef.current && el === subPopupRef.current) return true;
-        return false;
+        return el.classList?.contains('ft-sub-popup') ||
+               (subPopupRef.current && el === subPopupRef.current);
       });
 
-      if (clickedInsidePopup) return;
+      // Check if clicked inside main popup
+      const clickedInsideMainPopup = path.some((el) => {
+        if (!(el instanceof HTMLElement)) return false;
+        return el.classList?.contains('ft-popup') ||
+               (popupRef.current && el === popupRef.current);
+      });
 
-      // Check if click is on the anchor button
+      // Click on anchor button - do nothing
       if (anchorElement.contains(e.target as Node)) return;
 
-      // Close the popup
+      // Layered dismissal logic
+      if (clickedInsideSubPopup) {
+        return; // Inside sub-popup - let channel handlers work
+      }
+
+      if (clickedInsideMainPopup) {
+        // Inside main popup but outside sub-popup - close sub-popup only
+        if (activeGroup) {
+          setActiveGroup(null);
+        }
+        return;
+      }
+
+      // Outside both - close everything
       onClose();
     };
 
     // Use click instead of mousedown to allow button clicks to process first
     document.addEventListener('click', handleClickOutside, true);
     return () => document.removeEventListener('click', handleClickOutside, true);
-  }, [anchorElement, onClose]);
+  }, [anchorElement, onClose, activeGroup]);
 
   // Handle escape key
   useEffect(() => {
@@ -335,6 +411,40 @@ export function ChannelSelectorPopup({
     });
   }, [primaryChannel]);
 
+  // Filter tags based on search query (min 1 char)
+  const filteredTags = useCallback(() => {
+    if (tagSearchQuery.length < 1) return [];
+    const query = tagSearchQuery.toLowerCase();
+    return availableTags
+      .filter((t) =>
+        (t.name.toLowerCase().includes(query) || t.slug.toLowerCase().includes(query)) &&
+        !selectedTags.has(t.slug)
+      )
+      .slice(0, 10);
+  }, [tagSearchQuery, availableTags, selectedTags]);
+
+  // Add tag to selection
+  const addTag = useCallback((tagSlug: string) => {
+    setSelectedTags((prev) => new Set([...prev, tagSlug]));
+    setTagSearchQuery('');
+  }, []);
+
+  // Remove tag from selection
+  const removeTag = useCallback((tagSlug: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedTags((prev) => {
+      const next = new Set(prev);
+      next.delete(tagSlug);
+      return next;
+    });
+  }, []);
+
+  // Get tag name by slug
+  const getTagName = useCallback((slug: string): string => {
+    const tag = availableTags.find((t) => t.slug === slug);
+    return tag?.name || slug;
+  }, [availableTags]);
+
   // Handle auth required - trigger Discord login
   const handleAuthRequired = useCallback(async () => {
     try {
@@ -354,13 +464,14 @@ export function ChannelSelectorPopup({
 
   // Save and close
   const handleDone = useCallback(async () => {
-    if (selectedChannels.size === 0) {
+    if (selectedChannels.size === 0 && selectedTags.size === 0) {
       onClose();
       return;
     }
 
     const channelsArray = Array.from(selectedChannels);
-    console.log('530: Saving channels', channelsArray, 'primary:', primaryChannel);
+    const tagsArray = Array.from(selectedTags);
+    console.log('530: Saving channels', channelsArray, 'primary:', primaryChannel, 'tags:', tagsArray);
     console.log('530: Post data', postData);
 
     try {
@@ -369,7 +480,9 @@ export function ChannelSelectorPopup({
         data: {
           ...postData,
           channels: channelsArray,
-          primaryChannel: primaryChannel || channelsArray[0],
+          primaryChannel: primaryChannel || channelsArray[0] || null,
+          tags: tagsArray, // Include selected tags
+          pendingNote: pendingNote.trim() || null, // Include draft note
         },
       });
 
@@ -383,7 +496,8 @@ export function ChannelSelectorPopup({
         }
         onSave({
           channels: channelsArray,
-          primary_channel: primaryChannel || channelsArray[0],
+          primary_channel: primaryChannel || channelsArray[0] || null,
+          tags: tagsArray,
           contentId: response.data?.contentId || contentId,
         });
       } else {
@@ -394,7 +508,7 @@ export function ChannelSelectorPopup({
     }
 
     onClose();
-  }, [selectedChannels, primaryChannel, postData, onSave, onClose]);
+  }, [selectedChannels, selectedTags, primaryChannel, postData, onSave, onClose, contentId]);
 
   // Get channel info by slug
   const getChannelBySlug = useCallback((slug: string): Channel | undefined => {
@@ -418,9 +532,12 @@ export function ChannelSelectorPopup({
   // Get the active group data
   const activeGroupData = groups.find((g) => g.id === activeGroup);
 
+  const matchingTags = filteredTags();
+  const showDropdown = tagSearchQuery.length >= 1;
+
   return (
     <>
-      {/* Main Popup */}
+      {/* Main Popup - Two Column Layout */}
       <div
         ref={popupRef}
         className="ft-popup"
@@ -428,45 +545,149 @@ export function ChannelSelectorPopup({
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="ft-popup-content">
-          {/* Group Icons Row */}
-          <div className="ft-groups">
-            {loading ? (
-              <span style={{ color: '#999', fontSize: 13 }}>Loading...</span>
-            ) : (
-              groups.map((group) => {
-                const IconComponent = getIcon(group.slug);
-                const isActive = activeGroup === group.id;
-                const hasSelection = groupHasSelection(group);
-                const hasPrimary = groupHasPrimary(group);
+        <div className="ft-popup-content ft-two-column">
+          {/* Two Column Body */}
+          <div className="ft-body">
+            {/* Left Column - Categories */}
+            <div className="ft-categories-column">
+              {loading ? (
+                <span style={{ color: '#71717a', fontSize: 11, padding: 12 }}>Loading...</span>
+              ) : (
+                groups.map((group) => {
+                  const IconComponent = getIcon(group.slug);
+                  const isActive = activeGroup === group.id;
+                  const hasSelection = groupHasSelection(group);
+                  const hasPrimary = groupHasPrimary(group);
 
-                return (
-                  <button
-                    key={group.id}
-                    ref={isActive ? (el) => (activeGroupBtnRef.current = el) : undefined}
-                    className={`ft-group-btn ${isActive ? 'active' : ''} ${hasSelection ? 'has-selection' : ''} ${hasPrimary ? 'has-primary' : ''}`}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveGroup(isActive ? null : group.id);
-                    }}
-                    title={group.name}
-                  >
-                    <span className="icon">
-                      <IconComponent size={22} />
-                    </span>
-                    {hasPrimary && <span className="star">★</span>}
-                    {hasSelection && !hasPrimary && <span className="dot" />}
-                  </button>
-                );
-              })
-            )}
+                  return (
+                    <button
+                      key={group.id}
+                      ref={isActive ? (el) => (activeGroupBtnRef.current = el) : undefined}
+                      className={`ft-category-btn ${isActive ? 'active' : ''} ${hasSelection ? 'has-selection' : ''} ${hasPrimary ? 'has-primary' : ''}`}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveGroup(isActive ? null : group.id);
+                      }}
+                      title={group.name}
+                    >
+                      <span className="icon">
+                        <IconComponent size={16} />
+                      </span>
+                      <span className="name">{group.name}</span>
+                      {hasPrimary && <span className="star">★</span>}
+                      {hasSelection && !hasPrimary && <span className="dot" />}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Right Panel - Tabs */}
+            <div className="ft-right-panel">
+              {/* Tab Bar */}
+              <div className="ft-tab-bar">
+                <button
+                  className={`ft-tab-btn ${activeTab === 'tags' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('tags')}
+                >
+                  <Tag size={12} />
+                  <span>Tags</span>
+                </button>
+                <button
+                  className={`ft-tab-btn ${activeTab === 'notes' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('notes')}
+                >
+                  <FileText size={12} />
+                  <span>Notes</span>
+                </button>
+              </div>
+
+              {/* Tab Content */}
+              <div className="ft-tab-content">
+                {activeTab === 'tags' ? (
+                  /* Tags Tab */
+                  <div className="ft-tags-tab">
+                    {/* Tag Search Input */}
+                    <div className="ft-tag-input-container">
+                      <Search size={14} className="ft-search-icon" />
+                      <input
+                        ref={tagInputRef}
+                        type="text"
+                        className="ft-tag-search"
+                        placeholder="Search or create tags..."
+                        value={tagSearchQuery}
+                        onChange={(e) => setTagSearchQuery(e.target.value)}
+                        autoComplete="off"
+                      />
+                      {/* Autocomplete Dropdown */}
+                      {showDropdown && (
+                        <div className="ft-tag-dropdown">
+                          {matchingTags.length > 0 ? (
+                            matchingTags.map((tag) => (
+                              <button
+                                key={tag.id}
+                                className="ft-tag-dropdown-item"
+                                onClick={() => addTag(tag.slug)}
+                              >
+                                <span>{tag.name}</span>
+                                <span className="usage-count">({tag.usage_count})</span>
+                              </button>
+                            ))
+                          ) : (
+                            <button
+                              className="ft-tag-dropdown-item create-new"
+                              onClick={() => addTag(tagSearchQuery)}
+                            >
+                              Create "{tagSearchQuery}"
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Selected Tags */}
+                    <div className="ft-selected-tags">
+                      {selectedTags.size > 0 ? (
+                        Array.from(selectedTags).map((slug) => (
+                          <span key={slug} className="ft-tag-chip">
+                            <span>{getTagName(slug)}</span>
+                            <button
+                              className="ft-tag-remove"
+                              onClick={(e) => removeTag(slug, e)}
+                            >
+                              <X size={12} />
+                            </button>
+                          </span>
+                        ))
+                      ) : (
+                        <div className="ft-tags-empty">
+                          {tagsLoading ? 'Loading tags...' : 'No tags added yet'}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  /* Notes Tab */
+                  <div className="ft-notes-tab">
+                    <NotesSection
+                      contentId={contentId}
+                      currentUser={currentUser}
+                      onAuthRequired={handleAuthRequired}
+                      embedded={true}
+                      pendingNote={pendingNote}
+                      onPendingNoteChange={setPendingNote}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Selected Channels */}
           <div className="ft-selected">
             {selectedChannels.size === 0 ? (
-              <div className="ft-empty">Click a category above to add channels</div>
+              <div className="ft-empty">Click a category to add channels</div>
             ) : (
               <div className="ft-chips">
                 {Array.from(selectedChannels).map((slug) => {
@@ -499,19 +720,12 @@ export function ChannelSelectorPopup({
             )}
           </div>
 
-          {/* Notes Section */}
-          <NotesSection
-            contentId={contentId}
-            currentUser={currentUser}
-            onAuthRequired={handleAuthRequired}
-          />
-
           {/* Done Button */}
           <div className="ft-done">
             <button
               className="ft-done-btn"
               onClick={handleDone}
-              disabled={selectedChannels.size === 0}
+              disabled={selectedChannels.size === 0 && selectedTags.size === 0}
             >
               Done
             </button>

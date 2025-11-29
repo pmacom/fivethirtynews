@@ -123,8 +123,8 @@
       ],
       "timestamp": "2025-11-18T03:45:28.704Z",
       "context": "viewer/viewer.tsx lines 9, 28 - Imported and added Pillar component to Canvas",
-      "accessCount": 3,
-      "lastAccessed": "2025-11-29T01:26:25.459Z",
+      "accessCount": 5,
+      "lastAccessed": "2025-11-29T21:06:05.988Z",
       "lastVerified": "2025-11-18T03:45:28.704Z",
       "status": "fresh"
     },
@@ -178,8 +178,8 @@
         "research"
       ],
       "timestamp": "2025-11-18T04:29:18.387Z",
-      "accessCount": 5,
-      "lastAccessed": "2025-11-29T01:26:25.459Z",
+      "accessCount": 7,
+      "lastAccessed": "2025-11-29T21:06:05.988Z",
       "lastVerified": "2025-11-18T04:29:18.387Z",
       "status": "fresh"
     },
@@ -197,8 +197,8 @@
       ],
       "timestamp": "2025-11-18T04:35:18.426Z",
       "context": "Restored camera framing system - viewer/pillar/components/ContentWrapper.tsx and all templates updated",
-      "accessCount": 3,
-      "lastAccessed": "2025-11-28T03:16:16.479Z",
+      "accessCount": 4,
+      "lastAccessed": "2025-11-29T21:06:05.988Z",
       "lastVerified": "2025-11-18T04:35:18.426Z",
       "status": "fresh"
     },
@@ -367,8 +367,8 @@
       ],
       "timestamp": "2025-11-18T05:51:50.225Z",
       "context": "Final diagnosis of camera framing bug with single-item columns",
-      "accessCount": 5,
-      "lastAccessed": "2025-11-29T01:26:25.459Z",
+      "accessCount": 7,
+      "lastAccessed": "2025-11-29T21:06:05.988Z",
       "lastVerified": "2025-11-18T05:51:50.225Z",
       "status": "fresh"
     },
@@ -931,8 +931,8 @@
         "fivethirty"
       ],
       "timestamp": "2025-11-19T00:05:12.324Z",
-      "accessCount": 4,
-      "lastAccessed": "2025-11-29T01:26:25.459Z",
+      "accessCount": 6,
+      "lastAccessed": "2025-11-29T21:06:05.988Z",
       "lastVerified": "2025-11-19T00:05:12.324Z",
       "status": "fresh"
     },
@@ -984,8 +984,8 @@
         "performance"
       ],
       "timestamp": "2025-11-19T02:37:34.819Z",
-      "accessCount": 3,
-      "lastAccessed": "2025-11-28T18:59:35.722Z",
+      "accessCount": 4,
+      "lastAccessed": "2025-11-29T21:06:05.988Z",
       "lastVerified": "2025-11-19T02:37:34.819Z",
       "status": "fresh"
     },
@@ -1439,8 +1439,8 @@
       ],
       "timestamp": "2025-11-26T22:37:11.807Z",
       "context": "Analysis of merging bot directory (Chrome extension + admin dashboard) into main fivethirty project",
-      "accessCount": 7,
-      "lastAccessed": "2025-11-29T01:26:25.459Z",
+      "accessCount": 9,
+      "lastAccessed": "2025-11-29T21:06:05.988Z",
       "lastVerified": "2025-11-26T22:37:11.807Z",
       "status": "fresh"
     },
@@ -1460,8 +1460,8 @@
         "530-project"
       ],
       "timestamp": "2025-11-27T20:47:36.303Z",
-      "accessCount": 8,
-      "lastAccessed": "2025-11-29T01:26:25.459Z",
+      "accessCount": 10,
+      "lastAccessed": "2025-11-29T21:06:05.988Z",
       "lastVerified": "2025-11-27T20:47:36.303Z",
       "status": "fresh"
     },
@@ -1482,8 +1482,8 @@
       ],
       "timestamp": "2025-11-27T20:48:37.989Z",
       "context": "User wants to update Chrome extension tag selection modal to use new SmartPopover/ChannelSelector design pattern",
-      "accessCount": 6,
-      "lastAccessed": "2025-11-29T01:26:25.459Z",
+      "accessCount": 7,
+      "lastAccessed": "2025-11-29T19:44:54.061Z",
       "lastVerified": "2025-11-27T20:48:37.989Z",
       "status": "fresh"
     },
@@ -1503,8 +1503,8 @@
       ],
       "timestamp": "2025-11-27T20:58:02.515Z",
       "context": "Planning data model migration from hierarchical tags to channel/group organization for 530 News Chrome extension",
-      "accessCount": 6,
-      "lastAccessed": "2025-11-29T01:26:25.459Z",
+      "accessCount": 7,
+      "lastAccessed": "2025-11-29T19:44:54.061Z",
       "lastVerified": "2025-11-27T20:58:02.515Z",
       "status": "fresh"
     },
@@ -1627,8 +1627,8 @@
       ],
       "timestamp": "2025-11-28T03:13:40.151Z",
       "context": "Comprehensive codebase exploration for 530News extension project - understanding auth, database, and UI",
-      "accessCount": 6,
-      "lastAccessed": "2025-11-29T01:26:25.459Z",
+      "accessCount": 8,
+      "lastAccessed": "2025-11-29T21:06:05.988Z",
       "lastVerified": "2025-11-28T03:13:40.151Z",
       "status": "fresh"
     },
@@ -1742,8 +1742,8 @@
       ],
       "timestamp": "2025-11-28T18:56:33.241Z",
       "context": "Explored codebase to understand data model for categories, channels, tags",
-      "accessCount": 3,
-      "lastAccessed": "2025-11-29T01:26:25.459Z",
+      "accessCount": 5,
+      "lastAccessed": "2025-11-29T21:06:05.988Z",
       "lastVerified": "2025-11-28T18:56:33.241Z",
       "status": "fresh"
     },
@@ -1821,7 +1821,87 @@
       "lastAccessed": "2025-11-29T01:39:58.668Z",
       "lastVerified": "2025-11-29T01:39:58.668Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764439266311_6ep9cccdt",
+      "content": "Extension Channel Selector Redesign completed:\n\n1. Created Tags API endpoint (app/api/tags/route.ts):\n   - GET /api/tags returns tags sorted by usage_count\n   - Supports limit and search query params\n   - CORS enabled for extension\n\n2. Updated CSS (extension/channel-selector.css):\n   - Two-column layout: 520px width (expanded from 360px)\n   - Left column (150px): Vertical category buttons\n   - Right panel: Tab bar with \"Additional Tags\" and \"Notes\"\n   - Autocomplete dropdown styles\n   - Green tag chips for selected tags\n   - Mobile responsive (stacks vertically on small screens)\n\n3. Updated JavaScript (extension/channel-selector.js):\n   - Added state: availableTags, selectedTags, noteText, activeTab\n   - _loadTags() - preloads tags on open\n   - _filterTags() - 3+ char autocomplete filter\n   - _addTag()/_removeTag() - tag management\n   - New render methods: _renderCategoriesColumn(), _renderRightPanel(), _renderTagsTab(), _renderNotesTab()\n   - Updated _attachMainListeners() for tabs, tag input, autocomplete\n   - _autoSave() now includes tags array\n\n4. Updated background.js:\n   - Added fetchTags message handler\n   - handleFetchTags() fetches from /api/tags\n   - handleUpdateContentChannels() now accepts tags array",
+      "type": "general",
+      "tags": [
+        "general",
+        "javascript",
+        "api",
+        "extension",
+        "channel-selector",
+        "tags",
+        "implementation"
+      ],
+      "timestamp": "2025-11-29T18:01:06.311Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-29T18:01:06.311Z",
+      "lastVerified": "2025-11-29T18:01:06.311Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764445390498_pkecnan0s",
+      "content": "Chrome Extension ChannelSelector Component Analysis - Current Implementation\n\n## Popup/Submenu Behavior (ChannelSelector.tsx)\n1. Main popup: Two-column layout\n   - Left column: Category buttons (140px wide)\n   - Right panel: Tabs (Tags/Notes) with channel list below\n   - Positioned near anchor element with bounce-off-screen logic\n   \n2. Submenu behavior (activeGroup state):\n   - When category button clicked, sets activeGroup = group.id\n   - Clicking again deselects (setActiveGroup(null))\n   - Submenu positioned to RIGHT of active category button (rect.right + padding)\n   - If off-screen right, flips to LEFT (rect.left - subWidth - padding)\n   - Z-index hierarchy: main popup (2147483647), sub-popup (2147483648)\n   - Escape key closes submenu first, then main popup\n\n## Click-Outside Handling (Lines 288-318)\n- Uses composedPath() to detect clicks inside Shadow DOM (crucial for extension!)\n- Checks for:\n  1. Elements with 'ft-popup' or 'ft-sub-popup' classes\n  2. Direct ref comparisons (popupRef, subPopupRef)\n  3. Anchor element clicks (ignored to allow re-opening)\n- Uses click event with capture phase: document.addEventListener('click', handler, true)\n- Pattern: If clicked inside anything, return early; otherwise call onClose()\n\n## Tag Input Behavior (Lines 156-159, 376-408)\n- State: tagSearchQuery, selectedTags, availableTags\n- Minimum 3 characters required to trigger autocomplete (line 378)\n- Returns empty array if < 3 chars\n- Filtering logic (lines 377-386):\n  * Searches tag.name and tag.slug (case-insensitive)\n  * Excludes already-selected tags\n  * Returns max 10 results\n  * Shows dropdown if matchingTags.length > 0 OR query >= 3 chars\n- Create tag option: If no matches, shows \"Create '{query}'\" button\n- On tag select: Adds to selectedTags, clears search field\n\n## Notes Implementation (NotesSection.tsx)\n- State-based: isExpanded, notes[], myNoteText, saveStatus\n- Features:\n  1. Collapsible header with note count badge\n  2. Auto-save with 1000ms debounce (line 61)\n  3. 280-char max limit per note\n  4. Save status indicators: idle/saving/saved/error\n  5. Separate display for \"Your Note\" vs \"Other Notes\"\n  6. Requires authentication (Discord login button)\n  7. Requires contentId (shows message until saved)\n- Save behavior:\n  * Only triggers if debouncedText changes AND user is authenticated AND contentId exists\n  * Manual save button appears only if hasExistingNote=false AND text is not empty\n  * Delete button appears only if hasExistingNote=true\n- Note structure: id, note_text, author_name, user_id, created_at, updated_at, user{id, display_name, discord_avatar}",
+      "type": "error",
+      "tags": [
+        "error",
+        "authentication",
+        "extension",
+        "ChannelSelector",
+        "current-implementation",
+        "popup-behavior",
+        "tag-input",
+        "notes"
+      ],
+      "timestamp": "2025-11-29T19:43:10.498Z",
+      "context": "User exploration of Chrome extension component architecture before implementation",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-29T19:43:10.498Z",
+      "lastVerified": "2025-11-29T19:43:10.498Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764445443418_pdo3dcka4",
+      "content": "Database schema exploration complete for 530News project. Key findings:\n\nNOTES SYSTEM (Main Project - /supabase/migrations/20251128000000_add_auth_and_notes.sql):\n- Table: content_notes\n- One-note-per-user-per-content (UNIQUE constraint on content_id, user_id)\n- Max 280 characters (Twitter-like limit)\n- Fields: id, content_id, user_id, note_text, author_name, created_at, updated_at\n- User authentication via Discord OAuth\n- RLS policies: Public read/insert/update/delete (permissive)\n- API endpoint: /api/content/[id]/notes/route.ts (GET, POST, DELETE)\n- Session-based auth via Bearer token (530_ format)\n- Frontend: NotesSection React component with auto-save debounce\n\nCOMMENTS SYSTEM (Bot Project - /bot/supabase/migrations/20251012020000_create_content_comments_table.sql):\n- Table: content_comments (SEPARATE from main project)\n- Multi-user capable: stores ALL comments from platforms\n- Platform-specific: youtube, twitter, reddit, bluesky\n- ID format: \"platform:commentId\" (deterministic)\n- Fields: id, content_id, platform, platform_comment_id, comment_text, comment_url, author details, likes/replies counts, is_author_verified, position_in_thread, parent_comment_id, metadata (JSONB), timestamps\n- Nested replies supported via parent_comment_id (future feature)\n- No user association (external platform data only)\n- RLS policies: Public access for MVP\n- API endpoint: /bot/web/app/api/comments/route.ts (GET, POST, DELETE)\n\nKEY DIFFERENCES:\n- Notes: User-created, 1 per user per content, 280 char limit, internal users only\n- Comments: Platform comments captured, unlimited users, supports nesting, platform-specific metadata\n\nCONTENT TABLE ENHANCEMENTS:\n- submitted_by_user_id (who submitted content)\n- approved_by (who approved)\n- approval_status (pending/approved/rejected)\n- approval_reason, approved_at timestamps\n- tags TEXT[] array for tagging system",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "database",
+        "authentication",
+        "api",
+        "database-schema",
+        "notes-system",
+        "comments-system",
+        "user-management"
+      ],
+      "timestamp": "2025-11-29T19:44:03.418Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-29T19:44:03.418Z",
+      "lastVerified": "2025-11-29T19:44:03.418Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764450547304_6rc74trh0",
+      "content": "Pillar View Content Details Enhancement Complete (Nov 29, 2025)\n\nAdded author info display to the details panel in pillar view:\n\nFILES MODIFIED:\n1. viewer/core/content/types.ts - Added 4 optional author fields to LiveViewContent:\n   - author_name?: string\n   - author_username?: string  \n   - author_avatar_url?: string\n   - author_url?: string\n\n2. viewer/ui/details/components/DetailNotes.tsx - Updated component to display:\n   - Author avatar (with fallback to initial letter)\n   - Author name and @username\n   - Curator's note\n   - Content description with line-clamp-3\n\nDATA FLOW:\n- Extension saves author data via /api/content route (author_name, author_username, author_url, author_avatar_url)\n- Content store queries content (*) which returns all columns\n- No migration needed - data already exists in DB",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "viewer",
+        "pillar",
+        "details-panel",
+        "author-info",
+        "implementation"
+      ],
+      "timestamp": "2025-11-29T21:09:07.304Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-29T21:09:07.304Z",
+      "lastVerified": "2025-11-29T21:09:07.304Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-29T01:39:58.668Z"
+  "lastUpdated": "2025-11-29T21:09:07.304Z"
 }

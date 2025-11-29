@@ -159,4 +159,9 @@ export interface LiveViewContent {
   category: string
   categories: string[]
   description: string
+  // Author info (optional - may not exist for old content)
+  author_name?: string
+  author_username?: string
+  author_avatar_url?: string
+  author_url?: string
 }

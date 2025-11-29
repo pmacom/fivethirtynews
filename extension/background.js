@@ -376,6 +376,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
+  if (request.action === 'fetchTags') {
+    handleFetchTags()
+      .then(response => sendResponse({ success: true, tags: response }))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+
   // ===== USER DATA HANDLERS =====
   if (request.action === 'getUserStats') {
     handleGetUserStats()
@@ -803,6 +810,36 @@ async function handleGetChannelGroups() {
   }
 }
 
+// Fetch available tags for autocomplete
+async function handleFetchTags() {
+  console.log('530: handleFetchTags called');
+
+  if (!apiConfig.baseUrl) {
+    console.warn('530: No API configured - returning empty tags');
+    return [];
+  }
+
+  try {
+    const response = await fetch(`${apiConfig.baseUrl}/tags`);
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('530: Retrieved tags from API', result.tags?.length || 0, 'tags');
+
+    if (result.success && result.tags) {
+      return result.tags;
+    } else {
+      throw new Error('Invalid API response format');
+    }
+  } catch (error) {
+    console.error('530: Failed to fetch tags', error);
+    return [];
+  }
+}
+
 // Update content with channels (new channel system)
 async function handleUpdateContentChannels(data) {
   const {
@@ -811,6 +848,8 @@ async function handleUpdateContentChannels(data) {
     url,
     channels,
     primaryChannel,
+    tags, // NEW: Additional tags
+    pendingNote, // NEW: Draft note to save after content creation
     title,
     description,
     content,
@@ -836,6 +875,7 @@ async function handleUpdateContentChannels(data) {
       url,
       channels,
       primaryChannel,
+      tags: tags || [], // Include tags in submission
       title,
       description,
       content,
@@ -864,6 +904,30 @@ async function handleUpdateContentChannels(data) {
 
     const result = await response.json();
     console.log('530: Content channels saved:', result);
+
+    // If content saved and there's a pending note, save it
+    if (result.success && result.data?.contentId && pendingNote) {
+      try {
+        const authState = await getAuthState();
+        if (authState?.token) {
+          const noteResponse = await fetch(`${apiConfig.baseUrl}/content/${result.data.contentId}/notes`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authState.token}`,
+            },
+            body: JSON.stringify({ note_text: pendingNote }),
+          });
+          if (noteResponse.ok) {
+            console.log('530: Pending note saved with content');
+          } else {
+            console.warn('530: Failed to save pending note:', await noteResponse.text());
+          }
+        }
+      } catch (noteError) {
+        console.warn('530: Failed to save pending note', noteError);
+      }
+    }
 
     return result.data;
   } catch (error) {
