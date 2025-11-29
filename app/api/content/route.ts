@@ -2,6 +2,57 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 
+/**
+ * Fetch tweet data from Twitter's syndication API and store in tweets table
+ * This runs in the background and doesn't block the response
+ */
+async function fetchAndStoreTweet(tweetId: string, supabase: any): Promise<void> {
+  try {
+    // Check if tweet already exists
+    const { data: existing } = await supabase
+      .from('tweets')
+      .select('id')
+      .eq('id', tweetId)
+      .single();
+
+    if (existing) {
+      console.log(`Tweet ${tweetId} already in database`);
+      return;
+    }
+
+    // Fetch from Twitter syndication API
+    const url = `https://cdn.syndication.twimg.com/tweet-result?id=${tweetId}&lang=en&token=0`;
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; 530Society/1.0)' },
+    });
+
+    if (!response.ok) {
+      console.log(`Failed to fetch tweet ${tweetId}: HTTP ${response.status}`);
+      return;
+    }
+
+    const tweetData = await response.json();
+
+    // Store in tweets table
+    const { error } = await supabase
+      .from('tweets')
+      .upsert({
+        id: tweetId,
+        data: tweetData,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' });
+
+    if (error) {
+      console.error(`Failed to store tweet ${tweetId}:`, error);
+    } else {
+      console.log(`Successfully fetched and stored tweet ${tweetId}`);
+    }
+  } catch (error) {
+    console.error(`Error fetching tweet ${tweetId}:`, error);
+  }
+}
+
 // CORS headers for Chrome extension
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -199,6 +250,14 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // For Twitter content, fetch and store tweet data in background
+      // This doesn't block the response - tweet data will be available on next load
+      if (platform === 'twitter' && platformContentId) {
+        fetchAndStoreTweet(platformContentId, supabase).catch(err => {
+          console.error('Background tweet fetch failed:', err);
+        });
+      }
+
       return NextResponse.json({
         success: true,
         data,
@@ -216,27 +275,43 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * GET /api/content?limit=100&platform=twitter
- * Get all tagged content
+ * GET /api/content?limit=20&offset=0&channel=ai&since=2024-01-01&platform=twitter
+ * Get all tagged content with pagination and filtering
  */
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const searchParams = request.nextUrl.searchParams;
-    const limit = parseInt(searchParams.get('limit') || '100', 10);
+    const limit = parseInt(searchParams.get('limit') || '20', 10);
+    const offset = parseInt(searchParams.get('offset') || '0', 10);
     const platform = searchParams.get('platform');
+    const channel = searchParams.get('channel');
+    const since = searchParams.get('since');
 
+    // Build query with count for pagination
     let query = supabase
       .from('content')
-      .select('*')
+      .select('*', { count: 'exact' })
+      .eq('approval_status', 'approved')
       .order('created_at', { ascending: false })
-      .limit(limit);
+      .range(offset, offset + limit - 1);
 
+    // Platform filter
     if (platform) {
       query = query.eq('platform', platform);
     }
 
-    const { data, error } = await query;
+    // Channel filter - check primary_channel OR channels array contains
+    if (channel) {
+      query = query.or(`primary_channel.eq.${channel},channels.cs.["${channel}"]`);
+    }
+
+    // Date filter - content created since date
+    if (since) {
+      query = query.gte('created_at', since);
+    }
+
+    const { data, error, count } = await query;
 
     if (error) {
       console.error('Error fetching content:', error);
@@ -246,9 +321,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const total = count || 0;
+    const hasMore = offset + limit < total;
+
     return NextResponse.json({
       success: true,
-      data
+      data,
+      pagination: {
+        offset,
+        limit,
+        total,
+        hasMore
+      }
     }, { headers: corsHeaders });
 
   } catch (error) {

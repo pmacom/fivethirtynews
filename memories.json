@@ -123,8 +123,8 @@
       ],
       "timestamp": "2025-11-18T03:45:28.704Z",
       "context": "viewer/viewer.tsx lines 9, 28 - Imported and added Pillar component to Canvas",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-28T18:59:35.722Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-11-29T01:26:25.459Z",
       "lastVerified": "2025-11-18T03:45:28.704Z",
       "status": "fresh"
     },
@@ -178,8 +178,8 @@
         "research"
       ],
       "timestamp": "2025-11-18T04:29:18.387Z",
-      "accessCount": 3,
-      "lastAccessed": "2025-11-28T03:16:16.479Z",
+      "accessCount": 5,
+      "lastAccessed": "2025-11-29T01:26:25.459Z",
       "lastVerified": "2025-11-18T04:29:18.387Z",
       "status": "fresh"
     },
@@ -367,8 +367,8 @@
       ],
       "timestamp": "2025-11-18T05:51:50.225Z",
       "context": "Final diagnosis of camera framing bug with single-item columns",
-      "accessCount": 3,
-      "lastAccessed": "2025-11-28T03:16:16.479Z",
+      "accessCount": 5,
+      "lastAccessed": "2025-11-29T01:26:25.459Z",
       "lastVerified": "2025-11-18T05:51:50.225Z",
       "status": "fresh"
     },
@@ -931,8 +931,8 @@
         "fivethirty"
       ],
       "timestamp": "2025-11-19T00:05:12.324Z",
-      "accessCount": 2,
-      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "accessCount": 4,
+      "lastAccessed": "2025-11-29T01:26:25.459Z",
       "lastVerified": "2025-11-19T00:05:12.324Z",
       "status": "fresh"
     },
@@ -1439,8 +1439,8 @@
       ],
       "timestamp": "2025-11-26T22:37:11.807Z",
       "context": "Analysis of merging bot directory (Chrome extension + admin dashboard) into main fivethirty project",
-      "accessCount": 5,
-      "lastAccessed": "2025-11-28T18:59:35.722Z",
+      "accessCount": 7,
+      "lastAccessed": "2025-11-29T01:26:25.459Z",
       "lastVerified": "2025-11-26T22:37:11.807Z",
       "status": "fresh"
     },
@@ -1460,8 +1460,8 @@
         "530-project"
       ],
       "timestamp": "2025-11-27T20:47:36.303Z",
-      "accessCount": 6,
-      "lastAccessed": "2025-11-28T18:59:35.722Z",
+      "accessCount": 8,
+      "lastAccessed": "2025-11-29T01:26:25.459Z",
       "lastVerified": "2025-11-27T20:47:36.303Z",
       "status": "fresh"
     },
@@ -1482,8 +1482,8 @@
       ],
       "timestamp": "2025-11-27T20:48:37.989Z",
       "context": "User wants to update Chrome extension tag selection modal to use new SmartPopover/ChannelSelector design pattern",
-      "accessCount": 4,
-      "lastAccessed": "2025-11-28T03:16:16.479Z",
+      "accessCount": 6,
+      "lastAccessed": "2025-11-29T01:26:25.459Z",
       "lastVerified": "2025-11-27T20:48:37.989Z",
       "status": "fresh"
     },
@@ -1503,8 +1503,8 @@
       ],
       "timestamp": "2025-11-27T20:58:02.515Z",
       "context": "Planning data model migration from hierarchical tags to channel/group organization for 530 News Chrome extension",
-      "accessCount": 4,
-      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "accessCount": 6,
+      "lastAccessed": "2025-11-29T01:26:25.459Z",
       "lastVerified": "2025-11-27T20:58:02.515Z",
       "status": "fresh"
     },
@@ -1627,8 +1627,8 @@
       ],
       "timestamp": "2025-11-28T03:13:40.151Z",
       "context": "Comprehensive codebase exploration for 530News extension project - understanding auth, database, and UI",
-      "accessCount": 4,
-      "lastAccessed": "2025-11-28T18:59:35.722Z",
+      "accessCount": 6,
+      "lastAccessed": "2025-11-29T01:26:25.459Z",
       "lastVerified": "2025-11-28T03:13:40.151Z",
       "status": "fresh"
     },
@@ -1742,8 +1742,8 @@
       ],
       "timestamp": "2025-11-28T18:56:33.241Z",
       "context": "Explored codebase to understand data model for categories, channels, tags",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-28T18:59:35.722Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-11-29T01:26:25.459Z",
       "lastVerified": "2025-11-28T18:56:33.241Z",
       "status": "fresh"
     },
@@ -1800,7 +1800,28 @@
       "lastAccessed": "2025-11-28T21:46:49.231Z",
       "lastVerified": "2025-11-28T21:46:49.231Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764380398668_s11qqbtxv",
+      "content": "Implemented two viewing modes for 530 Society:\n\n1. **\"THIS WEEK\"** - Shows content since last Wednesday 7:30pm EST in 3D pillar view\n   - Added `fetchThisWeekContent()` method to contentStore.tsx\n   - Groups content by `primary_channel` column\n   - Uses `getLastWednesday730EST()` utility function for date calculation\n\n2. **\"STAGE SELECT\"** → Browse - Navigates to `/browse/[category]` with infinite scroll\n   - New page at `app/browse/[category]/page.tsx`\n   - 20 items per batch, IntersectionObserver for infinite scroll\n   - Simple React HTML list (not 3D)\n\nAPI Enhancement (`app/api/content/route.ts`):\n- Added `offset`, `channel`, `since` query params\n- Returns pagination metadata: `{ offset, limit, total, hasMore }`\n- Channel filter uses: `primary_channel.eq.${channel},channels.cs.[\"${channel}\"]`\n\nFiles modified:\n- app/api/content/route.ts - added pagination and filtering\n- viewer/core/store/contentStore.tsx - added fetchThisWeekContent\n- viewer/ui/splash/SplashScreen.tsx - replaced START GAME with THIS WEEK\n- viewer/ui/stageselect/StageSelectOverlay.tsx - navigates to /browse/[level.id]\n\nNew file created:\n- app/browse/[category]/page.tsx - infinite scroll browse page",
+      "type": "code",
+      "tags": [
+        "code",
+        "react",
+        "api",
+        "feature",
+        "viewing-modes",
+        "this-week",
+        "browse",
+        "530-society"
+      ],
+      "timestamp": "2025-11-29T01:39:58.668Z",
+      "context": "Implementation of two viewing modes feature for 530 Society project",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-29T01:39:58.668Z",
+      "lastVerified": "2025-11-29T01:39:58.668Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-28T21:46:49.231Z"
+  "lastUpdated": "2025-11-29T01:39:58.668Z"
 }

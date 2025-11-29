@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useContentStore } from '../../core/store/contentStore'
 import { useStageSelectStore } from './store'
 import './styles.css'
@@ -94,54 +95,33 @@ const levels: Level[] = [
 ]
 
 export function StageSelectOverlay() {
+  const router = useRouter()
   const showStageSelect = useStageSelectStore(state => state.showStageSelect)
   const [hoveredLevel, setHoveredLevel] = useState<Level>(levels[0])
   const [selectedIndex, setSelectedIndex] = useState<number>(0)
   const [isClosing, setIsClosing] = useState(false)
 
-  const categoryTitles = useContentStore(state => state.categoryTitles)
-  const categoryIds = useContentStore(state => state.categoryIds)
-  const itemIds = useContentStore(state => state.itemIds)
-
-  // Map level IDs to category indices
-  const getCategoryIndexForLevel = (levelId: string): number => {
-    const categoryIndex = categoryTitles.findIndex(title =>
-      title.toLowerCase().includes(levelId.toLowerCase())
-    )
-    return categoryIndex >= 0 ? categoryIndex : 0
-  }
-
   const selectLevel = (index: number) => {
     console.log('[StageSelect] selectLevel called with index:', index)
     const level = levels[index]
-    const categoryIndex = getCategoryIndexForLevel(level.id)
 
-    console.log('[StageSelect] Level:', level.name, 'categoryIndex:', categoryIndex, 'categoryIds:', categoryIds[categoryIndex], 'itemIds:', itemIds[categoryIndex]?.[0])
+    // Start closing animation
+    setIsClosing(true)
 
-    if (categoryIndex >= 0 && categoryIds[categoryIndex] && itemIds[categoryIndex]?.[0]) {
-      // Start closing animation
-      setIsClosing(true)
+    // Wait for animation before navigating to browse page
+    setTimeout(() => {
+      console.log('[StageSelect] Navigating to browse page for:', level.id)
 
-      // Wait for animation before updating content store
-      setTimeout(() => {
-        console.log('[StageSelect] Selecting level:', level.name, 'categoryIndex:', categoryIndex)
+      // Close both the stage select and splash screen
+      useStageSelectStore.setState({
+        showStageSelect: false,
+        showSplash: false
+      })
+      setIsClosing(false)
 
-        useContentStore.setState({
-          activeCategoryIndex: categoryIndex,
-          activeCategoryId: categoryIds[categoryIndex],
-          activeItemIndex: 0,
-          activeItemId: itemIds[categoryIndex][0]
-        })
-
-        console.log('[StageSelect] Hiding splash and stage select to show pillar')
-        // Close both the stage select and splash screen to reveal the pillar
-        useStageSelectStore.setState({
-          showStageSelect: false,
-          showSplash: false
-        })
-        setIsClosing(false)
-      }, 600) // Match animation duration
-    }
+      // Navigate to the browse page for this category
+      router.push(`/browse/${level.id}`)
+    }, 600) // Match animation duration
   }
 
   // Keyboard navigation

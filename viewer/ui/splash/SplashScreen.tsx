@@ -15,6 +15,7 @@ import { EffectComposer, Bloom, DepthOfField, ChromaticAberration, Vignette } fr
 import { BlendFunction } from 'postprocessing'
 import * as THREE from 'three'
 import { useStageSelectStore } from '../stageselect/store'
+import { useContentStore } from '../../core/store/contentStore'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 
@@ -166,10 +167,12 @@ export const SplashScreen = () => {
   const menuItems: MenuItem[] = useMemo(() => {
     const items: MenuItem[] = [
       {
-        label: 'START GAME',
+        label: 'THIS WEEK',
         action: () => {
           setMenuState('transitioning')
           setTimeout(() => {
+            // Fetch content from last Wednesday 7:30pm EST and show pillar view
+            useContentStore.getState().fetchThisWeekContent()
             useStageSelectStore.setState({
               showSplash: false,
               showStageSelect: false

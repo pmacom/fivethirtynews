@@ -41,6 +41,7 @@ interface ContentStoreState {
   nextSlide: () => void;
   prevSlide: () => void;
   fetchLatestEpisode: () => Promise<void>;
+  fetchThisWeekContent: () => Promise<void>;
 }
 
 export const useContentStore = create<ContentStoreState>()((set, get) => ({
@@ -429,7 +430,226 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
       logger.error('Error in fetchLatestEpisode:', error);
     }
   },
+
+  fetchThisWeekContent: async () => {
+    logger.debug('Fetching "This Week" content since last Wednesday 7:30pm EST')
+
+    try {
+      // Calculate last Wednesday 7:30pm EST
+      const sinceDate = getLastWednesday730EST();
+      logger.log(`Fetching content since ${sinceDate.toISOString()}`);
+
+      // Get all approved content with primary_channel since last Wednesday
+      const { data: allContent, error: contentError } = await supabase
+        .from('content')
+        .select('*')
+        .not('primary_channel', 'is', null)
+        .eq('approval_status', 'approved')
+        .gte('created_at', sinceDate.toISOString())
+        .order('created_at', { ascending: false });
+
+      if (contentError) {
+        logger.error('Error fetching content:', contentError);
+        return;
+      }
+
+      if (!allContent || allContent.length === 0) {
+        logger.warn('No content found for this week');
+        return;
+      }
+
+      // Group content by primary_channel and take top 20 per channel
+      const contentByChannel = new Map<string, any[]>();
+
+      for (const item of allContent) {
+        if (!item.primary_channel) continue;
+
+        if (!contentByChannel.has(item.primary_channel)) {
+          contentByChannel.set(item.primary_channel, []);
+        }
+
+        const channelItems = contentByChannel.get(item.primary_channel)!;
+        if (channelItems.length < 20) {
+          channelItems.push(item);
+        }
+      }
+
+      // Transform into content blocks
+      const contentBlocks: LiveViewContentBlock[] = [];
+      let blockWeight = 0;
+
+      for (const [channel, items] of contentByChannel.entries()) {
+        const content_block_items = items.map((item, index) => ({
+          id: item.id,
+          content_block_id: channel,
+          content_id: item.id,
+          weight: index,
+          note: item.description || '',
+          content: item
+        }));
+
+        contentBlocks.push({
+          id: channel,
+          episode_id: 'this-week',
+          title: channel,
+          weight: blockWeight++,
+          content_block_items: content_block_items as LiveViewContentBlockItems[]
+        });
+      }
+
+      // Sort blocks alphabetically by title
+      contentBlocks.sort((a, b) => a.title.localeCompare(b.title));
+
+      // Process the data (same as fetchLatestEpisode)
+      let maxIndex = 0;
+      contentBlocks.forEach(block => {
+        maxIndex++;
+        maxIndex += (block.content_block_items.length - 1);
+      });
+
+      const processedData: LiveViewContentBlock[] = contentBlocks.map(block => {
+        const processed_content_block_items = block.content_block_items.map(item => {
+          if (item?.content?.thumbnail_url) {
+            try {
+              const urlObj = new URL(item.content.thumbnail_url);
+              const pathname = urlObj.pathname;
+              const filename = pathname.substring(pathname.lastIndexOf('/') + 1);
+
+              const filepath = WTF_CONFIG.useRelativeImagePaths
+                ? `/thumbnails/${filename}`
+                : urlObj.href
+
+              return {
+                ...item,
+                content: {
+                  ...item.content,
+                  thumbnail_url: filepath,
+                },
+              };
+            } catch (error) {
+              logger.error('Invalid URL:', error);
+              return item;
+            }
+          }
+          return item;
+        });
+
+        return {
+          ...block,
+          content_block_items: processed_content_block_items,
+        };
+      });
+
+      const categoryTitles = processedData.map(block => block.title);
+      const itemTitles = processedData.map(block => block.content_block_items.map(item => item.note));
+
+      logger.log(`Loaded ${contentBlocks.length} channels with "This Week" content`);
+
+      // BATCH FETCH ALL TWEETS
+      const tweetIds = new Set<string>();
+      for (const item of allContent) {
+        if (item.platform === 'twitter' && item.platform_content_id) {
+          tweetIds.add(item.platform_content_id);
+        }
+      }
+
+      if (tweetIds.size > 0) {
+        logger.log(`Batch fetching ${tweetIds.size} tweets...`);
+        const tweetIdArray = Array.from(tweetIds);
+        const chunkSize = 100;
+        const allTweets: any[] = [];
+
+        for (let i = 0; i < tweetIdArray.length; i += chunkSize) {
+          const chunk = tweetIdArray.slice(i, i + chunkSize);
+          const { data: tweets, error: tweetsError } = await supabase
+            .from('tweets')
+            .select('*')
+            .in('id', chunk);
+
+          if (tweetsError) {
+            logger.error(`Error fetching tweet chunk:`, tweetsError);
+          } else if (tweets) {
+            allTweets.push(...tweets);
+          }
+        }
+
+        const tweetMap: {[key: string]: any} = {};
+        for (const tweet of allTweets) {
+          try {
+            tweetMap[tweet.id] = {
+              ...tweet,
+              data: typeof tweet.data === 'string' ? JSON.parse(tweet.data) : tweet.data
+            };
+          } catch (error) {
+            tweetMap[tweet.id] = {
+              id: tweet.id,
+              data: {
+                text: tweet.text || 'Tweet data unavailable',
+                user: {
+                  name: tweet.screen_name || 'Unknown',
+                  screen_name: tweet.screen_name || 'unknown',
+                  profile_image_url_https: tweet.profile_image || ''
+                },
+                created_at: new Date().toISOString()
+              }
+            };
+          }
+        }
+        useTweetStore.setState({ tweets: tweetMap });
+        logger.log(`Loaded ${Object.keys(tweetMap).length} tweets into store`);
+      }
+
+      set({
+        maxIndex,
+        content: processedData,
+        categoryTitles,
+        itemTitles,
+      })
+
+      get().setIdStrings(processedData)
+    } catch (error) {
+      logger.error('Error in fetchThisWeekContent:', error);
+    }
+  },
 }));
+
+/**
+ * Calculate the last Wednesday at 7:30pm EST
+ * If current time is Wednesday before 7:30pm EST, returns previous Wednesday
+ */
+function getLastWednesday730EST(): Date {
+  const now = new Date();
+
+  // Convert to EST (UTC-5) - note: this doesn't handle DST perfectly
+  // For production, consider using date-fns-tz
+  const estOffset = -5 * 60; // EST is UTC-5 in minutes
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const estNow = new Date(utc + (estOffset * 60000));
+
+  const dayOfWeek = estNow.getDay(); // 0 = Sunday, 3 = Wednesday
+  let daysBack = dayOfWeek - 3; // Days since Wednesday
+
+  if (daysBack < 0) {
+    daysBack += 7; // Go back to previous Wednesday
+  }
+
+  // If it's Wednesday but before 7:30pm EST, go back a full week
+  if (daysBack === 0) {
+    const hours = estNow.getHours();
+    const minutes = estNow.getMinutes();
+    if (hours < 19 || (hours === 19 && minutes < 30)) {
+      daysBack = 7;
+    }
+  }
+
+  // Calculate last Wednesday at 7:30pm EST
+  const lastWed = new Date(estNow);
+  lastWed.setDate(lastWed.getDate() - daysBack);
+  lastWed.setHours(19, 30, 0, 0);
+
+  // Convert back to UTC for the database query
+  return new Date(lastWed.getTime() - (estOffset * 60000));
+}
 
 
 

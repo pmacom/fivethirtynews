@@ -60,8 +60,11 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
   }, [tweet])
 
   // Extract tweet metadata for display
-  const displayName = extractDisplayName(item.content?.author)
-  const handle = extractHandle(item.content?.author)
+  // Use author_name/author_username fields from content table, fall back to author field
+  const displayName = item.content?.author_name || extractDisplayName(item.content?.author)
+  const handle = item.content?.author_username
+    ? `@${item.content.author_username}`
+    : extractHandle(item.content?.author)
   const timestamp = formatRelativeTime(item.content?.created_at)
   const fontSize = calculateTweetFontSize(tweetText.length)
 
