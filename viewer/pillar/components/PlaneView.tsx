@@ -206,6 +206,14 @@ export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick, is
 
   // Handle video texture loading and aspect ratio adjustment
   useEffect(() => {
+    // Debug logging for video state
+    logger.debug('[PlaneView] Video state:', {
+      itemId,
+      videoUrl: videoUrl ? videoUrl.substring(0, 50) + '...' : 'none',
+      lingeringActive,
+      willSetIsContentVideo: !!(lingeringActive && videoUrl)
+    });
+
     if(!videoUrl) useContentStore.setState({ isContentVideo: false })
     if (lingeringActive && videoUrl) {
       // Check if video is preloaded

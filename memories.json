@@ -1901,7 +1901,26 @@
       "lastAccessed": "2025-11-29T21:09:07.304Z",
       "lastVerified": "2025-11-29T21:09:07.304Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764452027082_4uq1j107q",
+      "content": "Video Progress Bar Fix (Nov 29, 2025)\n\nPROBLEM: VideoBar only appeared inconsistently for video content in pillar view.\n\nROOT CAUSE ANALYSIS:\n- VideoBar renders when isContentVideo === true (details.tsx:82)\n- isContentVideo is set in PlaneView when lingeringActive && videoUrl\n- Tweet template already passes videoUrl but extractVideoUrls may miss some formats\n- YouTube videos intentionally disabled (CORS prevents in-app playback)\n\nFILES MODIFIED:\n1. viewer/pillar/components/PlaneView.tsx:208-215\n   - Added debug logging for video state\n\n2. viewer/core/content/utils.ts\n   - Improved extractVideoUrls() to handle more Twitter data formats:\n     - mediaDetails (API v2)\n     - video field (syndication)\n     - extended_entities (older API)\n     - entities.media (fallback)\n   - Now returns highest quality mp4\n   - Removes duplicates\n\nVIDEO SUPPORT STATUS:\n- Direct video (mp4/webm): Should work if content_type='video'\n- YouTube: Can't play in-app (CORS) - opens in new tab\n- Twitter videos: Now better extraction, but may have CORS issues",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "api",
+        "viewer",
+        "video",
+        "videobar",
+        "twitter",
+        "bugfix"
+      ],
+      "timestamp": "2025-11-29T21:33:47.082Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-29T21:33:47.082Z",
+      "lastVerified": "2025-11-29T21:33:47.082Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-29T21:09:07.304Z"
+  "lastUpdated": "2025-11-29T21:33:47.082Z"
 }
