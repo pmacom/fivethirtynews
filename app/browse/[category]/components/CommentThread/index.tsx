@@ -105,6 +105,9 @@ export default function CommentThread({
     }
   };
 
+  const [showInput, setShowInput] = useState(false);
+
+  // Loading state - only show for mods or if we might have comments
   if (loading) {
     return (
       <div className="flex items-center justify-center p-4 h-full">
@@ -113,10 +116,31 @@ export default function CommentThread({
     );
   }
 
-  if (error) {
+  // Error state - only show to mods
+  if (error && canComment) {
     return (
       <div className="text-center p-4 text-zinc-500 text-sm h-full flex items-center justify-center">
         {error}
+      </div>
+    );
+  }
+
+  // No comments + not a mod = show nothing
+  if (comments.length === 0 && !canComment) {
+    return null;
+  }
+
+  // No comments + is a mod = show "Add note" button (collapsed state)
+  if (comments.length === 0 && canComment && !showInput) {
+    return (
+      <div className="flex items-center justify-center h-full p-4">
+        <button
+          onClick={() => setShowInput(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-zinc-700/50 hover:bg-zinc-700 border border-zinc-600 hover:border-zinc-500 rounded-lg text-sm text-zinc-400 hover:text-white transition-all"
+        >
+          <MessageSquare className="w-4 h-4" />
+          Add note
+        </button>
       </div>
     );
   }
@@ -128,32 +152,20 @@ export default function CommentThread({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="px-3 py-2 border-b border-zinc-700 flex-shrink-0">
-        <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
-          Mod Notes ({comments.length})
-        </span>
-      </div>
+      {/* Header - only show if there are comments */}
+      {comments.length > 0 && (
+        <div className="px-3 py-2 border-b border-zinc-700 flex-shrink-0">
+          <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+            Mod Notes ({comments.length})
+          </span>
+        </div>
+      )}
 
       {/* Comments list - scrollable */}
       <div
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto p-3 space-y-3"
       >
-        {comments.length === 0 && !canComment && (
-          <div className="flex flex-col items-center justify-center py-8 text-zinc-500">
-            <MessageSquare className="w-8 h-8 mb-2 opacity-50" />
-            <p className="text-sm">No moderator notes yet</p>
-          </div>
-        )}
-
-        {comments.length === 0 && canComment && (
-          <div className="flex flex-col items-center justify-center py-6 text-zinc-500">
-            <MessageSquare className="w-6 h-6 mb-2 opacity-50" />
-            <p className="text-xs">Add the first note</p>
-          </div>
-        )}
-
         {displayComments.map((comment) => (
           <ModComment
             key={comment.id}
@@ -177,7 +189,7 @@ export default function CommentThread({
       </div>
 
       {/* Chat input for mods/admins */}
-      {canComment && (
+      {canComment && (comments.length > 0 || showInput) && (
         <form
           onSubmit={handleSubmit}
           className="flex-shrink-0 border-t border-zinc-700 p-3"
