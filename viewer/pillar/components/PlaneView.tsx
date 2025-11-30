@@ -253,13 +253,47 @@ export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick, is
 
       setVideoRef(video); // Use the callback to set the ref
 
-      const texture = new THREE.VideoTexture(video);
-      setVideoTexture(texture);
-      useContentStore.setState({ isContentVideo: true });
+      // Function to setup texture and start playback once video has decoded frame
+      const setupVideoTexture = () => {
+        // readyState >= 3 (HAVE_FUTURE_DATA) ensures at least one frame is decoded
+        // Also verify video has valid dimensions to prevent WebGL errors
+        if (video.readyState >= 3 && video.videoWidth > 0 && video.videoHeight > 0) {
+          const texture = new THREE.VideoTexture(video);
+          texture.minFilter = THREE.LinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          setVideoTexture(texture);
+          useContentStore.setState({ isContentVideo: true });
 
-      video.play().catch((error) => {
-        logger.warn('Video playback failed:', error);
-      });
+          // Play with proper error handling for race conditions
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              // AbortError is expected when quickly navigating - not a real error
+              if (error.name !== 'AbortError') {
+                logger.warn('Video playback failed:', error);
+              }
+            });
+          }
+        }
+      };
+
+      // For preloaded videos, setup immediately if ready (readyState >= 3 = has decoded frame)
+      if (isPreloaded && video.readyState >= 3) {
+        setupVideoTexture();
+      } else {
+        // Wait for 'canplay' event which fires when readyState >= 3
+        const handleCanPlaySetup = () => {
+          setupVideoTexture();
+          video.removeEventListener('canplay', handleCanPlaySetup);
+        };
+        video.addEventListener('canplay', handleCanPlaySetup);
+
+        // Also check if video is already ready (race condition)
+        if (video.readyState >= 3) {
+          setupVideoTexture();
+          video.removeEventListener('canplay', handleCanPlaySetup);
+        }
+      }
 
       // Update the aspect ratio and duration based on video metadata
       const handleLoadedMetadata = () => {

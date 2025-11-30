@@ -45,18 +45,16 @@ export const Pillar = () => {
     })
   },[contents])
 
-  // Initialize video preload manager when content loads
+  // Initialize video preload manager once on mount
+  // The manager internally subscribes to content store changes
   useEffect(() => {
-    if (!contents || contents.length === 0) return
-
-    // Initialize the preload manager
     videoPreloadManager.initialize()
 
-    // Cleanup on unmount
+    // Cleanup on unmount only
     return () => {
       videoPreloadManager.destroy()
     }
-  }, [contents])
+  }, []) // Empty dependency - initialize once on mount
 
   const radius = useMemo(() => {
     if (!contents || contents.length === 0) return 0

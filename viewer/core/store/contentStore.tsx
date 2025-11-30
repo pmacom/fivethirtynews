@@ -432,14 +432,54 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   },
 
   fetchThisWeekContent: async () => {
-    logger.debug('Fetching "This Week" content since last Wednesday 7:30pm EST')
+    logger.debug('Fetching "This Week" content by channel groups')
 
     try {
       // Calculate last Wednesday 7:30pm EST
       const sinceDate = getLastWednesday730EST();
       logger.log(`Fetching content since ${sinceDate.toISOString()}`);
 
-      // Get all approved content with primary_channel since last Wednesday
+      // Step 1: Fetch channel groups and channels to build lookup maps
+      const { data: groups, error: groupsError } = await supabase
+        .from('channel_groups')
+        .select('id, slug, name, display_order')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (groupsError) {
+        logger.error('Error fetching channel groups:', groupsError);
+        return;
+      }
+
+      const { data: channels, error: channelsError } = await supabase
+        .from('channels')
+        .select('slug, name, group_id, display_order')
+        .eq('is_active', true);
+
+      if (channelsError) {
+        logger.error('Error fetching channels:', channelsError);
+        return;
+      }
+
+      // Build lookup maps
+      const groupById = new Map<string, { slug: string; name: string; display_order: number }>();
+      groups?.forEach(g => groupById.set(g.id, { slug: g.slug, name: g.name, display_order: g.display_order }));
+
+      const channelToGroup = new Map<string, string>(); // channel_slug → group_slug
+      const channelOrder = new Map<string, number>(); // channel_slug → display_order
+      const channelNames = new Map<string, string>(); // channel_slug → channel_name
+      channels?.forEach(c => {
+        const group = groupById.get(c.group_id);
+        if (group) {
+          channelToGroup.set(c.slug, group.slug);
+          channelOrder.set(c.slug, c.display_order);
+          channelNames.set(c.slug, c.name);
+        }
+      });
+
+      logger.debug(`Built lookup maps: ${channelToGroup.size} channels in ${groupById.size} groups`);
+
+      // Step 2: Get all approved content with primary_channel since last Wednesday
       const { data: allContent, error: contentError } = await supabase
         .from('content')
         .select('*')
@@ -458,30 +498,80 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
         return;
       }
 
-      // Group content by primary_channel and take top 20 per channel
-      const contentByChannel = new Map<string, any[]>();
+      // Step 3: Group content - preshow by individual channel, others by group
+      const contentByGroup = new Map<string, { groupName: string; items: any[] }>();
+      const preshowByChannel = new Map<string, { channelName: string; channelOrder: number; items: any[] }>();
 
       for (const item of allContent) {
         if (!item.primary_channel) continue;
 
-        if (!contentByChannel.has(item.primary_channel)) {
-          contentByChannel.set(item.primary_channel, []);
+        const groupSlug = channelToGroup.get(item.primary_channel);
+        if (!groupSlug) {
+          logger.warn(`Channel "${item.primary_channel}" has no group mapping`);
+          continue;
         }
 
-        const channelItems = contentByChannel.get(item.primary_channel)!;
-        if (channelItems.length < 20) {
-          channelItems.push(item);
+        // Preshow content goes into individual channel buckets
+        if (groupSlug === 'preshow') {
+          if (!preshowByChannel.has(item.primary_channel)) {
+            preshowByChannel.set(item.primary_channel, {
+              channelName: channelNames.get(item.primary_channel) || item.primary_channel,
+              channelOrder: channelOrder.get(item.primary_channel) ?? 999,
+              items: []
+            });
+          }
+          preshowByChannel.get(item.primary_channel)!.items.push(item);
+        } else {
+          // Other content grouped by channel group
+          if (!contentByGroup.has(groupSlug)) {
+            const group = [...groupById.values()].find(g => g.slug === groupSlug);
+            contentByGroup.set(groupSlug, {
+              groupName: group?.name || groupSlug,
+              items: []
+            });
+          }
+          contentByGroup.get(groupSlug)!.items.push(item);
         }
       }
 
-      // Transform into content blocks
+      // Step 4a: Sort preshow channel items by date
+      for (const [channelSlug, channelData] of preshowByChannel.entries()) {
+        channelData.items.sort((a: any, b: any) => {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+        // Limit to 20 items per preshow channel
+        channelData.items = channelData.items.slice(0, 20);
+      }
+
+      // Step 4b: Sort items within each group by channel order, then by date
+      for (const [groupSlug, groupData] of contentByGroup.entries()) {
+        groupData.items.sort((a: any, b: any) => {
+          // Primary sort: by channel display_order
+          const orderA = channelOrder.get(a.primary_channel) ?? 999;
+          const orderB = channelOrder.get(b.primary_channel) ?? 999;
+          if (orderA !== orderB) return orderA - orderB;
+
+          // Secondary sort: by created_at descending (newest first within channel)
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+
+        // Limit to 30 items per group (groups have more channels)
+        groupData.items = groupData.items.slice(0, 30);
+      }
+
+      // Step 5: Build content blocks - preshow channels first, then other groups
       const contentBlocks: LiveViewContentBlock[] = [];
       let blockWeight = 0;
 
-      for (const [channel, items] of contentByChannel.entries()) {
-        const content_block_items = items.map((item, index) => ({
+      // Add preshow channels first (sorted by channel display_order)
+      const sortedPreshowChannels = [...preshowByChannel.entries()].sort((a, b) => {
+        return a[1].channelOrder - b[1].channelOrder;
+      });
+
+      for (const [channelSlug, channelData] of sortedPreshowChannels) {
+        const content_block_items = channelData.items.map((item: any, index: number) => ({
           id: item.id,
-          content_block_id: channel,
+          content_block_id: channelSlug,
           content_id: item.id,
           weight: index,
           note: item.description || '',
@@ -489,16 +579,43 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
         }));
 
         contentBlocks.push({
-          id: channel,
+          id: channelSlug,
           episode_id: 'this-week',
-          title: channel,
+          title: channelData.channelName,
           weight: blockWeight++,
+          description: `preshow:${channelSlug}`, // Mark as preshow channel
           content_block_items: content_block_items as LiveViewContentBlockItems[]
         });
       }
 
-      // Sort blocks alphabetically by title
-      contentBlocks.sort((a, b) => a.title.localeCompare(b.title));
+      // Add other groups (sorted by display_order)
+      const sortedGroups = [...contentByGroup.entries()].sort((a, b) => {
+        const groupA = [...groupById.values()].find(g => g.slug === a[0]);
+        const groupB = [...groupById.values()].find(g => g.slug === b[0]);
+        return (groupA?.display_order ?? 999) - (groupB?.display_order ?? 999);
+      });
+
+      for (const [groupSlug, groupData] of sortedGroups) {
+        const content_block_items = groupData.items.map((item: any, index: number) => ({
+          id: item.id,
+          content_block_id: groupSlug,
+          content_id: item.id,
+          weight: index,
+          note: item.description || '',
+          content: item
+        }));
+
+        contentBlocks.push({
+          id: groupSlug,
+          episode_id: 'this-week',
+          title: groupData.groupName,
+          weight: blockWeight++,
+          description: groupSlug, // Store slug in description for reference
+          content_block_items: content_block_items as LiveViewContentBlockItems[]
+        });
+      }
+
+      logger.log(`Organized ${allContent.length} items: ${preshowByChannel.size} preshow channels, ${contentByGroup.size} groups`);
 
       // Process the data (same as fetchLatestEpisode)
       let maxIndex = 0;
@@ -543,7 +660,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
       const categoryTitles = processedData.map(block => block.title);
       const itemTitles = processedData.map(block => block.content_block_items.map(item => item.note));
 
-      logger.log(`Loaded ${contentBlocks.length} channels with "This Week" content`);
+      logger.log(`Loaded ${contentBlocks.length} groups with "This Week" content`);
 
       // BATCH FETCH ALL TWEETS
       const tweetIds = new Set<string>();

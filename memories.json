@@ -1482,8 +1482,8 @@
       ],
       "timestamp": "2025-11-27T20:48:37.989Z",
       "context": "User wants to update Chrome extension tag selection modal to use new SmartPopover/ChannelSelector design pattern",
-      "accessCount": 7,
-      "lastAccessed": "2025-11-29T19:44:54.061Z",
+      "accessCount": 8,
+      "lastAccessed": "2025-11-29T23:10:23.586Z",
       "lastVerified": "2025-11-27T20:48:37.989Z",
       "status": "fresh"
     },
@@ -1523,8 +1523,8 @@
       ],
       "timestamp": "2025-11-27T22:55:19.545Z",
       "context": "Comprehensive verification of 530 browser extension functionality for QA process",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-27T22:55:19.545Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-11-29T23:10:23.586Z",
       "lastVerified": "2025-11-27T22:55:19.545Z",
       "status": "fresh"
     },
@@ -1627,8 +1627,8 @@
       ],
       "timestamp": "2025-11-28T03:13:40.151Z",
       "context": "Comprehensive codebase exploration for 530News extension project - understanding auth, database, and UI",
-      "accessCount": 8,
-      "lastAccessed": "2025-11-29T21:06:05.988Z",
+      "accessCount": 9,
+      "lastAccessed": "2025-11-29T23:10:23.586Z",
       "lastVerified": "2025-11-28T03:13:40.151Z",
       "status": "fresh"
     },
@@ -1742,8 +1742,8 @@
       ],
       "timestamp": "2025-11-28T18:56:33.241Z",
       "context": "Explored codebase to understand data model for categories, channels, tags",
-      "accessCount": 5,
-      "lastAccessed": "2025-11-29T21:06:05.988Z",
+      "accessCount": 6,
+      "lastAccessed": "2025-11-29T23:10:23.586Z",
       "lastVerified": "2025-11-28T18:56:33.241Z",
       "status": "fresh"
     },
@@ -1920,7 +1920,44 @@
       "lastAccessed": "2025-11-29T21:33:47.082Z",
       "lastVerified": "2025-11-29T21:33:47.082Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764458274288_1snrxtvgy",
+      "content": "Implemented \"This Week Pillar - Group by Channel Groups\" feature in viewer/core/store/contentStore.tsx:\n\nKey changes to fetchThisWeekContent function:\n1. Fetches channel_groups and channels from database to build lookup maps\n2. Groups content by channel GROUP (not individual channel) using channelToGroup map\n3. Sorts items within each group by channel display_order first, then by created_at descending\n4. Limits to 30 items per group (increased from 20 since groups have more channels)\n5. Sorts groups by display_order for consistent column ordering\n6. Empty groups (with no content this week) are automatically hidden\n\nDatabase queries:\n- channel_groups: id, slug, name, display_order (where is_active = true)\n- channels: slug, group_id, display_order (where is_active = true)\n\nLookup maps built:\n- groupById: Map<string, { slug, name, display_order }>\n- channelToGroup: Map<string, string> (channel_slug → group_slug)\n- channelOrder: Map<string, number> (channel_slug → display_order)",
+      "type": "code",
+      "tags": [
+        "code",
+        "database",
+        "feature",
+        "pillar-view",
+        "channel-groups",
+        "contentStore",
+        "fetchThisWeekContent"
+      ],
+      "timestamp": "2025-11-29T23:17:54.288Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-29T23:17:54.288Z",
+      "lastVerified": "2025-11-29T23:17:54.288Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764461181894_b0vfsnpwy",
+      "content": "Fixed preshow tier in This Week pillar view:\n\nPROBLEM: Code checked `groupSlug === 'preshow'` but no channel_group with slug \"preshow\" existed.\n- There was a channel named \"preshow\" inside the \"general\" group\n- The condition never matched, so preshow content appeared in \"General\"\n\nSOLUTION: Database migration (no code changes needed)\n1. Created channel_group: slug='preshow', name='Preshow', display_order=-1\n2. Updated preshow channel to point to new group\n\nSQL:\n```sql\nINSERT INTO channel_groups (id, slug, name, display_order, is_active, created_at, updated_at)\nVALUES (gen_random_uuid(), 'preshow', 'Preshow', -1, true, now(), now());\n\nUPDATE channels SET group_id = (SELECT id FROM channel_groups WHERE slug = 'preshow') WHERE slug = 'preshow';\n```\n\nThe existing code in contentStore.tsx now works correctly.",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "database",
+        "fix",
+        "preshow",
+        "pillar-view",
+        "channel-groups"
+      ],
+      "timestamp": "2025-11-30T00:06:21.894Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-11-30T00:06:21.894Z",
+      "lastVerified": "2025-11-30T00:06:21.894Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-29T21:33:47.082Z"
+  "lastUpdated": "2025-11-30T00:06:21.894Z"
 }
