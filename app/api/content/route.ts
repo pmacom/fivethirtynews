@@ -286,6 +286,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0', 10);
     const platform = searchParams.get('platform');
     const channel = searchParams.get('channel');
+    const group = searchParams.get('group');
     const since = searchParams.get('since');
 
     // Build query with count for pagination
@@ -301,8 +302,57 @@ export async function GET(request: NextRequest) {
       query = query.eq('platform', platform);
     }
 
-    // Channel filter - check primary_channel OR channels array contains
-    if (channel) {
+    // Group filter - lookup all channels in the group and filter by them
+    if (group) {
+      // First, get the group ID
+      const { data: groupData, error: groupError } = await supabase
+        .from('channel_groups')
+        .select('id')
+        .eq('slug', group)
+        .eq('is_active', true)
+        .single();
+
+      if (groupError || !groupData) {
+        return NextResponse.json({
+          success: true,
+          data: [],
+          pagination: { offset, limit, total: 0, hasMore: false }
+        }, { headers: corsHeaders });
+      }
+
+      // Get all channels in this group
+      const { data: channelsData, error: channelsError } = await supabase
+        .from('channels')
+        .select('slug')
+        .eq('group_id', groupData.id)
+        .eq('is_active', true);
+
+      if (channelsError || !channelsData || channelsData.length === 0) {
+        return NextResponse.json({
+          success: true,
+          data: [],
+          pagination: { offset, limit, total: 0, hasMore: false }
+        }, { headers: corsHeaders });
+      }
+
+      // If a specific channel is also provided, filter to just that channel
+      const channelSlugs = channel
+        ? [channel]
+        : channelsData.map(c => c.slug);
+
+      // Also include the group slug itself for backward compatibility
+      // (some content may have primary_channel = group slug instead of specific channel)
+      const allSlugs = channel ? channelSlugs : [group, ...channelSlugs];
+
+      // Build OR conditions for all channels and group
+      const orConditions = allSlugs
+        .map(slug => `primary_channel.eq.${slug},channels.cs.["${slug}"]`)
+        .join(',');
+
+      query = query.or(orConditions);
+    }
+    // Channel filter (without group) - check primary_channel OR channels array contains
+    else if (channel) {
       query = query.or(`primary_channel.eq.${channel},channels.cs.["${channel}"]`);
     }
 

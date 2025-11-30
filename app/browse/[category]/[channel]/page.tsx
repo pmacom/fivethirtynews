@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import NewsCard from './components/NewsCard';
+import Link from 'next/link';
 
 interface ContentItem {
   id: string;
@@ -11,13 +11,10 @@ interface ContentItem {
   url: string;
   thumbnail_url: string | null;
   platform: string;
-  platform_content_id: string;
   author_name: string | null;
   author_username: string | null;
   created_at: string;
   primary_channel: string;
-  channels?: string[];
-  tags?: string[];
 }
 
 interface Pagination {
@@ -41,10 +38,11 @@ const groupNames: Record<string, string> = {
   'off-topic': 'Off Topic',
 };
 
-export default function BrowseCategoryPage() {
+export default function BrowseChannelPage() {
   const params = useParams();
   const router = useRouter();
   const category = params.category as string;
+  const channel = params.channel as string;
 
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,12 +54,11 @@ export default function BrowseCategoryPage() {
     hasMore: true
   });
   const [error, setError] = useState<string | null>(null);
-  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
 
-  // Fetch content with pagination
+  // Fetch content with pagination - filter by both group and specific channel
   const fetchContent = useCallback(async (offset: number, isInitial: boolean = false) => {
     if (isLoadingRef.current) return;
     isLoadingRef.current = true;
@@ -73,7 +70,7 @@ export default function BrowseCategoryPage() {
     }
 
     try {
-      const res = await fetch(`/api/content?group=${category}&limit=20&offset=${offset}`);
+      const res = await fetch(`/api/content?group=${category}&channel=${channel}&limit=20&offset=${offset}`);
       const data = await res.json();
 
       if (data.success) {
@@ -83,22 +80,21 @@ export default function BrowseCategoryPage() {
       } else {
         setError(data.error || 'Failed to fetch content');
       }
-    } catch {
+    } catch (err) {
       setError('Failed to load content');
     } finally {
       setLoading(false);
       setLoadingMore(false);
       isLoadingRef.current = false;
     }
-  }, [category]);
+  }, [category, channel]);
 
-  // Initial fetch when category changes
+  // Initial fetch when category or channel changes
   useEffect(() => {
     setContent([]);
     setPagination({ offset: 0, limit: 20, total: 0, hasMore: true });
-    setExpandedCardId(null);
     fetchContent(0, true);
-  }, [category, fetchContent]);
+  }, [category, channel, fetchContent]);
 
   // Infinite scroll observer
   useEffect(() => {
@@ -118,19 +114,17 @@ export default function BrowseCategoryPage() {
     return () => observer.disconnect();
   }, [pagination, fetchContent]);
 
-  const displayName = groupNames[category] || category;
-
-  const handleExpandChange = (contentId: string, expanded: boolean) => {
-    setExpandedCardId(expanded ? contentId : null);
-  };
+  const groupDisplayName = groupNames[category] || category;
+  // Capitalize channel name for display
+  const channelDisplayName = channel.charAt(0).toUpperCase() + channel.slice(1);
 
   return (
     <div className="min-h-screen bg-zinc-900 text-white">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-zinc-900/95 backdrop-blur border-b border-zinc-800">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push(`/browse/${category}`)}
             className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +133,15 @@ export default function BrowseCategoryPage() {
             Back
           </button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold">{displayName}</h1>
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-sm text-zinc-400 mb-1">
+              <Link href={`/browse/${category}`} className="hover:text-white transition-colors">
+                {groupDisplayName}
+              </Link>
+              <span>/</span>
+              <span className="text-white">{channelDisplayName}</span>
+            </div>
+            <h1 className="text-xl font-bold">{channelDisplayName}</h1>
             <p className="text-sm text-zinc-400">
               {pagination.total} item{pagination.total !== 1 ? 's' : ''}
             </p>
@@ -148,7 +150,7 @@ export default function BrowseCategoryPage() {
       </header>
 
       {/* Content List */}
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      <main className="max-w-4xl mx-auto px-4 py-6">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
@@ -165,17 +167,12 @@ export default function BrowseCategoryPage() {
           </div>
         ) : content.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-zinc-400">No content found in this category.</p>
+            <p className="text-zinc-400">No content found in this channel.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {content.map((item) => (
-              <NewsCard
-                key={item.id}
-                content={item}
-                isExpanded={expandedCardId === item.id}
-                onExpandChange={(expanded) => handleExpandChange(item.id, expanded)}
-              />
+              <ContentCard key={item.id} item={item} />
             ))}
           </div>
         )}
@@ -197,5 +194,79 @@ export default function BrowseCategoryPage() {
         )}
       </main>
     </div>
+  );
+}
+
+function ContentCard({ item }: { item: ContentItem }) {
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const getPlatformIcon = (platform: string) => {
+    switch (platform?.toLowerCase()) {
+      case 'twitter':
+        return '\u{1D54F}';
+      case 'youtube':
+        return '\u25B6';
+      case 'github':
+        return '\u2328';
+      default:
+        return '\uD83D\uDD17';
+    }
+  };
+
+  return (
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700/50 hover:border-zinc-600 rounded-lg p-4 transition-all group"
+    >
+      <div className="flex gap-4">
+        {/* Thumbnail */}
+        {item.thumbnail_url && (
+          <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-zinc-700">
+            <img
+              src={item.thumbnail_url}
+              alt=""
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-medium text-white group-hover:text-green-400 transition-colors line-clamp-2">
+              {item.title || item.description || 'Untitled'}
+            </h3>
+            <span className="flex-shrink-0 text-lg" title={item.platform}>
+              {getPlatformIcon(item.platform)}
+            </span>
+          </div>
+
+          {item.description && item.title && (
+            <p className="mt-1 text-sm text-zinc-400 line-clamp-2">
+              {item.description}
+            </p>
+          )}
+
+          <div className="mt-2 flex items-center gap-3 text-xs text-zinc-500">
+            {item.author_name && (
+              <span>@{item.author_username || item.author_name}</span>
+            )}
+            <span>{formatDate(item.created_at)}</span>
+          </div>
+        </div>
+      </div>
+    </a>
   );
 }
