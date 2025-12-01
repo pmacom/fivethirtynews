@@ -23,6 +23,7 @@ const publicGetApiRoutes = [
   '/api/settings',
   '/api/content',  // Browse content publicly, but auth required to submit
   '/api/labels',   // List labels publicly, creating requires moderator
+  '/api/tags',     // List tags publicly for autocomplete
 ];
 
 // Routes that require moderator role

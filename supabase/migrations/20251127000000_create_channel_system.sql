@@ -91,15 +91,31 @@ COMMENT ON COLUMN content.primary_channel IS 'Primary channel slug for this cont
 -- =============================================
 
 INSERT INTO channel_groups (slug, name, icon, description, display_order) VALUES
-  ('general', 'General', '📢', 'General community channels', 0),
-  ('thirddimension', 'ThirdDimension', '🎮', '3D graphics, game engines, and visual development', 1),
-  ('ai', 'AI', '🤖', 'Artificial intelligence tools, techniques, and discussions', 2),
-  ('code', 'Code', '💻', 'Programming, development, and design', 3),
-  ('misc', 'Misc', '🔮', 'Science, technology, and other topics', 4);
+  ('preshow', 'Preshow', '🎬', 'Preshow content and announcements', 0),
+  ('general', 'General', '📢', 'General community channels', 1),
+  ('thirddimension', 'ThirdDimension', '🎮', '3D graphics, game engines, and visual development', 2),
+  ('ai', 'AI', '🤖', 'Artificial intelligence tools, techniques, and discussions', 3),
+  ('code', 'Code', '💻', 'Programming, development, and design', 4),
+  ('misc', 'Misc', '🔮', 'Science, technology, and other topics', 5);
 
 -- =============================================
 -- STEP 5: Seed channels
 -- =============================================
+
+-- Preshow channels
+INSERT INTO channels (group_id, slug, name, icon, description, display_order)
+SELECT
+  g.id,
+  c.slug,
+  c.name,
+  c.icon,
+  c.description,
+  c.display_order
+FROM channel_groups g
+CROSS JOIN (VALUES
+  ('preshow', 'Preshow', '🎬', 'Preshow content', 0)
+) AS c(slug, name, icon, description, display_order)
+WHERE g.slug = 'preshow';
 
 -- General channels
 INSERT INTO channels (group_id, slug, name, icon, description, display_order)

@@ -296,6 +296,13 @@ export async function GET(request: NextRequest) {
     });
   }
 
+  // Ensure code is present
+  if (!code) {
+    return new NextResponse(createCallbackHtml(false, undefined, 'Missing authorization code'), {
+      headers: { 'Content-Type': 'text/html' },
+    });
+  }
+
   try {
     // 1. Exchange code for tokens
     const tokens = await exchangeCodeForTokens(code);

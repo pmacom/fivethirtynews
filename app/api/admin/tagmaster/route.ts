@@ -94,12 +94,13 @@ export async function GET(request: NextRequest) {
       .limit(50);
 
     // Group channels by group_id
-    const channelsByGroup: Record<string, typeof channels> = {};
+    type ChannelType = NonNullable<typeof channels>[number];
+    const channelsByGroup: Record<string, ChannelType[]> = {};
     channels?.forEach((channel) => {
       if (!channelsByGroup[channel.group_id]) {
         channelsByGroup[channel.group_id] = [];
       }
-      channelsByGroup[channel.group_id].push(channel);
+      channelsByGroup[channel.group_id]!.push(channel);
     });
 
     const channelGroups = (groups || []).map((group) => ({

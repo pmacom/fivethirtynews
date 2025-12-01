@@ -35,10 +35,12 @@ import {
   FileText,
 } from 'lucide-react';
 import { NotesSection } from './NotesSection';
+import { safeSendMessage, isExtensionContextValid } from '../shared/messaging';
 
 // Icon mapping for channel groups and channels
 const ICON_MAP: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   // Groups
+  'preshow': Coffee,
   'general': Home,
   'thirddimension': Box,
   'ai': Brain,
@@ -131,6 +133,7 @@ interface ChannelSelectorPopupProps {
   postData: PostData;
   existingChannels: string[];
   existingPrimaryChannel: string | null;
+  existingTags: string[];
   onSave: (data: any) => void;
   onClose: () => void;
 }
@@ -140,6 +143,7 @@ export function ChannelSelectorPopup({
   postData,
   existingChannels,
   existingPrimaryChannel,
+  existingTags,
   onSave,
   onClose,
 }: ChannelSelectorPopupProps) {
@@ -155,7 +159,7 @@ export function ChannelSelectorPopup({
 
   // Tags state (NEW)
   const [availableTags, setAvailableTags] = useState<AvailableTag[]>([]);
-  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set(existingTags));
   const [tagSearchQuery, setTagSearchQuery] = useState('');
   const [tagsLoading, setTagsLoading] = useState(true);
 
@@ -173,9 +177,13 @@ export function ChannelSelectorPopup({
   // Fetch channel groups on mount
   useEffect(() => {
     async function fetchChannels() {
+      if (!isExtensionContextValid()) {
+        setLoading(false);
+        return;
+      }
       try {
-        const response = await chrome.runtime.sendMessage({ action: 'getChannelGroups' });
-        if (response.success && response.data) {
+        const response = await safeSendMessage<{ success: boolean; data: ChannelGroup[] }>({ action: 'getChannelGroups' });
+        if (response?.success && response.data) {
           setGroups(response.data);
         }
       } catch (error) {
@@ -190,9 +198,13 @@ export function ChannelSelectorPopup({
   // Fetch available tags on mount (preload for autocomplete)
   useEffect(() => {
     async function fetchTags() {
+      if (!isExtensionContextValid()) {
+        setTagsLoading(false);
+        return;
+      }
       try {
-        const response = await chrome.runtime.sendMessage({ action: 'fetchTags' });
-        if (response.success && response.tags) {
+        const response = await safeSendMessage<{ success: boolean; tags: AvailableTag[] }>({ action: 'fetchTags' });
+        if (response?.success && response.tags) {
           setAvailableTags(response.tags);
           console.log('530: Loaded', response.tags.length, 'tags for autocomplete');
         }
@@ -208,9 +220,10 @@ export function ChannelSelectorPopup({
   // Fetch auth state on mount
   useEffect(() => {
     async function fetchAuthState() {
+      if (!isExtensionContextValid()) return;
       try {
-        const response = await chrome.runtime.sendMessage({ action: 'getAuthState' });
-        if (response.success && response.data?.user) {
+        const response = await safeSendMessage<{ success: boolean; data: { user: any } }>({ action: 'getAuthState' });
+        if (response?.success && response.data?.user) {
           setCurrentUser({
             id: response.data.user.id,
             discord_id: response.data.user.discord_id,
@@ -411,16 +424,21 @@ export function ChannelSelectorPopup({
     });
   }, [primaryChannel]);
 
-  // Filter tags based on search query (min 1 char)
+  // Filter tags based on search query (show all if empty, filter if typing)
   const filteredTags = useCallback(() => {
-    if (tagSearchQuery.length < 1) return [];
-    const query = tagSearchQuery.toLowerCase();
-    return availableTags
-      .filter((t) =>
-        (t.name.toLowerCase().includes(query) || t.slug.toLowerCase().includes(query)) &&
-        !selectedTags.has(t.slug)
-      )
-      .slice(0, 10);
+    // Filter out already selected tags
+    let filtered = availableTags.filter((t) => !selectedTags.has(t.slug));
+
+    // If there's a search query, filter by it
+    if (tagSearchQuery.length >= 1) {
+      const query = tagSearchQuery.toLowerCase();
+      filtered = filtered.filter((t) =>
+        t.name.toLowerCase().includes(query) || t.slug.toLowerCase().includes(query)
+      );
+    }
+
+    // Return top 10 results
+    return filtered.slice(0, 10);
   }, [tagSearchQuery, availableTags, selectedTags]);
 
   // Add tag to selection
@@ -447,9 +465,10 @@ export function ChannelSelectorPopup({
 
   // Handle auth required - trigger Discord login
   const handleAuthRequired = useCallback(async () => {
+    if (!isExtensionContextValid()) return;
     try {
-      const response = await chrome.runtime.sendMessage({ action: 'login' });
-      if (response.success && response.data?.user) {
+      const response = await safeSendMessage<{ success: boolean; data: { user: any } }>({ action: 'login' });
+      if (response?.success && response.data?.user) {
         setCurrentUser({
           id: response.data.user.id,
           discord_id: response.data.user.discord_id,
@@ -469,13 +488,18 @@ export function ChannelSelectorPopup({
       return;
     }
 
+    if (!isExtensionContextValid()) {
+      onClose();
+      return;
+    }
+
     const channelsArray = Array.from(selectedChannels);
     const tagsArray = Array.from(selectedTags);
     console.log('530: Saving channels', channelsArray, 'primary:', primaryChannel, 'tags:', tagsArray);
     console.log('530: Post data', postData);
 
     try {
-      const response = await chrome.runtime.sendMessage({
+      const response = await safeSendMessage<{ success: boolean; data: { contentId?: string }; error?: string }>({
         action: 'updateContentChannels',
         data: {
           ...postData,
@@ -488,7 +512,7 @@ export function ChannelSelectorPopup({
 
       console.log('530: Save response', response);
 
-      if (response.success) {
+      if (response?.success) {
         console.log('530: Save successful!');
         // Update contentId if returned from save
         if (response.data?.contentId) {
@@ -500,7 +524,7 @@ export function ChannelSelectorPopup({
           tags: tagsArray,
           contentId: response.data?.contentId || contentId,
         });
-      } else {
+      } else if (response) {
         console.error('530: Save failed', response.error);
       }
     } catch (error) {
@@ -508,7 +532,7 @@ export function ChannelSelectorPopup({
     }
 
     onClose();
-  }, [selectedChannels, selectedTags, primaryChannel, postData, onSave, onClose, contentId]);
+  }, [selectedChannels, selectedTags, primaryChannel, postData, onSave, onClose, contentId, pendingNote]);
 
   // Get channel info by slug
   const getChannelBySlug = useCallback((slug: string): Channel | undefined => {
@@ -533,7 +557,8 @@ export function ChannelSelectorPopup({
   const activeGroupData = groups.find((g) => g.id === activeGroup);
 
   const matchingTags = filteredTags();
-  const showDropdown = tagSearchQuery.length >= 1;
+  // Always show dropdown when there are matching tags (not just when typing)
+  const showDropdown = matchingTags.length > 0 || tagSearchQuery.length >= 1;
 
   return (
     <>
@@ -608,6 +633,27 @@ export function ChannelSelectorPopup({
                 {activeTab === 'tags' ? (
                   /* Tags Tab */
                   <div className="ft-tags-tab">
+                    {/* Selected Tags - Show above search for visibility */}
+                    <div className="ft-selected-tags">
+                      {selectedTags.size > 0 ? (
+                        Array.from(selectedTags).map((slug) => (
+                          <span key={slug} className="ft-tag-chip">
+                            <span>{getTagName(slug)}</span>
+                            <button
+                              className="ft-tag-remove"
+                              onClick={(e) => removeTag(slug, e)}
+                            >
+                              <X size={12} />
+                            </button>
+                          </span>
+                        ))
+                      ) : (
+                        <div className="ft-tags-empty">
+                          {tagsLoading ? 'Loading tags...' : 'No tags added yet'}
+                        </div>
+                      )}
+                    </div>
+
                     {/* Tag Search Input */}
                     <div className="ft-tag-input-container">
                       <Search size={14} className="ft-search-icon" />
@@ -642,27 +688,6 @@ export function ChannelSelectorPopup({
                               Create "{tagSearchQuery}"
                             </button>
                           )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Selected Tags */}
-                    <div className="ft-selected-tags">
-                      {selectedTags.size > 0 ? (
-                        Array.from(selectedTags).map((slug) => (
-                          <span key={slug} className="ft-tag-chip">
-                            <span>{getTagName(slug)}</span>
-                            <button
-                              className="ft-tag-remove"
-                              onClick={(e) => removeTag(slug, e)}
-                            >
-                              <X size={12} />
-                            </button>
-                          </span>
-                        ))
-                      ) : (
-                        <div className="ft-tags-empty">
-                          {tagsLoading ? 'Loading tags...' : 'No tags added yet'}
                         </div>
                       )}
                     </div>

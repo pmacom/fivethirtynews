@@ -19,6 +19,7 @@ export async function OPTIONS() {
 /**
  * GET /api/tags
  * Fetch all tags sorted by usage count for autocomplete
+ * Also includes channel slugs as virtual tags for unified autocomplete
  *
  * Query params:
  *   - limit: max tags to return (default: 100)
@@ -29,32 +30,76 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const searchParams = request.nextUrl.searchParams;
     const limit = parseInt(searchParams.get('limit') || '100', 10);
-    const search = searchParams.get('search');
+    const search = searchParams.get('search')?.toLowerCase();
 
-    let query = supabase
+    // Fetch predefined tags from tags table
+    let tagsQuery = supabase
       .from('tags')
       .select('id, slug, name, usage_count')
       .order('usage_count', { ascending: false })
       .limit(limit);
 
-    // Filter by search term if provided
     if (search && search.length >= 1) {
-      query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%`);
+      tagsQuery = tagsQuery.or(`name.ilike.%${search}%,slug.ilike.%${search}%`);
     }
 
-    const { data: tags, error } = await query;
+    const { data: predefinedTags, error: tagsError } = await tagsQuery;
 
-    if (error) {
-      console.error('Error fetching tags:', error);
-      return NextResponse.json(
-        { success: false, error: 'Failed to fetch tags' },
-        { status: 500, headers: corsHeaders }
+    if (tagsError) {
+      console.error('Error fetching tags:', tagsError);
+    }
+
+    // Also get unique tags from content.tags array (user-created tags)
+    // and compute actual usage counts
+    const { data: contentTags, error: contentError } = await supabase
+      .rpc('get_tag_usage_counts');
+
+    if (contentError) {
+      console.error('Error fetching content tags:', contentError);
+    }
+
+    // Merge predefined tags with content tags
+    const tagMap = new Map<string, { id: string; slug: string; name: string; usage_count: number }>();
+
+    // Add predefined tags first
+    for (const tag of (predefinedTags || [])) {
+      tagMap.set(tag.slug, tag);
+    }
+
+    // Update/add from content tags with real counts
+    for (const ct of (contentTags || [])) {
+      const existing = tagMap.get(ct.tag_slug);
+      if (existing) {
+        existing.usage_count = ct.usage_count;
+      } else {
+        // User-created tag not in predefined list
+        tagMap.set(ct.tag_slug, {
+          id: ct.tag_slug, // Use slug as ID for user tags
+          slug: ct.tag_slug,
+          name: ct.tag_slug, // Capitalize first letter
+          usage_count: ct.usage_count
+        });
+      }
+    }
+
+    // Convert to array and sort by usage_count
+    let tags = Array.from(tagMap.values())
+      .sort((a, b) => b.usage_count - a.usage_count);
+
+    // Filter by search if provided
+    if (search && search.length >= 1) {
+      tags = tags.filter(t =>
+        t.name.toLowerCase().includes(search) ||
+        t.slug.toLowerCase().includes(search)
       );
     }
 
+    // Limit results
+    tags = tags.slice(0, limit);
+
     return NextResponse.json({
       success: true,
-      tags: tags || []
+      tags
     }, { headers: corsHeaders });
 
   } catch (error) {

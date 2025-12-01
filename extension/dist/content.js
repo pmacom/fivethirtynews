@@ -12528,12 +12528,12 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$t = [
+const __iconNode$u = [
   ["path", { d: "M 22 14 L 22 10", key: "nqc4tb" }],
   ["rect", { x: "2", y: "6", width: "16", height: "12", rx: "2", key: "13zb55" }]
 ];
-const Battery = createLucideIcon("battery", __iconNode$t);
-const __iconNode$s = [
+const Battery = createLucideIcon("battery", __iconNode$u);
+const __iconNode$t = [
   ["path", { d: "M12 8V4H8", key: "hb8ula" }],
   ["rect", { width: "16", height: "12", x: "4", y: "8", rx: "2", key: "enze0r" }],
   ["path", { d: "M2 14h2", key: "vft8re" }],
@@ -12541,8 +12541,8 @@ const __iconNode$s = [
   ["path", { d: "M15 13v2", key: "1xurst" }],
   ["path", { d: "M9 13v2", key: "rq6x2g" }]
 ];
-const Bot = createLucideIcon("bot", __iconNode$s);
-const __iconNode$r = [
+const Bot = createLucideIcon("bot", __iconNode$t);
+const __iconNode$s = [
   [
     "path",
     {
@@ -12553,8 +12553,8 @@ const __iconNode$r = [
   ["path", { d: "m3.3 7 8.7 5 8.7-5", key: "g66t2b" }],
   ["path", { d: "M12 22V12", key: "d0xqtd" }]
 ];
-const Box = createLucideIcon("box", __iconNode$r);
-const __iconNode$q = [
+const Box = createLucideIcon("box", __iconNode$s);
+const __iconNode$r = [
   ["path", { d: "M12 18V5", key: "adv99a" }],
   ["path", { d: "M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4", key: "1e3is1" }],
   ["path", { d: "M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5", key: "1gqd8o" }],
@@ -12564,19 +12564,32 @@ const __iconNode$q = [
   ["path", { d: "M6 18a4 4 0 0 1-2-7.464", key: "k1g0md" }],
   ["path", { d: "M6.003 5.125a4 4 0 0 0-2.526 5.77", key: "q97ue3" }]
 ];
-const Brain = createLucideIcon("brain", __iconNode$q);
-const __iconNode$p = [
+const Brain = createLucideIcon("brain", __iconNode$r);
+const __iconNode$q = [
   ["path", { d: "M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "jecpp" }],
   ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
 ];
-const Briefcase = createLucideIcon("briefcase", __iconNode$p);
-const __iconNode$o = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$o);
-const __iconNode$n = [
+const Briefcase = createLucideIcon("briefcase", __iconNode$q);
+const __iconNode$p = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$p);
+const __iconNode$o = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$n);
+const Code = createLucideIcon("code", __iconNode$o);
+const __iconNode$n = [
+  ["path", { d: "M10 2v2", key: "7u0qdc" }],
+  ["path", { d: "M14 2v2", key: "6buw04" }],
+  [
+    "path",
+    {
+      d: "M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1",
+      key: "pwadti"
+    }
+  ],
+  ["path", { d: "M6 2v2", key: "colzsn" }]
+];
+const Coffee = createLucideIcon("coffee", __iconNode$n);
 const __iconNode$m = [
   ["circle", { cx: "8", cy: "8", r: "6", key: "3yglwk" }],
   ["path", { d: "M18.09 10.37A6 6 0 1 1 10.34 18", key: "t5s6rm" }],
@@ -12796,6 +12809,80 @@ const __iconNode = [
   ]
 ];
 const Zap = createLucideIcon("zap", __iconNode);
+let hasShownInvalidationWarning = false;
+function isExtensionContextValid$1() {
+  try {
+    return !!chrome.runtime?.id;
+  } catch {
+    return false;
+  }
+}
+function showInvalidationToast() {
+  if (hasShownInvalidationWarning) return;
+  hasShownInvalidationWarning = true;
+  const toast = document.createElement("div");
+  toast.id = "ft-extension-toast";
+  toast.innerHTML = `
+    <div style="
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1f1f23;
+      border: 1px solid #3f3f46;
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #e4e4e7;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: ft-toast-in 0.3s ease;
+    ">
+      <span style="font-size: 16px;">⚠️</span>
+      <div>
+        <div style="font-weight: 600; margin-bottom: 2px;">530 Extension Updated</div>
+        <div style="color: #a1a1aa; font-size: 12px;">Please refresh this page to continue</div>
+      </div>
+      <button onclick="this.parentElement.remove()" style="
+        background: none;
+        border: none;
+        color: #71717a;
+        cursor: pointer;
+        padding: 4px;
+        margin-left: 8px;
+      ">✕</button>
+    </div>
+    <style>
+      @keyframes ft-toast-in {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.remove();
+  }, 1e4);
+}
+async function safeSendMessage(message) {
+  if (!isExtensionContextValid$1()) {
+    showInvalidationToast();
+    return null;
+  }
+  try {
+    const response = await chrome.runtime.sendMessage(message);
+    return response;
+  } catch (error) {
+    if (error?.message?.includes("Extension context invalidated") || error?.message?.includes("message port closed")) {
+      showInvalidationToast();
+      return null;
+    }
+    throw error;
+  }
+}
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = reactExports.useState(value);
   reactExports.useEffect(() => {
@@ -12830,14 +12917,14 @@ function NotesSection({ contentId, currentUser, onAuthRequired, embedded = false
     }
   }, [debouncedNoteText]);
   const fetchNotes = async () => {
-    if (!contentId) return;
+    if (!contentId || !isExtensionContextValid$1()) return;
     setIsLoading(true);
     try {
-      const response = await chrome.runtime.sendMessage({
+      const response = await safeSendMessage({
         action: "getNotes",
         data: { contentId }
       });
-      if (response.success && response.data) {
+      if (response?.success && response.data) {
         const allNotes = response.data.data || [];
         setNotes(allNotes);
         const myNote = response.data.my_note;
@@ -12856,15 +12943,15 @@ function NotesSection({ contentId, currentUser, onAuthRequired, embedded = false
     }
   };
   const saveNote = async (text) => {
-    if (!contentId || !currentUser || !text.trim()) return;
+    if (!contentId || !currentUser || !text.trim() || !isExtensionContextValid$1()) return;
     setIsSaving(true);
     setSaveStatus("saving");
     try {
-      const response = await chrome.runtime.sendMessage({
+      const response = await safeSendMessage({
         action: "saveUserNote",
         data: { contentId, noteText: text.trim() }
       });
-      if (response.success) {
+      if (response?.success) {
         setSaveStatus("saved");
         setHasExistingNote(true);
         fetchNotes();
@@ -12882,14 +12969,14 @@ function NotesSection({ contentId, currentUser, onAuthRequired, embedded = false
     }
   };
   const deleteNote = async () => {
-    if (!contentId || !currentUser) return;
+    if (!contentId || !currentUser || !isExtensionContextValid$1()) return;
     if (!confirm("Delete your note?")) return;
     try {
-      const response = await chrome.runtime.sendMessage({
+      const response = await safeSendMessage({
         action: "deleteUserNote",
         data: { contentId }
       });
-      if (response.success) {
+      if (response?.success) {
         setMyNoteText("");
         setHasExistingNote(false);
         fetchNotes();
@@ -13295,6 +13382,7 @@ const notesStyles = `
 `;
 const ICON_MAP = {
   // Groups
+  "preshow": Coffee,
   "general": House,
   "thirddimension": Box,
   "ai": Brain,
@@ -13343,6 +13431,7 @@ function ChannelSelectorPopup({
   postData,
   existingChannels,
   existingPrimaryChannel,
+  existingTags,
   onSave,
   onClose
 }) {
@@ -13356,7 +13445,7 @@ function ChannelSelectorPopup({
   const [currentUser, setCurrentUser] = reactExports.useState(null);
   const [contentId, setContentId] = reactExports.useState(postData.contentId || null);
   const [availableTags, setAvailableTags] = reactExports.useState([]);
-  const [selectedTags, setSelectedTags] = reactExports.useState(/* @__PURE__ */ new Set());
+  const [selectedTags, setSelectedTags] = reactExports.useState(new Set(existingTags));
   const [tagSearchQuery, setTagSearchQuery] = reactExports.useState("");
   const [tagsLoading, setTagsLoading] = reactExports.useState(true);
   const [activeTab, setActiveTab] = reactExports.useState("tags");
@@ -13367,9 +13456,13 @@ function ChannelSelectorPopup({
   const tagInputRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     async function fetchChannels() {
+      if (!isExtensionContextValid$1()) {
+        setLoading(false);
+        return;
+      }
       try {
-        const response = await chrome.runtime.sendMessage({ action: "getChannelGroups" });
-        if (response.success && response.data) {
+        const response = await safeSendMessage({ action: "getChannelGroups" });
+        if (response?.success && response.data) {
           setGroups(response.data);
         }
       } catch (error) {
@@ -13382,9 +13475,13 @@ function ChannelSelectorPopup({
   }, []);
   reactExports.useEffect(() => {
     async function fetchTags() {
+      if (!isExtensionContextValid$1()) {
+        setTagsLoading(false);
+        return;
+      }
       try {
-        const response = await chrome.runtime.sendMessage({ action: "fetchTags" });
-        if (response.success && response.tags) {
+        const response = await safeSendMessage({ action: "fetchTags" });
+        if (response?.success && response.tags) {
           setAvailableTags(response.tags);
           console.log("530: Loaded", response.tags.length, "tags for autocomplete");
         }
@@ -13398,9 +13495,10 @@ function ChannelSelectorPopup({
   }, []);
   reactExports.useEffect(() => {
     async function fetchAuthState() {
+      if (!isExtensionContextValid$1()) return;
       try {
-        const response = await chrome.runtime.sendMessage({ action: "getAuthState" });
-        if (response.success && response.data?.user) {
+        const response = await safeSendMessage({ action: "getAuthState" });
+        if (response?.success && response.data?.user) {
           setCurrentUser({
             id: response.data.user.id,
             discord_id: response.data.user.discord_id,
@@ -13544,11 +13642,14 @@ function ChannelSelectorPopup({
     });
   }, [primaryChannel]);
   const filteredTags = reactExports.useCallback(() => {
-    if (tagSearchQuery.length < 1) return [];
-    const query = tagSearchQuery.toLowerCase();
-    return availableTags.filter(
-      (t) => (t.name.toLowerCase().includes(query) || t.slug.toLowerCase().includes(query)) && !selectedTags.has(t.slug)
-    ).slice(0, 10);
+    let filtered = availableTags.filter((t) => !selectedTags.has(t.slug));
+    if (tagSearchQuery.length >= 1) {
+      const query = tagSearchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (t) => t.name.toLowerCase().includes(query) || t.slug.toLowerCase().includes(query)
+      );
+    }
+    return filtered.slice(0, 10);
   }, [tagSearchQuery, availableTags, selectedTags]);
   const addTag = reactExports.useCallback((tagSlug) => {
     setSelectedTags((prev) => /* @__PURE__ */ new Set([...prev, tagSlug]));
@@ -13567,9 +13668,10 @@ function ChannelSelectorPopup({
     return tag?.name || slug;
   }, [availableTags]);
   const handleAuthRequired = reactExports.useCallback(async () => {
+    if (!isExtensionContextValid$1()) return;
     try {
-      const response = await chrome.runtime.sendMessage({ action: "login" });
-      if (response.success && response.data?.user) {
+      const response = await safeSendMessage({ action: "login" });
+      if (response?.success && response.data?.user) {
         setCurrentUser({
           id: response.data.user.id,
           discord_id: response.data.user.discord_id,
@@ -13586,12 +13688,16 @@ function ChannelSelectorPopup({
       onClose();
       return;
     }
+    if (!isExtensionContextValid$1()) {
+      onClose();
+      return;
+    }
     const channelsArray = Array.from(selectedChannels);
     const tagsArray = Array.from(selectedTags);
     console.log("530: Saving channels", channelsArray, "primary:", primaryChannel, "tags:", tagsArray);
     console.log("530: Post data", postData);
     try {
-      const response = await chrome.runtime.sendMessage({
+      const response = await safeSendMessage({
         action: "updateContentChannels",
         data: {
           ...postData,
@@ -13604,7 +13710,7 @@ function ChannelSelectorPopup({
         }
       });
       console.log("530: Save response", response);
-      if (response.success) {
+      if (response?.success) {
         console.log("530: Save successful!");
         if (response.data?.contentId) {
           setContentId(response.data.contentId);
@@ -13615,14 +13721,14 @@ function ChannelSelectorPopup({
           tags: tagsArray,
           contentId: response.data?.contentId || contentId
         });
-      } else {
+      } else if (response) {
         console.error("530: Save failed", response.error);
       }
     } catch (error) {
       console.error("530: Failed to save", error);
     }
     onClose();
-  }, [selectedChannels, selectedTags, primaryChannel, postData, onSave, onClose, contentId]);
+  }, [selectedChannels, selectedTags, primaryChannel, postData, onSave, onClose, contentId, pendingNote]);
   const getChannelBySlug = reactExports.useCallback((slug) => {
     for (const group of groups) {
       const channel = group.channels.find((c) => c.slug === slug);
@@ -13638,7 +13744,7 @@ function ChannelSelectorPopup({
   }, [primaryChannel]);
   const activeGroupData = groups.find((g) => g.id === activeGroup);
   const matchingTags = filteredTags();
-  const showDropdown = tagSearchQuery.length >= 1;
+  const showDropdown = matchingTags.length > 0 || tagSearchQuery.length >= 1;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       "div",
@@ -13704,6 +13810,17 @@ function ChannelSelectorPopup({
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ft-tab-content", children: activeTab === "tags" ? (
                 /* Tags Tab */
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ft-tags-tab", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ft-selected-tags", children: selectedTags.size > 0 ? Array.from(selectedTags).map((slug) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ft-tag-chip", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: getTagName(slug) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        className: "ft-tag-remove",
+                        onClick: (e) => removeTag(slug, e),
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 12 })
+                      }
+                    )
+                  ] }, slug)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ft-tags-empty", children: tagsLoading ? "Loading tags..." : "No tags added yet" }) }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "ft-tag-input-container", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 14, className: "ft-search-icon" }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -13745,18 +13862,7 @@ function ChannelSelectorPopup({
                         ]
                       }
                     ) })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ft-selected-tags", children: selectedTags.size > 0 ? Array.from(selectedTags).map((slug) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ft-tag-chip", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: getTagName(slug) }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "button",
-                      {
-                        className: "ft-tag-remove",
-                        onClick: (e) => removeTag(slug, e),
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 12 })
-                      }
-                    )
-                  ] }, slug)) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "ft-tags-empty", children: tagsLoading ? "Loading tags..." : "No tags added yet" }) })
+                  ] })
                 ] })
               ) : (
                 /* Notes Tab */
@@ -13875,24 +13981,22 @@ async function checkPostStatus$2(tweetId) {
   if (postStatusCache$2.has(tweetId)) {
     return postStatusCache$2.get(tweetId);
   }
+  if (!isExtensionContextValid$1()) {
+    return { exists: false, post: null };
+  }
   try {
-    if (!chrome.runtime?.id) {
-      console.warn("530: Extension context invalidated - please refresh the page");
-      return { exists: false, post: null };
-    }
-    const response = await chrome.runtime.sendMessage({
+    const response = await safeSendMessage({
       action: "checkPostExists",
       data: { tweetId }
     });
+    if (!response) {
+      return { exists: false, post: null };
+    }
     const status = response.success ? response.data : { exists: false, post: null };
     postStatusCache$2.set(tweetId, status);
     return status;
   } catch (error) {
-    if (error?.message?.includes("Extension context invalidated")) {
-      console.warn("530: Extension was reloaded - please refresh this page");
-    } else {
-      console.error("530: Failed to check post status", error);
-    }
+    console.error("530: Failed to check post status", error);
     return { exists: false, post: null };
   }
 }
@@ -13909,7 +14013,7 @@ function updateButtonAppearance$1(button, exists, tagCount = 0) {
     button.setAttribute("title", "Tag this post");
   }
 }
-function showPopup$1(anchorElement, postData, existingChannels, existingPrimaryChannel, onSave) {
+function showPopup$1(anchorElement, postData, existingChannels, existingPrimaryChannel, existingTags, onSave) {
   closePopup$1();
   popupContainer$1 = document.createElement("div");
   popupContainer$1.id = "five-thirty-popup-root";
@@ -13930,6 +14034,7 @@ function showPopup$1(anchorElement, postData, existingChannels, existingPrimaryC
         postData,
         existingChannels,
         existingPrimaryChannel,
+        existingTags,
         onSave: (data) => {
           onSave(data);
         },
@@ -14036,6 +14141,7 @@ async function injectButton$3(article) {
   const postStatus = await checkPostStatus$2(tweetId);
   const existingChannels = postStatus.exists && postStatus.post?.channels ? postStatus.post.channels : [];
   const existingPrimaryChannel = postStatus.exists && postStatus.post?.primary_channel ? postStatus.post.primary_channel : null;
+  const existingTags = postStatus.exists && postStatus.post?.tags ? postStatus.post.tags : [];
   updateButtonAppearance$1(button, postStatus.exists, existingChannels.length);
   button.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -14063,7 +14169,7 @@ async function injectButton$3(article) {
       mediaAssets: mediaAssets.length > 0 ? mediaAssets : void 0,
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     };
-    showPopup$1(button, postData, existingChannels, existingPrimaryChannel, (savedData) => {
+    showPopup$1(button, postData, existingChannels, existingPrimaryChannel, existingTags, (savedData) => {
       console.log("530: Channels saved", savedData);
       const newChannelCount = savedData.channels ? savedData.channels.length : 0;
       updateButtonAppearance$1(button, true, newChannelCount);
@@ -14210,6 +14316,7 @@ function getPopupStyles$1() {
       flex-direction: column;
       min-width: 0;
       padding: 8px;
+      overflow: visible;
     }
 
     .ft-tab-bar {
@@ -14249,7 +14356,7 @@ function getPopupStyles$1() {
       flex: 1;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: visible;
     }
 
     /* Tags Tab */
@@ -14337,8 +14444,11 @@ function getPopupStyles$1() {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      flex: 1;
-      overflow-y: auto;
+      min-height: 32px;
+      padding: 8px;
+      background: rgba(39, 39, 42, 0.5);
+      border-radius: 6px;
+      margin-bottom: 8px;
       align-content: flex-start;
     }
 
@@ -14373,7 +14483,8 @@ function getPopupStyles$1() {
       font-size: 11px;
       color: #52525b;
       text-align: center;
-      padding: 20px 0;
+      width: 100%;
+      padding: 4px 0;
     }
 
     /* Notes Tab */

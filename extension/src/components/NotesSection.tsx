@@ -2,6 +2,7 @@
 // Allows users to add/edit their note and view other users' notes
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { safeSendMessage, isExtensionContextValid } from '../shared/messaging';
 
 interface User {
   id: string;
@@ -85,16 +86,16 @@ export function NotesSection({ contentId, currentUser, onAuthRequired, embedded 
   }, [debouncedNoteText]);
 
   const fetchNotes = async () => {
-    if (!contentId) return;
+    if (!contentId || !isExtensionContextValid()) return;
 
     setIsLoading(true);
     try {
-      const response = await chrome.runtime.sendMessage({
+      const response = await safeSendMessage<{ success: boolean; data: { data: Note[]; my_note: Note | null } }>({
         action: 'getNotes',
         data: { contentId },
       });
 
-      if (response.success && response.data) {
+      if (response?.success && response.data) {
         const allNotes = response.data.data || [];
         setNotes(allNotes);
 
@@ -116,18 +117,18 @@ export function NotesSection({ contentId, currentUser, onAuthRequired, embedded 
   };
 
   const saveNote = async (text: string) => {
-    if (!contentId || !currentUser || !text.trim()) return;
+    if (!contentId || !currentUser || !text.trim() || !isExtensionContextValid()) return;
 
     setIsSaving(true);
     setSaveStatus('saving');
 
     try {
-      const response = await chrome.runtime.sendMessage({
+      const response = await safeSendMessage<{ success: boolean }>({
         action: 'saveUserNote',
         data: { contentId, noteText: text.trim() },
       });
 
-      if (response.success) {
+      if (response?.success) {
         setSaveStatus('saved');
         setHasExistingNote(true);
         // Refresh notes to get updated list
@@ -147,17 +148,17 @@ export function NotesSection({ contentId, currentUser, onAuthRequired, embedded 
   };
 
   const deleteNote = async () => {
-    if (!contentId || !currentUser) return;
+    if (!contentId || !currentUser || !isExtensionContextValid()) return;
 
     if (!confirm('Delete your note?')) return;
 
     try {
-      const response = await chrome.runtime.sendMessage({
+      const response = await safeSendMessage<{ success: boolean }>({
         action: 'deleteUserNote',
         data: { contentId },
       });
 
-      if (response.success) {
+      if (response?.success) {
         setMyNoteText('');
         setHasExistingNote(false);
         fetchNotes();

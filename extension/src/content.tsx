@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { ChannelSelectorPopup } from './components/ChannelSelector';
+import { safeSendMessage, isExtensionContextValid } from './shared/messaging';
 import './styles/index.css';
 
 console.log('530 Extension: React content script loaded');
@@ -52,28 +53,27 @@ async function checkPostStatus(tweetId: string) {
     return postStatusCache.get(tweetId)!;
   }
 
-  try {
-    // Check if extension context is still valid
-    if (!chrome.runtime?.id) {
-      console.warn('530: Extension context invalidated - please refresh the page');
-      return { exists: false, post: null };
-    }
+  // Check if extension context is still valid
+  if (!isExtensionContextValid()) {
+    return { exists: false, post: null };
+  }
 
-    const response = await chrome.runtime.sendMessage({
+  try {
+    const response = await safeSendMessage<{ success: boolean; data: { exists: boolean; post: any } }>({
       action: 'checkPostExists',
       data: { tweetId },
     });
+
+    if (!response) {
+      // Extension context invalidated - safeSendMessage handles the toast
+      return { exists: false, post: null };
+    }
 
     const status = response.success ? response.data : { exists: false, post: null };
     postStatusCache.set(tweetId, status);
     return status;
   } catch (error: any) {
-    // Handle extension context invalidated error gracefully
-    if (error?.message?.includes('Extension context invalidated')) {
-      console.warn('530: Extension was reloaded - please refresh this page');
-    } else {
-      console.error('530: Failed to check post status', error);
-    }
+    console.error('530: Failed to check post status', error);
     return { exists: false, post: null };
   }
 }
@@ -99,6 +99,7 @@ function showPopup(
   postData: PostData,
   existingChannels: string[],
   existingPrimaryChannel: string | null,
+  existingTags: string[],
   onSave: (data: any) => void
 ) {
   // Close existing popup if any
@@ -131,6 +132,7 @@ function showPopup(
         postData={postData}
         existingChannels={existingChannels}
         existingPrimaryChannel={existingPrimaryChannel}
+        existingTags={existingTags}
         onSave={(data) => {
           onSave(data);
         }}
@@ -273,6 +275,7 @@ async function injectButton(article: Element) {
   const postStatus = await checkPostStatus(tweetId);
   const existingChannels = postStatus.exists && postStatus.post?.channels ? postStatus.post.channels : [];
   const existingPrimaryChannel = postStatus.exists && postStatus.post?.primary_channel ? postStatus.post.primary_channel : null;
+  const existingTags = postStatus.exists && postStatus.post?.tags ? postStatus.post.tags : [];
   updateButtonAppearance(button, postStatus.exists, existingChannels.length);
 
   // Click handler - show React popup
@@ -309,7 +312,7 @@ async function injectButton(article: Element) {
     };
 
     // Show React popup
-    showPopup(button, postData, existingChannels, existingPrimaryChannel, (savedData) => {
+    showPopup(button, postData, existingChannels, existingPrimaryChannel, existingTags, (savedData) => {
       console.log('530: Channels saved', savedData);
       const newChannelCount = savedData.channels ? savedData.channels.length : 0;
       updateButtonAppearance(button, true, newChannelCount);
@@ -467,6 +470,7 @@ function getPopupStyles(): string {
       flex-direction: column;
       min-width: 0;
       padding: 8px;
+      overflow: visible;
     }
 
     .ft-tab-bar {
@@ -506,7 +510,7 @@ function getPopupStyles(): string {
       flex: 1;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: visible;
     }
 
     /* Tags Tab */
@@ -594,8 +598,11 @@ function getPopupStyles(): string {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      flex: 1;
-      overflow-y: auto;
+      min-height: 32px;
+      padding: 8px;
+      background: rgba(39, 39, 42, 0.5);
+      border-radius: 6px;
+      margin-bottom: 8px;
       align-content: flex-start;
     }
 
@@ -630,7 +637,8 @@ function getPopupStyles(): string {
       font-size: 11px;
       color: #52525b;
       text-align: center;
-      padding: 20px 0;
+      width: 100%;
+      padding: 4px 0;
     }
 
     /* Notes Tab */

@@ -90,22 +90,37 @@ async function main() {
   // Find all Twitter content records
   console.log('Finding Twitter content records...');
 
-  let query = supabase
-    .from('content')
-    .select('id, platform_content_id, url, title')
-    .eq('platform', 'twitter')
-    .not('platform_content_id', 'is', null)
-    .order('created_at', { ascending: false });
+  // Fetch all Twitter content with pagination (Supabase has 1000 row default limit)
+  const allContentRecords: any[] = [];
+  const pageSize = 1000;
+  let page = 0;
+  let hasMore = true;
 
-  if (limit) {
-    query = query.limit(limit);
+  while (hasMore) {
+    const { data: pageRecords, error: pageError } = await supabase
+      .from('content')
+      .select('id, platform_content_id, content_id, url, title')
+      .eq('content_type', 'twitter')
+      .order('created_at', { ascending: false })
+      .range(page * pageSize, (page + 1) * pageSize - 1);
+
+    if (pageError) {
+      console.error('Error fetching content:', pageError);
+      process.exit(1);
+    }
+
+    if (pageRecords && pageRecords.length > 0) {
+      allContentRecords.push(...pageRecords);
+      page++;
+      if (pageRecords.length < pageSize) hasMore = false;
+    } else {
+      hasMore = false;
+    }
   }
 
-  const { data: contentRecords, error: contentError } = await query;
-
-  if (contentError) {
-    console.error('Error fetching content:', contentError);
-    process.exit(1);
+  let contentRecords = allContentRecords;
+  if (limit) {
+    contentRecords = contentRecords.slice(0, limit);
   }
 
   if (!contentRecords || contentRecords.length === 0) {
@@ -115,9 +130,9 @@ async function main() {
 
   console.log(`Found ${contentRecords.length} Twitter content records`);
 
-  // Get tweet IDs
+  // Get tweet IDs (use platform_content_id, fallback to content_id)
   const tweetIds = contentRecords
-    .map(c => c.platform_content_id)
+    .map(c => c.platform_content_id || c.content_id)
     .filter((id): id is string => id != null);
 
   console.log(`Extracted ${tweetIds.length} tweet IDs`);
