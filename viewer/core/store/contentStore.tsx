@@ -731,27 +731,54 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   },
 
   fetchRecentContent: async () => {
-    logger.debug('Fetching recent content with hardcoded categories')
-
-    // Hardcoded categories for the /recent route - independent of shows/episodes
-    // Matches both primary_channel and category fields (case-insensitive)
-    const RECENT_CATEGORIES = [
-      { slug: 'preshow', title: 'Pre-Show', aliases: ['preshow', 'PRESHOW'] },
-      { slug: 'general', title: 'Main Show', aliases: ['general', 'GENERAL', 'main', 'main-events'] },
-      { slug: 'ai', title: 'AI', aliases: ['ai', 'AI', 'video', 'llm', 'audio'] },
-      { slug: 'code', title: 'Code', aliases: ['code', 'CODE', 'threejs', 'security', 'design'] },
-      { slug: 'thirddimension', title: 'Third Dimension', aliases: ['thirddimension', 'THIRDDIMENSION', '3d-models', 'blender', 'splats', 'virtual', 'unreal'] },
-      { slug: 'misc', title: 'Miscellaneous', aliases: ['misc', 'MISC', 'METAVERSE', 'robotics', 'art'] },
-    ];
+    logger.debug('Fetching recent content using channel groups from database')
 
     try {
-      // Fetch last 100 approved content items, ordered by newest first
+      // Step 1: Fetch channel groups and channels from database
+      const { data: groups, error: groupsError } = await supabase
+        .from('channel_groups')
+        .select('id, slug, name, display_order')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (groupsError) {
+        logger.error('Error fetching channel groups:', groupsError);
+        return;
+      }
+
+      const { data: channels, error: channelsError } = await supabase
+        .from('channels')
+        .select('slug, name, group_id')
+        .eq('is_active', true);
+
+      if (channelsError) {
+        logger.error('Error fetching channels:', channelsError);
+        return;
+      }
+
+      // Build lookup: group_id -> group info, channel_slug -> group_slug
+      const groupById = new Map<string, { slug: string; name: string; display_order: number }>();
+      groups?.forEach(g => groupById.set(g.id, { slug: g.slug, name: g.name, display_order: g.display_order }));
+
+      const channelToGroup = new Map<string, string>();
+      channels?.forEach(c => {
+        const group = groupById.get(c.group_id);
+        if (group) channelToGroup.set(c.slug.toLowerCase(), group.slug);
+      });
+
+      // Also add group slugs as valid matches (for backward compatibility)
+      groups?.forEach(g => channelToGroup.set(g.slug.toLowerCase(), g.slug));
+
+      logger.debug(`Built lookup: ${channelToGroup.size} channel/group mappings`);
+
+      // Step 2: Fetch approved content - ordered by created_at (when we added it)
+      // This matches the /api/content endpoint behavior
       const { data: allContent, error: contentError } = await supabase
         .from('content')
         .select('*')
         .eq('approval_status', 'approved')
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(1000);
 
       if (contentError) {
         logger.error('Error fetching content:', contentError);
@@ -765,53 +792,54 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
 
       logger.log(`Fetched ${allContent.length} recent content items`);
 
-      // Group content by category (use primary_channel or category field)
-      const contentByCategory = new Map<string, any[]>();
+      // Content is already sorted by created_at from the database query
+      const sortedContent = allContent;
 
-      // Initialize all categories (even if empty)
-      for (const cat of RECENT_CATEGORIES) {
-        contentByCategory.set(cat.slug, []);
-      }
+      // Group content by category
+      const contentByGroup = new Map<string, any[]>();
 
-      for (const item of allContent) {
-        // Try primary_channel first, fall back to category
-        const categorySlug = item.primary_channel || item.category;
-        if (!categorySlug) continue;
+      // Initialize all groups
+      groups?.forEach(g => contentByGroup.set(g.slug, []));
 
-        // Check if this matches one of our hardcoded categories using aliases
-        const matchedCategory = RECENT_CATEGORIES.find(c =>
-          c.aliases.some(alias =>
-            alias.toLowerCase() === categorySlug.toLowerCase()
-          )
-        );
+      for (const item of sortedContent) {
+        // Check both category field AND primary_channel to find the group
+        const categoryField = item.category?.toLowerCase();
+        const channelField = item.primary_channel?.toLowerCase();
 
-        if (matchedCategory) {
-          const items = contentByCategory.get(matchedCategory.slug) || [];
-          if (items.length < 20) { // Max 20 per category
+        // Try to find matching group - check category first, then primary_channel
+        let groupSlug = categoryField ? channelToGroup.get(categoryField) : null;
+        if (!groupSlug && channelField) {
+          groupSlug = channelToGroup.get(channelField);
+        }
+
+        // If no match found, put in misc (if misc group exists)
+        if (!groupSlug && (categoryField || channelField)) {
+          groupSlug = contentByGroup.has('misc') ? 'misc' : null;
+        }
+
+        if (groupSlug) {
+          const items = contentByGroup.get(groupSlug) || [];
+          if (items.length < 10) { // Max 10 per group
             items.push(item);
-            contentByCategory.set(matchedCategory.slug, items);
-          }
-        } else {
-          // Put unmatched content in misc
-          const miscItems = contentByCategory.get('misc') || [];
-          if (miscItems.length < 20) {
-            miscItems.push(item);
-            contentByCategory.set('misc', miscItems);
+            contentByGroup.set(groupSlug, items);
           }
         }
       }
 
-      // Build content blocks from categories that have content
+      // Build content blocks from groups that have content (in display_order)
       const contentBlocks: LiveViewContentBlock[] = [];
       let blockWeight = 0;
 
-      for (const cat of RECENT_CATEGORIES) {
-        const items = contentByCategory.get(cat.slug) || [];
-        if (items.length === 0) continue; // Skip empty categories
+      // Sort groups by display_order
+      const sortedGroups = [...(groups || [])].sort((a, b) => a.display_order - b.display_order);
+
+      for (const group of sortedGroups) {
+        const items = contentByGroup.get(group.slug) || [];
+        if (items.length === 0) continue; // Skip empty groups
 
         const content_block_items = items.map((item, index) => ({
           id: item.id,
-          content_block_id: cat.slug,
+          content_block_id: group.slug,
           content_id: item.id,
           weight: index,
           note: item.description || '',
@@ -819,9 +847,9 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
         }));
 
         contentBlocks.push({
-          id: cat.slug,
+          id: group.slug,
           episode_id: 'recent',
-          title: cat.title,
+          title: group.name,
           weight: blockWeight++,
           content_block_items: content_block_items as LiveViewContentBlockItems[]
         });
