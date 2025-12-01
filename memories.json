@@ -67,8 +67,8 @@
       ],
       "timestamp": "2025-11-17T20:42:55.707Z",
       "context": "Project: fivethirty - Local Supabase database setup for content viewer",
-      "accessCount": 2,
-      "lastAccessed": "2025-11-28T18:59:35.722Z",
+      "accessCount": 4,
+      "lastAccessed": "2025-12-01T16:01:54.329Z",
       "lastVerified": "2025-11-17T20:42:55.707Z",
       "status": "fresh"
     },
@@ -123,8 +123,8 @@
       ],
       "timestamp": "2025-11-18T03:45:28.704Z",
       "context": "viewer/viewer.tsx lines 9, 28 - Imported and added Pillar component to Canvas",
-      "accessCount": 6,
-      "lastAccessed": "2025-11-30T04:15:07.653Z",
+      "accessCount": 8,
+      "lastAccessed": "2025-12-01T16:01:54.329Z",
       "lastVerified": "2025-11-18T03:45:28.704Z",
       "status": "fresh"
     },
@@ -1439,8 +1439,8 @@
       ],
       "timestamp": "2025-11-26T22:37:11.807Z",
       "context": "Analysis of merging bot directory (Chrome extension + admin dashboard) into main fivethirty project",
-      "accessCount": 10,
-      "lastAccessed": "2025-11-30T04:15:07.653Z",
+      "accessCount": 12,
+      "lastAccessed": "2025-12-01T16:01:54.329Z",
       "lastVerified": "2025-11-26T22:37:11.807Z",
       "status": "fresh"
     },
@@ -1482,8 +1482,8 @@
       ],
       "timestamp": "2025-11-27T20:48:37.989Z",
       "context": "User wants to update Chrome extension tag selection modal to use new SmartPopover/ChannelSelector design pattern",
-      "accessCount": 8,
-      "lastAccessed": "2025-11-29T23:10:23.586Z",
+      "accessCount": 10,
+      "lastAccessed": "2025-12-01T16:01:54.329Z",
       "lastVerified": "2025-11-27T20:48:37.989Z",
       "status": "fresh"
     },
@@ -1646,8 +1646,8 @@
         "implementation"
       ],
       "timestamp": "2025-11-28T03:38:02.507Z",
-      "accessCount": 2,
-      "lastAccessed": "2025-11-28T18:59:35.722Z",
+      "accessCount": 4,
+      "lastAccessed": "2025-12-01T16:01:54.329Z",
       "lastVerified": "2025-11-28T03:38:02.507Z",
       "status": "fresh"
     },
@@ -1817,8 +1817,8 @@
       ],
       "timestamp": "2025-11-29T01:39:58.668Z",
       "context": "Implementation of two viewing modes feature for 530 Society project",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-29T01:39:58.668Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-12-01T16:01:54.329Z",
       "lastVerified": "2025-11-29T01:39:58.668Z",
       "status": "fresh"
     },
@@ -1857,8 +1857,8 @@
       ],
       "timestamp": "2025-11-29T19:43:10.498Z",
       "context": "User exploration of Chrome extension component architecture before implementation",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-29T19:43:10.498Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-12-01T16:01:54.329Z",
       "lastVerified": "2025-11-29T19:43:10.498Z",
       "status": "fresh"
     },
@@ -2030,8 +2030,8 @@
       ],
       "timestamp": "2025-11-30T20:47:36.555Z",
       "context": "User lost all content data after I ran supabase db reset without warning",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-30T20:47:36.555Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-12-01T16:01:54.329Z",
       "lastVerified": "2025-11-30T20:47:36.555Z",
       "status": "fresh"
     },
@@ -2090,7 +2090,106 @@
       "lastAccessed": "2025-11-30T21:39:40.767Z",
       "lastVerified": "2025-11-30T21:39:40.767Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764604764132_dmpacmpeh",
+      "content": "## 530News Database Schema Overview\n\n### Core Tables Structure:\n\n1. **episodes** - Show/episode metadata\n   - id (UUID), title, description, date, created_at, updated_at\n\n2. **content** - Main content items (videos, tweets, articles, etc.)\n   - id (UUID), version, content_type, content_url, content_id (external ID)\n   - submitted_by (text), submitted_at, category, categories (array), description\n   - approval_status (pending/approved/rejected), submitted_by_user_id, approved_by, approved_at\n   - channels (JSONB array), primary_channel (text), tags (text array)\n   - created_at, updated_at\n\n3. **content_blocks** - Categories/sections within episodes\n   - id (UUID), episode_id, title, description, weight (display order)\n   - created_at, updated_at\n\n4. **content_block_items** - Junction table linking content to blocks\n   - id (UUID), content_block_id, news_id (content id), note, weight\n   - created_at, updated_at\n\n5. **tweets** - Cached full tweet data\n   - id (TEXT - Twitter ID), data (JSONB), created_at, updated_at\n\n### User & Permissions:\n\n1. **users** - Discord OAuth authenticated users\n   - id (UUID), discord_id (unique), discord_username, discord_avatar, display_name\n   - is_guild_member (boolean), is_moderator (boolean), is_admin (boolean)\n   - discord_roles (text array), session_token, session_expires_at\n   - created_at, updated_at\n\n### Channel System:\n\n1. **channel_groups** - Top-level categories (like Discord categories)\n   - id (UUID), slug (unique), name, icon, description, display_order\n   - is_active (boolean), created_at, updated_at\n\n2. **channels** - Individual channels within groups\n   - id (UUID), group_id, slug, name, icon, description, display_order\n   - discord_channel_id (for broadcasting), is_active, created_at, updated_at\n   - Unique constraint on (group_id, slug)\n\n### Tags & Labels:\n\n1. **tags** - Reusable tags for content categorization\n   - id (UUID), slug (unique), name, usage_count, created_at, created_by\n\n2. **content_labels** - Moderator badge/label system\n   - id (UUID), slug (unique), name, description\n   - color, text_color, icon, category (status/importance/type/general/custom)\n   - is_system (boolean), is_active (boolean)\n   - created_by, created_at, updated_at\n\n3. **content_label_assignments** - Many-to-many linking labels to content\n   - id (UUID), content_id, label_id, assigned_by, assigned_at, note\n   - Unique constraint on (content_id, label_id)\n\n### User Interactions:\n\n1. **content_notes** - User notes on content (280 char limit, one per user per content)\n   - id (UUID), content_id, user_id, note_text, author_name\n   - created_at, updated_at\n   - Unique constraint on (content_id, user_id)\n\n2. **moderator_comments** - Extended moderator commentary\n   - id (UUID), content_id, user_id, comment_text (2000 char limit)\n   - comment_type (note/context/warning/highlight/question)\n   - is_pinned, is_public, author_name, author_avatar, author_role\n   - created_at, updated_at\n\n### Configuration:\n\n1. **system_settings** - Global feature flags\n   - key (TEXT primary key), value (JSONB), description\n   - updated_by, created_at, updated_at\n\n### Relationships Summary:\n- content → users (submitted_by_user_id, approved_by)\n- content → channels (multiple via JSONB array)\n- content → tags (multiple via text array)\n- content_block_items → content_blocks → episodes\n- content_label_assignments → content, content_labels, users\n- content_notes → content, users (one per user per content)\n- moderator_comments → content, users\n- channels → channel_groups\n- tags, content_labels → users (created_by)\n- system_settings → users (updated_by)\n\n### Key Patterns:\n- RLS enabled on all tables with permissive public policies (API enforces auth)\n- Updated_at triggers on all tables\n- Approval workflow with 3 states: pending/approved/rejected\n- Discord OAuth integration for user authentication\n- Role-based access: admin, moderator, guild_member\n- Multiple taxonomies: channels (hierarchical), tags (flat, reusable), labels (moderator-assigned)\n",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "database",
+        "api",
+        "authentication",
+        "schema",
+        "530news",
+        "supabase",
+        "migrations"
+      ],
+      "timestamp": "2025-12-01T15:59:24.132Z",
+      "context": "Comprehensive database schema exploration for 530News project to understand how to add new features like shows/programs",
+      "accessCount": 2,
+      "lastAccessed": "2025-12-01T16:01:54.329Z",
+      "lastVerified": "2025-12-01T15:59:24.132Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764604841192_4wfk0h2hs",
+      "content": "UI Component and Pattern Summary for Shows Feature\n\n## UI Library Stack:\n1. **Base**: Tailwind CSS v4 (primary styling) + custom CSS\n2. **Icons**: Lucide React (extensive icon set)\n3. **Radix UI**: Available (@radix-ui/react-*) but NOT used in main app yet\n4. **Forms**: React Hook Form + Zod (installed but not yet used in app components)\n5. **No shadcn/ui**: The project has Radix UI installed but not using shadcn wrapper components\n\n## Component Patterns Found:\n\n### Extension Components (Shadow DOM isolated):\n- ChannelSelectorPopup: Advanced two-column popup with tabs, autocomplete, multi-select\n- NotesSection: Notes editor with auto-save, user display, character limits\n- Custom CSS-based styling (not Tailwind in extension due to Shadow DOM)\n\n### Main App Components:\n- NewsCard: Large grid-based card layout with 3-column grid (badges, content, comments)\n- TagChip: Interactive chip component with color mapping\n- CommentThread: Chat-like interface with form input\n- SettingsSection: Toggle switches for boolean settings\n\n## Form & Input Patterns:\n1. useState-based form state management (no form libraries in app yet)\n2. Simple input fields with text, className-based styling\n3. Toggle switches: Custom CSS implementation (~14px high)\n4. Text areas: Min/max height, character counting, debounced auto-save\n5. Autocomplete dropdowns: Dropdown menus with keyboard support\n\n## Button Styles:\n- Primary: bg-arcade-cyan (cyan color), hover states, disabled opacity\n- Secondary: bg-zinc-700/600, hover variants\n- Icon buttons: Lucide React icons (24-18px sizes)\n- Interactive buttons: Transition effects, cursor pointer\n\n## Interactive Patterns:\n- Popup positioning: Dynamic viewport-aware positioning (no library, custom math)\n- Dropdowns: Custom CSS with position absolute\n- Tabs: Button-based tabs with active state\n- Lists/Scrolling: max-height overflow-y auto pattern\n\n## Card Layouts:\n- Zinc/gray color scheme: bg-zinc-800/800, border-zinc-700\n- Rounded corners: rounded-lg, rounded-xl\n- Spacing: Consistent padding (8px, 12px, 16px)\n- Borders: Subtle borders with zinc-700/50\n\n## Form Validation Pattern:\n- Zod + React Hook Form available but NOT actively used yet\n- Manual validation in existing components (checking lengths, empty states)\n\n## Date/Time Pickers:\n- date-fns available (installed)\n- No date picker UI components observed in main app yet\n- Manual date formatting used: toLocaleDateString()\n\n## Available for Shows Feature:\n✓ Button styling system (cyan/zinc palette)\n✓ Card layouts (grid + flex patterns)\n✓ Tag/chip components (with color mapping)\n✓ Form inputs with validation framework (Zod/React Hook Form ready)\n✓ Popup/modal infrastructure (custom positioning logic)\n✓ Icon library (Lucide React)\n✓ Accessibility: Tailwind has built-in a11y utilities\n✓ State management: Zustand available (for complex state if needed)\n",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "ui-patterns",
+        "component-analysis",
+        "shows-feature"
+      ],
+      "timestamp": "2025-12-01T16:00:41.192Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-12-01T16:01:54.329Z",
+      "lastVerified": "2025-12-01T16:00:41.192Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764605293938_18m9h8677",
+      "content": "## Shows Feature - Scalable Architecture Design (Dec 2024)\n\n### Database Schema:\n1. **shows** - id, slug (unique), name, description, image_url, status, categories[], discord_channel_id, created_by\n2. **show_members** - show_id, user_id, role (enum: showrunner/cohost/producer/guest/moderator), can_create_episodes, can_edit_show, can_manage_members, can_manage_content, is_active\n3. **show_schedules** - show_id, frequency (daily/weekly/biweekly/monthly/custom), day_of_week, time_of_day, timezone, estimated_duration_minutes, display_schedule, effective_from/until\n4. **show_schedule_exceptions** - schedule_id, exception_date, exception_type (cancelled/rescheduled/special), new_datetime, reason\n5. **episodes** table modified: add show_id, episode_number, episode_status (draft/upcoming/live/completed/cancelled)\n\n### Key Design Decisions:\n- Normalized roles via show_members junction table (NOT boolean flags)\n- PostgreSQL enum for roles (extensible via ALTER TYPE ADD VALUE)\n- Trigger sets default permissions based on role\n- Structured schedules enable automation (not just text strings)\n- Schedule exceptions handle real-world complexity\n\n### API Endpoints:\n- GET/POST /api/shows\n- GET/PUT /api/shows/[slug]\n- GET/POST/DELETE /api/shows/[slug]/members\n- POST /api/shows/[slug]/episodes\n\n### Permission Check Pattern:\nhasShowPermission(supabase, userId, showId, permission) - checks global admin, site moderator, then show_members table",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "database",
+        "api",
+        "architecture",
+        "shows-feature",
+        "planning",
+        "530news",
+        "supabase"
+      ],
+      "timestamp": "2025-12-01T16:08:13.938Z",
+      "context": "Scalable architecture plan for Shows feature in 530News/fivethirty project",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-01T16:08:13.938Z",
+      "lastVerified": "2025-12-01T16:08:13.938Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764606936635_mkymmyl7q",
+      "content": "Shows Feature Implementation Complete (2025-12-01)\n\nDatabase:\n- Migration: supabase/migrations/20251201000000_create_shows_system.sql\n- Tables: shows, show_members, show_schedule_exceptions\n- Extended episodes table with show_id, episode_number, scheduled_at, status, created_by\n- Roles enum: showrunner, cohost, producer, moderator, guest\n- Auto-permission trigger based on role\n\nAPI Routes:\n- GET/POST /api/shows - List all shows, create new show\n- GET/PUT/DELETE /api/shows/[slug] - Show detail, update, archive\n- GET/POST/DELETE /api/shows/[slug]/members - Member management\n- GET/POST /api/shows/[slug]/episodes - Episode list/create\n- GET /api/users/search - User search for member modal\n\nUI Pages:\n- /show - Shows listing grid\n- /show/[slug] - Show detail with episodes, team sidebar, member management modal\n- /show/new - Create show form with schedule picker\n- /show/[slug]/episode/new - Create episode form with auto-fill from schedule\n\nKey Features:\n- Complex schedule patterns (weekly, biweekly, monthly)\n- Role-based permissions (showrunner has full control)\n- Auto-fill episode details from show schedule\n- Search users to add as members\n- Remove members with hover delete button",
+      "type": "general",
+      "tags": [
+        "general",
+        "database",
+        "api",
+        "shows",
+        "feature",
+        "implementation"
+      ],
+      "timestamp": "2025-12-01T16:35:36.635Z",
+      "context": "fivethirty project - completed Shows feature for 530News platform",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-01T16:35:36.635Z",
+      "lastVerified": "2025-12-01T16:35:36.635Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764613640928_q4kqa31ck",
+      "content": "Discord Members Caching Feature (2025-12-01)\n\nArchitecture:\n1. Bot (bot/discord/src/client.ts) - Added GuildMembers intent, fetchGuildMembers() and getGuildMemberCount() functions\n2. Bot Server (bot/discord/src/server.ts) - Added GET /members/:guildId and /members/:guildId/count endpoints\n3. Next.js API (app/api/discord/members/route.ts) - Proxy route with showrunner permission check\n4. IndexedDB Storage (utils/storage/discordMembersStore.ts) - Persistent cache with count-based invalidation\n5. React Hook (utils/storage/useDiscordMembers.ts) - Smart caching hook\n\nKey Features:\n- Only showrunners trigger the Discord member fetch\n- IndexedDB stores members persistently in browser\n- Count comparison determines if cache needs refresh (not time-based)\n- Supports future extensibility with customData field per member\n- Search uses cached members first, falls back to DB API\n- UI shows cache status and refresh button\n\nEnvironment vars needed:\n- BOT_API_SECRET (shared between Next.js and bot)\n- BOT_URL (defaults to http://localhost:3001)\n- DISCORD_GUILD_ID (defaults to 530 server ID)",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "api",
+        "discord",
+        "caching",
+        "indexeddb",
+        "members",
+        "feature"
+      ],
+      "timestamp": "2025-12-01T18:27:20.928Z",
+      "context": "fivethirty project - Discord member caching for showrunners",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-01T18:27:20.928Z",
+      "lastVerified": "2025-12-01T18:27:20.928Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-11-30T21:39:40.767Z"
+  "lastUpdated": "2025-12-01T18:27:20.928Z"
 }
