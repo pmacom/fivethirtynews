@@ -423,13 +423,22 @@ export default function ShowDetailPage() {
               {/* Action Buttons */}
               <div className="flex gap-2">
                 {permissions?.canManageShow && (
-                  <button
-                    onClick={() => router.push(`/show/${slug}/edit`)}
-                    className="flex items-center gap-2 bg-zinc-700 hover:bg-zinc-600 px-3 py-2 rounded-lg text-sm transition-colors"
-                  >
-                    <Settings size={16} />
-                    Edit
-                  </button>
+                  <>
+                    <button
+                      onClick={() => router.push(`/show/${slug}/settings/templates`)}
+                      className="flex items-center gap-2 bg-zinc-700 hover:bg-zinc-600 px-3 py-2 rounded-lg text-sm transition-colors"
+                    >
+                      <Plus size={16} />
+                      Categories
+                    </button>
+                    <button
+                      onClick={() => router.push(`/show/${slug}/edit`)}
+                      className="flex items-center gap-2 bg-zinc-700 hover:bg-zinc-600 px-3 py-2 rounded-lg text-sm transition-colors"
+                    >
+                      <Settings size={16} />
+                      Edit
+                    </button>
+                  </>
                 )}
               </div>
             </div>

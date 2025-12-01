@@ -42,6 +42,7 @@ interface ContentStoreState {
   prevSlide: () => void;
   fetchLatestEpisode: () => Promise<void>;
   fetchThisWeekContent: () => Promise<void>;
+  fetchRecentContent: () => Promise<void>;
 }
 
 export const useContentStore = create<ContentStoreState>()((set, get) => ({
@@ -726,6 +727,220 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
       get().setIdStrings(processedData)
     } catch (error) {
       logger.error('Error in fetchThisWeekContent:', error);
+    }
+  },
+
+  fetchRecentContent: async () => {
+    logger.debug('Fetching recent content with hardcoded categories')
+
+    // Hardcoded categories for the /recent route - independent of shows/episodes
+    // Matches both primary_channel and category fields (case-insensitive)
+    const RECENT_CATEGORIES = [
+      { slug: 'preshow', title: 'Pre-Show', aliases: ['preshow', 'PRESHOW'] },
+      { slug: 'general', title: 'Main Show', aliases: ['general', 'GENERAL', 'main', 'main-events'] },
+      { slug: 'ai', title: 'AI', aliases: ['ai', 'AI', 'video', 'llm', 'audio'] },
+      { slug: 'code', title: 'Code', aliases: ['code', 'CODE', 'threejs', 'security', 'design'] },
+      { slug: 'thirddimension', title: 'Third Dimension', aliases: ['thirddimension', 'THIRDDIMENSION', '3d-models', 'blender', 'splats', 'virtual', 'unreal'] },
+      { slug: 'misc', title: 'Miscellaneous', aliases: ['misc', 'MISC', 'METAVERSE', 'robotics', 'art'] },
+    ];
+
+    try {
+      // Fetch last 100 approved content items, ordered by newest first
+      const { data: allContent, error: contentError } = await supabase
+        .from('content')
+        .select('*')
+        .eq('approval_status', 'approved')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      if (contentError) {
+        logger.error('Error fetching content:', contentError);
+        return;
+      }
+
+      if (!allContent || allContent.length === 0) {
+        logger.warn('No content found');
+        return;
+      }
+
+      logger.log(`Fetched ${allContent.length} recent content items`);
+
+      // Group content by category (use primary_channel or category field)
+      const contentByCategory = new Map<string, any[]>();
+
+      // Initialize all categories (even if empty)
+      for (const cat of RECENT_CATEGORIES) {
+        contentByCategory.set(cat.slug, []);
+      }
+
+      for (const item of allContent) {
+        // Try primary_channel first, fall back to category
+        const categorySlug = item.primary_channel || item.category;
+        if (!categorySlug) continue;
+
+        // Check if this matches one of our hardcoded categories using aliases
+        const matchedCategory = RECENT_CATEGORIES.find(c =>
+          c.aliases.some(alias =>
+            alias.toLowerCase() === categorySlug.toLowerCase()
+          )
+        );
+
+        if (matchedCategory) {
+          const items = contentByCategory.get(matchedCategory.slug) || [];
+          if (items.length < 20) { // Max 20 per category
+            items.push(item);
+            contentByCategory.set(matchedCategory.slug, items);
+          }
+        } else {
+          // Put unmatched content in misc
+          const miscItems = contentByCategory.get('misc') || [];
+          if (miscItems.length < 20) {
+            miscItems.push(item);
+            contentByCategory.set('misc', miscItems);
+          }
+        }
+      }
+
+      // Build content blocks from categories that have content
+      const contentBlocks: LiveViewContentBlock[] = [];
+      let blockWeight = 0;
+
+      for (const cat of RECENT_CATEGORIES) {
+        const items = contentByCategory.get(cat.slug) || [];
+        if (items.length === 0) continue; // Skip empty categories
+
+        const content_block_items = items.map((item, index) => ({
+          id: item.id,
+          content_block_id: cat.slug,
+          content_id: item.id,
+          weight: index,
+          note: item.description || '',
+          content: item
+        }));
+
+        contentBlocks.push({
+          id: cat.slug,
+          episode_id: 'recent',
+          title: cat.title,
+          weight: blockWeight++,
+          content_block_items: content_block_items as LiveViewContentBlockItems[]
+        });
+      }
+
+      if (contentBlocks.length === 0) {
+        logger.warn('No content matched any categories');
+        return;
+      }
+
+      // Process the data (thumbnail URLs)
+      let maxIndex = 0;
+      contentBlocks.forEach(block => {
+        maxIndex++;
+        maxIndex += (block.content_block_items.length - 1);
+      });
+
+      const processedData: LiveViewContentBlock[] = contentBlocks.map(block => {
+        const processed_content_block_items = block.content_block_items.map(item => {
+          if (item?.content?.thumbnail_url) {
+            try {
+              const urlObj = new URL(item.content.thumbnail_url);
+              const pathname = urlObj.pathname;
+              const filename = pathname.substring(pathname.lastIndexOf('/') + 1);
+
+              const filepath = WTF_CONFIG.useRelativeImagePaths
+                ? `/thumbnails/${filename}`
+                : urlObj.href
+
+              return {
+                ...item,
+                content: {
+                  ...item.content,
+                  thumbnail_url: filepath,
+                },
+              };
+            } catch (error) {
+              logger.error('Invalid URL:', error);
+              return item;
+            }
+          }
+          return item;
+        });
+
+        return {
+          ...block,
+          content_block_items: processed_content_block_items,
+        };
+      });
+
+      const categoryTitles = processedData.map(block => block.title);
+      const itemTitles = processedData.map(block => block.content_block_items.map(item => item.note));
+
+      logger.log(`Loaded ${contentBlocks.length} categories with recent content`);
+
+      // BATCH FETCH ALL TWEETS
+      const tweetIds = new Set<string>();
+      for (const item of allContent) {
+        if ((item.platform === 'twitter' || item.content_type === 'twitter') && (item.platform_content_id || item.content_id)) {
+          tweetIds.add(item.platform_content_id || item.content_id);
+        }
+      }
+
+      if (tweetIds.size > 0) {
+        logger.log(`Batch fetching ${tweetIds.size} tweets...`);
+        const tweetIdArray = Array.from(tweetIds);
+        const chunkSize = 100;
+        const allTweets: any[] = [];
+
+        for (let i = 0; i < tweetIdArray.length; i += chunkSize) {
+          const chunk = tweetIdArray.slice(i, i + chunkSize);
+          const { data: tweets, error: tweetsError } = await supabase
+            .from('tweets')
+            .select('*')
+            .in('id', chunk);
+
+          if (tweetsError) {
+            logger.error(`Error fetching tweet chunk:`, tweetsError);
+          } else if (tweets) {
+            allTweets.push(...tweets);
+          }
+        }
+
+        const tweetMap: {[key: string]: any} = {};
+        for (const tweet of allTweets) {
+          try {
+            tweetMap[tweet.id] = {
+              ...tweet,
+              data: typeof tweet.data === 'string' ? JSON.parse(tweet.data) : tweet.data
+            };
+          } catch (error) {
+            tweetMap[tweet.id] = {
+              id: tweet.id,
+              data: {
+                text: tweet.text || 'Tweet data unavailable',
+                user: {
+                  name: tweet.screen_name || 'Unknown',
+                  screen_name: tweet.screen_name || 'unknown',
+                  profile_image_url_https: tweet.profile_image || ''
+                },
+                created_at: new Date().toISOString()
+              }
+            };
+          }
+        }
+        useTweetStore.setState({ tweets: tweetMap });
+        logger.log(`Loaded ${Object.keys(tweetMap).length} tweets into store`);
+      }
+
+      set({
+        maxIndex,
+        content: processedData,
+        categoryTitles,
+        itemTitles,
+      })
+
+      get().setIdStrings(processedData)
+    } catch (error) {
+      logger.error('Error in fetchRecentContent:', error);
     }
   },
 }));

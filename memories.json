@@ -123,8 +123,8 @@
       ],
       "timestamp": "2025-11-18T03:45:28.704Z",
       "context": "viewer/viewer.tsx lines 9, 28 - Imported and added Pillar component to Canvas",
-      "accessCount": 8,
-      "lastAccessed": "2025-12-01T16:01:54.329Z",
+      "accessCount": 10,
+      "lastAccessed": "2025-12-01T19:51:40.649Z",
       "lastVerified": "2025-11-18T03:45:28.704Z",
       "status": "fresh"
     },
@@ -473,8 +473,8 @@
         "zustand"
       ],
       "timestamp": "2025-11-18T06:44:35.998Z",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-27T22:54:31.540Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-12-01T19:51:40.649Z",
       "lastVerified": "2025-11-18T06:44:35.998Z",
       "status": "fresh"
     },
@@ -931,8 +931,8 @@
         "fivethirty"
       ],
       "timestamp": "2025-11-19T00:05:12.324Z",
-      "accessCount": 7,
-      "lastAccessed": "2025-11-30T04:15:07.653Z",
+      "accessCount": 9,
+      "lastAccessed": "2025-12-01T19:51:40.649Z",
       "lastVerified": "2025-11-19T00:05:12.324Z",
       "status": "fresh"
     },
@@ -1439,8 +1439,8 @@
       ],
       "timestamp": "2025-11-26T22:37:11.807Z",
       "context": "Analysis of merging bot directory (Chrome extension + admin dashboard) into main fivethirty project",
-      "accessCount": 12,
-      "lastAccessed": "2025-12-01T16:01:54.329Z",
+      "accessCount": 14,
+      "lastAccessed": "2025-12-01T19:51:40.649Z",
       "lastVerified": "2025-11-26T22:37:11.807Z",
       "status": "fresh"
     },
@@ -1460,8 +1460,8 @@
         "530-project"
       ],
       "timestamp": "2025-11-27T20:47:36.303Z",
-      "accessCount": 11,
-      "lastAccessed": "2025-11-30T04:15:07.653Z",
+      "accessCount": 13,
+      "lastAccessed": "2025-12-01T19:51:40.649Z",
       "lastVerified": "2025-11-27T20:47:36.303Z",
       "status": "fresh"
     },
@@ -1482,8 +1482,8 @@
       ],
       "timestamp": "2025-11-27T20:48:37.989Z",
       "context": "User wants to update Chrome extension tag selection modal to use new SmartPopover/ChannelSelector design pattern",
-      "accessCount": 10,
-      "lastAccessed": "2025-12-01T16:01:54.329Z",
+      "accessCount": 12,
+      "lastAccessed": "2025-12-01T19:51:40.649Z",
       "lastVerified": "2025-11-27T20:48:37.989Z",
       "status": "fresh"
     },
@@ -1523,8 +1523,8 @@
       ],
       "timestamp": "2025-11-27T22:55:19.545Z",
       "context": "Comprehensive verification of 530 browser extension functionality for QA process",
-      "accessCount": 2,
-      "lastAccessed": "2025-11-30T04:15:07.653Z",
+      "accessCount": 4,
+      "lastAccessed": "2025-12-01T19:51:40.649Z",
       "lastVerified": "2025-11-27T22:55:19.545Z",
       "status": "fresh"
     },
@@ -1742,8 +1742,8 @@
       ],
       "timestamp": "2025-11-28T18:56:33.241Z",
       "context": "Explored codebase to understand data model for categories, channels, tags",
-      "accessCount": 6,
-      "lastAccessed": "2025-11-29T23:10:23.586Z",
+      "accessCount": 8,
+      "lastAccessed": "2025-12-01T19:51:40.649Z",
       "lastVerified": "2025-11-28T18:56:33.241Z",
       "status": "fresh"
     },
@@ -1857,8 +1857,8 @@
       ],
       "timestamp": "2025-11-29T19:43:10.498Z",
       "context": "User exploration of Chrome extension component architecture before implementation",
-      "accessCount": 2,
-      "lastAccessed": "2025-12-01T16:01:54.329Z",
+      "accessCount": 4,
+      "lastAccessed": "2025-12-01T19:51:40.649Z",
       "lastVerified": "2025-11-29T19:43:10.498Z",
       "status": "fresh"
     },
@@ -2107,8 +2107,8 @@
       ],
       "timestamp": "2025-12-01T15:59:24.132Z",
       "context": "Comprehensive database schema exploration for 530News project to understand how to add new features like shows/programs",
-      "accessCount": 2,
-      "lastAccessed": "2025-12-01T16:01:54.329Z",
+      "accessCount": 4,
+      "lastAccessed": "2025-12-01T19:51:40.649Z",
       "lastVerified": "2025-12-01T15:59:24.132Z",
       "status": "fresh"
     },
@@ -2189,7 +2189,85 @@
       "lastAccessed": "2025-12-01T18:27:20.928Z",
       "lastVerified": "2025-12-01T18:27:20.928Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764618566165_3emjnb14b",
+      "content": "Tag System Architecture - 530News/FiveThirty Project\n\nDATABASE SCHEMA:\n1. Tags Table (predefined and user-created):\n   - id, slug (unique), name, usage_count, created_at, created_by\n   - 200+ predefined tags seeded (3D/Graphics, Shaders, AI/ML, Tools, Games, etc.)\n   - User can create custom tags dynamically\n\n2. Content Table (stores the actual content items):\n   - Has 'tags' column (TEXT array) storing tag slugs\n   - Also has 'channels' (JSONB array) and 'primary_channel' (TEXT)\n   - Tracks content type, URL, author, metadata, approval status\n\n3. Content Labels Table (separate system for moderator badges):\n   - Different from tags - used for status/importance labels\n   - content_labels and content_label_assignments (many-to-many junction)\n   - Pre-seeded with system labels: breaking, tutorial, demo, discussion, etc.\n\n4. Channel System (primary content organization):\n   - channel_groups and channels tables\n   - Content primarily organized by channels (groups > individual channels)\n   - Tags are secondary/additional categorization\n\nDATABASE FUNCTIONS:\n- get_tag_usage_counts(): PostgreSQL function that calculates actual tag usage from content.tags array\n- Automatically aggregates array elements across all content rows\n\nINDEXES:\n- idx_tags_slug, idx_tags_usage\n- idx_content_tags (GIN index on tags array for fast CONTAINS queries)\n- idx_content_channels (similar for channels)\n\nAPI ROUTES:\n1. GET /api/tags\n   - Returns all tags sorted by usage_count\n   - Merges predefined tags with actual usage counts from content\n   - Supports search filtering by name/slug\n   - CORS enabled for extension use\n\n2. POST/GET/PUT /api/content\n   - POST: Create/update content with tags and channels arrays\n   - Validates either tags or channels are provided\n   - Stores tags as array in content table\n   - Auto-generates content with optional approval workflow\n\n3. GET /api/admin/tagmaster\n   - Gets next untagged content item for tagging interface\n   - Returns stats (total, tagged, untagged, percentComplete)\n   - Fetches channel groups and top 50 tags for UI\n\n4. POST /api/admin/tagmaster\n   - Tags content item with channels and additional tags\n   - Auto-creates new tags if they don't exist\n   - Slugifies tag names (lowercase, dash-separated, alphanumeric)\n   - Updates usage_count for tags\n   - Points system: 10 base + 5 per channel + 3 per tag\n\n5. DELETE /api/admin/tagmaster\n   - Removes content items\n\nTAG ASSIGNMENT WORKFLOW:\n1. Content comes in via POST /api/content with tags and/or channels\n2. Tags stored directly in tags array column on content table\n3. Tag usage counts updated in tags table (manual increment or via get_tag_usage_counts RPC)\n4. Admin TagMaster interface allows:\n   - Channels are required (primary + secondary selection)\n   - Additional tags optional (predefined suggestions + custom input)\n   - Gamified interface with scoring system\n\nFILTERING/QUERYING:\n- Tags can be queried via array contains operations (PostgreSQL @> operator)\n- Content filtered by primary_channel OR channels array membership\n- Group filtering: looks up all channels in group, filters by those channel slugs\n- No direct tag-based content filtering API endpoint (filtering primarily by channels)",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "database",
+        "api",
+        "tag-system",
+        "database-schema",
+        "api-routes",
+        "content-organization"
+      ],
+      "timestamp": "2025-12-01T19:49:26.165Z",
+      "context": "Comprehensive exploration of the tag system in 530News/FiveThirty project for content management and categorization",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-01T19:49:26.165Z",
+      "lastVerified": "2025-12-01T19:49:26.165Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764620314415_d8nhqigtb",
+      "content": "Show Category Templates feature implementation completed:\n\n## Database Schema\n- `show_category_templates` - stores category definitions per show (name, slug, icon, display_order)\n- `show_category_template_tags` - junction table for template-tag associations\n- Added `template_id` column to `content_blocks` for linking populated blocks to templates\n- Migration: `supabase/migrations/20251201200000_create_show_category_templates.sql`\n\n## API Endpoints\n- GET/POST `/api/shows/[slug]/templates` - List/create templates\n- GET/PUT/DELETE `/api/shows/[slug]/templates/[id]` - Single template operations\n- POST `/api/shows/[slug]/templates/reorder` - Reorder templates\n- GET `/api/shows/[slug]/episodes/[id]/suggestions` - Get content suggestions by template\n- POST `/api/shows/[slug]/episodes/[id]/populate` - Auto-populate content_blocks from templates\n- GET `/api/shows/[slug]/episodes/[id]/blocks` - Get episode content blocks\n- POST `/api/shows/[slug]/episodes/[id]/blocks/[blockId]/items` - Add item to block\n- DELETE `/api/shows/[slug]/episodes/[id]/blocks/[blockId]/items/[itemId]` - Remove item\n\n## UI Pages\n- `/show/[slug]/settings/templates` - Template editor with drag-to-reorder, tag autocomplete\n- `/show/[slug]/episode/[id]/curate` - Episode curation page with category columns\n- Added \"Categories\" button to show detail page\n\n## Flow\n1. Showrunner defines category templates with tags\n2. When creating episode, system checks for templates\n3. If templates exist, auto-populates content_blocks with matching approved content since last episode\n4. Redirects to curation page for showrunner to curate (add/remove/reorder)\n5. Content matching uses PostgreSQL array overlap: `content.tags && template_tags`",
+      "type": "config",
+      "tags": [
+        "config",
+        "database",
+        "api",
+        "shows",
+        "category-templates",
+        "episodes",
+        "content-blocks",
+        "implementation"
+      ],
+      "timestamp": "2025-12-01T20:18:34.415Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-01T20:18:34.415Z",
+      "lastVerified": "2025-12-01T20:18:34.415Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764623426926_rnw2tobsa",
+      "content": "Template Editor UI Enhancement completed:\n\n1. **Discord Emoji Picker**:\n   - `bot/discord/src/client.ts`: Added `fetchGuildEmojis()` with 10-min cache\n   - `bot/discord/src/server.ts`: Added `GET /emojis/:guildId` endpoint\n   - `app/api/discord/emojis/route.ts`: New API proxy to bot\n   - `components/EmojiPicker.tsx`: Dropdown with grid of server emojis, search, stores as `<:name:id>` format\n\n2. **TagChannelSelector**:\n   - `components/TagChannelSelector.tsx`: Two-panel selector\n   - Left panel: Channel groups (expandable) with \"Select All\" per group\n   - Right panel: Tags with search\n   - Shows selected items as chips with icons (Hash for channels, Tag for tags)\n\n3. **Template Editor Integration**:\n   - `app/show/[slug]/settings/templates/page.tsx`: Replaced text emoji input with EmojiPicker, replaced tag search with TagChannelSelector, widened modal to max-w-2xl",
+      "type": "config",
+      "tags": [
+        "config",
+        "api",
+        "implementation",
+        "template-editor",
+        "discord-emoji",
+        "tag-selector",
+        "530-project"
+      ],
+      "timestamp": "2025-12-01T21:10:26.926Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-01T21:10:26.926Z",
+      "lastVerified": "2025-12-01T21:10:26.926Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764625740207_95zpj34y4",
+      "content": "Imported backup data from Nov 29:\n- 8,774 content rows from backups/content_rows_nov_29.sql\n- 8,477 tweets from backups/tweets_rows_nov_29.sql\n\nSchema modifications made to accommodate backup:\n- Added columns to content: platform, platform_content_id, url, title, author_name, author_username, author_url, author_avatar_url, author_id, media_assets (jsonb), metadata (jsonb)\n- Changed content.tags from text[] to jsonb\n- Changed content.categories from text[] to text\n- Dropped FK constraints: content_submitted_by_user_id_fkey, content_approved_by_fkey\n- Added columns to tweets: text, screen_name, profile_image, thumbnail\n- Changed tweets.data from jsonb to text (to handle escaping issues)\n\nContent distribution by category:\n- AI: 468, PRESHOW: 343, THIRDDIMENSION: 318, MISC: 204, GENERAL: 191, CODE: 150, METAVERSE: 86\n\nUpdated fetchRecentContent() with aliases for category matching:\n- preshow: ['preshow', 'PRESHOW']\n- general: ['general', 'GENERAL', 'main', 'main-events']\n- ai: ['ai', 'AI', 'video', 'llm', 'audio']\n- code: ['code', 'CODE', 'threejs', 'security', 'design']\n- thirddimension: ['thirddimension', 'THIRDDIMENSION', '3d-models', 'blender', 'splats', 'virtual', 'unreal']\n- misc: ['misc', 'MISC', 'METAVERSE', 'robotics', 'art']",
+      "type": "general",
+      "tags": [
+        "general",
+        "database",
+        "backup",
+        "schema",
+        "content",
+        "tweets",
+        "fetchRecentContent"
+      ],
+      "timestamp": "2025-12-01T21:49:00.207Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-01T21:49:00.207Z",
+      "lastVerified": "2025-12-01T21:49:00.207Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-01T18:27:20.928Z"
+  "lastUpdated": "2025-12-01T21:49:00.207Z"
 }

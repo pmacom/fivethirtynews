@@ -9,6 +9,8 @@ const publicRoutes = [
   '/api/auth/session',
   '/api/auth/logout',
   '/api/auth/verify', // For extension auth
+  '/recent', // Public "This Week" content view
+  '/browse', // Public category browsing
 ];
 
 // API routes that require authentication (add more as needed)
@@ -24,6 +26,7 @@ const publicGetApiRoutes = [
   '/api/content',  // Browse content publicly, but auth required to submit
   '/api/labels',   // List labels publicly, creating requires moderator
   '/api/tags',     // List tags publicly for autocomplete
+  '/api/shows',    // Browse shows publicly, auth required to modify
 ];
 
 // Routes that require moderator role

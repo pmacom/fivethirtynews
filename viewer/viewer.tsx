@@ -23,8 +23,15 @@ import { useStageSelectStore } from './ui/stageselect/store'
 import { useContentStore } from './core/store/contentStore'
 import './ui/splash/styles.css'
 
+export type ContentMode = 'latest' | 'this-week' | 'episode';
+
+interface ContentLoaderProps {
+  mode: ContentMode;
+  episodeId?: string;
+}
+
 // Component to ensure content loads even when Pillar is hidden
-const ContentLoader = () => {
+const ContentLoader = ({ mode, episodeId }: ContentLoaderProps) => {
   const hasFetchedRef = useRef(false)
 
   useEffect(() => {
@@ -32,14 +39,43 @@ const ContentLoader = () => {
     if (hasFetchedRef.current) return
     hasFetchedRef.current = true
 
-    console.log('[ContentLoader] Fetching latest episode...')
-    useContentStore.getState().fetchLatestEpisode()
-  }, [])
+    const store = useContentStore.getState()
+
+    switch (mode) {
+      case 'this-week':
+        console.log('[ContentLoader] Fetching recent content with hardcoded categories...')
+        store.fetchRecentContent()
+        break
+      case 'episode':
+        if (episodeId) {
+          console.log('[ContentLoader] Fetching episode content...', episodeId)
+          store.fetchEpisodeContent(episodeId)
+        }
+        break
+      case 'latest':
+      default:
+        console.log('[ContentLoader] Fetching latest episode...')
+        store.fetchLatestEpisode()
+        break
+    }
+  }, [mode, episodeId])
 
   return null
 }
 
-const Viewer = () => {
+interface ViewerProps {
+  mode?: ContentMode;
+  episodeId?: string;
+  skipSplash?: boolean;
+}
+
+const Viewer = ({ mode = 'latest', episodeId, skipSplash = false }: ViewerProps) => {
+  // Skip splash screen when skipSplash prop is true (e.g., on /recent route)
+  useEffect(() => {
+    if (skipSplash) {
+      useStageSelectStore.setState({ showSplash: false, showStageSelect: false })
+    }
+  }, [skipSplash])
   // Hide Pillar content when splash screen or stage select is showing
   const showSplash = useStageSelectStore(state => state.showSplash)
   const showStageSelect = useStageSelectStore(state => state.showStageSelect)
@@ -50,7 +86,7 @@ const Viewer = () => {
   return (
     <ErrorBoundary>
       <BehaviorDetection>
-        <ContentLoader />
+        <ContentLoader mode={mode} episodeId={episodeId} />
         <Scene>
           {/* <ambientLight intensity={Math.PI / 2} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />

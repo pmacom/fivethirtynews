@@ -22,17 +22,8 @@ export const Pillar = () => {
   const logoRef = useRef<Group>(null)
   const hasFetchedRef = useRef(false)
 
-  // useEffect(() => {
-  //   if(!episodeId) return
-  //   useContentStore.getState().fetchEpisodeContent(episodeId)
-  // }, [episodeId])
-
-  useEffect(() => {
-    // Prevent duplicate fetches in StrictMode
-    if (hasFetchedRef.current) return
-    hasFetchedRef.current = true
-    useContentStore.getState().fetchLatestEpisode()
-  }, [])
+  // Content fetching is now handled by ContentLoader in viewer.tsx
+  // This avoids duplicate fetches and allows mode-specific loading (latest, this-week, episode)
 
   useEffect(() => {
     if(!contents || contents.length === 0) return

@@ -171,12 +171,8 @@ export const SplashScreen = () => {
         action: () => {
           setMenuState('transitioning')
           setTimeout(() => {
-            // Fetch content from last Wednesday 7:30pm EST and show pillar view
-            useContentStore.getState().fetchThisWeekContent()
-            useStageSelectStore.setState({
-              showSplash: false,
-              showStageSelect: false
-            })
+            // Navigate to the /recent route for independent recent content view
+            router.push('/recent')
           }, 800)
         }
       },

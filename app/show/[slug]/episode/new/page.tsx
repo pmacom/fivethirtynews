@@ -147,6 +147,31 @@ export default function CreateEpisodePage() {
       const data = await res.json();
 
       if (data.success) {
+        const episodeId = data.data.id;
+
+        // Check if show has category templates and auto-populate
+        try {
+          const templatesRes = await fetch(`/api/shows/${slug}/templates`);
+          const templatesData = await templatesRes.json();
+
+          if (templatesData.success && templatesData.data && templatesData.data.length > 0) {
+            // Show has templates - try to auto-populate
+            const populateRes = await fetch(`/api/shows/${slug}/episodes/${episodeId}/populate`, {
+              method: 'POST',
+            });
+
+            if (populateRes.ok) {
+              // Redirect to curation page
+              router.push(`/show/${slug}/episode/${episodeId}/curate`);
+              return;
+            }
+          }
+        } catch (populateErr) {
+          console.error('Error auto-populating:', populateErr);
+          // Continue to default redirect
+        }
+
+        // No templates or populate failed - redirect to show page
         router.push(`/show/${slug}`);
       } else {
         setError(data.error || 'Failed to create episode');
