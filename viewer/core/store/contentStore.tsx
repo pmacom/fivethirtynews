@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { LiveViewContentBlockItems, LiveViewContentBlock } from '../content/types';
 import { supabase } from "@/utils/supabase/client";
-import { Group } from "three";
+import { Object3D } from "three";
 import { WTF_CONFIG } from "../../config";
 import Viewer from "../../viewer";
 import logger from "../../utils/logger";
@@ -19,7 +19,7 @@ interface ContentStoreState {
   itemTitles: string[][];
   activeCategoryIndex: number;
   activeItemIndex: number;
-  activeItemObject: Group | null;
+  activeItemObject: Object3D | null;
   isContentVideo: boolean;
   isVideoSeeking: boolean;
   videoSeekTime: number;
@@ -291,6 +291,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
           id: item.id,
           content_block_id: category,
           content_id: item.id,
+          news_id: item.id,
           weight: index,
           note: item.description || '',
           content: item
@@ -300,6 +301,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
           id: category,
           episode_id: 'latest',
           title: category,
+          description: '',
           weight: blockWeight++,
           content_block_items: content_block_items as LiveViewContentBlockItems[]
         });
@@ -574,6 +576,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
           id: item.id,
           content_block_id: channelSlug,
           content_id: item.id,
+          news_id: item.id,
           weight: index,
           note: item.description || '',
           content: item
@@ -601,6 +604,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
           id: item.id,
           content_block_id: groupSlug,
           content_id: item.id,
+          news_id: item.id,
           weight: index,
           note: item.description || '',
           content: item
@@ -841,6 +845,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
           id: item.id,
           content_block_id: group.slug,
           content_id: item.id,
+          news_id: item.id,
           weight: index,
           note: item.description || '',
           content: item
@@ -850,6 +855,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
           id: group.slug,
           episode_id: 'recent',
           title: group.name,
+          description: '',
           weight: blockWeight++,
           content_block_items: content_block_items as LiveViewContentBlockItems[]
         });

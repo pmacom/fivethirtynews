@@ -7,8 +7,6 @@ import ContentWrapper from '../components/ContentWrapper'
 import ErrorBoundary from '../../ErrorBoundary'
 import {
   calculateTweetFontSize,
-  extractDisplayName,
-  extractHandle,
   formatRelativeTime
 } from './utils/textSizing'
 import { extractVideoUrls } from '../../core/content/utils'
@@ -60,12 +58,12 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
   }, [tweet])
 
   // Extract tweet metadata for display
-  // Use author_name/author_username fields from content table, fall back to author field
-  const displayName = item.content?.author_name || extractDisplayName(item.content?.author)
+  // Use author_name/author_username fields from content table
+  const displayName = item.content?.author_name || 'Unknown'
   const handle = item.content?.author_username
     ? `@${item.content.author_username}`
-    : extractHandle(item.content?.author)
-  const timestamp = formatRelativeTime(item.content?.created_at)
+    : '@unknown'
+  const timestamp = formatRelativeTime(item.content?.content_created_at)
   const fontSize = calculateTweetFontSize(tweetText.length)
 
   // Determine final media URLs (prefer tweet data, fallback to content thumbnail)

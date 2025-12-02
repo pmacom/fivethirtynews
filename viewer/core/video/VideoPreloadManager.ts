@@ -126,16 +126,9 @@ class VideoPreloadManager {
     this.isInitialized = true;
 
     // Subscribe to active slide changes
-    this.unsubscribe = useContentStore.subscribe(
-      (state) => ({
-        activeCategoryIndex: state.activeCategoryIndex,
-        activeItemIndex: state.activeItemIndex,
-        content: state.content,
-      }),
-      () => {
-        this.updatePreloadQueue();
-      }
-    );
+    this.unsubscribe = useContentStore.subscribe(() => {
+      this.updatePreloadQueue();
+    });
 
     // Initial preload
     this.updatePreloadQueue();

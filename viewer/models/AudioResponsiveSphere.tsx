@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import React, { useRef } from 'react';
-import { extend, ShaderMaterialProps, useFrame } from '@react-three/fiber';
+import { extend, useFrame } from '@react-three/fiber';
 import { shaderMaterial } from '@react-three/drei';
 import { useControls } from 'leva';
 import useAudioStore from '../audio/store';
@@ -100,7 +100,7 @@ extend({ ShaderTemplateMaterial });
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      shaderTemplateMaterial: ShaderMaterialProps;
+      shaderTemplateMaterial: any
     }
   }
 }
@@ -138,6 +138,7 @@ export const AudioResponsiveSphere: React.FC = () => {
   return (
     <mesh ref={meshRef} scale={[6, 6, 6]}>
       <sphereGeometry args={[1, 32, 32]} />
+      {/* @ts-expect-error - Custom r3f material type */}
       <shaderTemplateMaterial
         side={THREE.DoubleSide}
         transparent ref={materialRef} attach="material" />

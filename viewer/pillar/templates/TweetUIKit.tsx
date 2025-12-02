@@ -46,7 +46,7 @@ export const TemplateTweetUIKit = ({ item, itemIndex, categoryId }: TemplateTwee
     : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg=='
 
   // Extract tweet metadata for overlay
-  const tweetAuthor = item.content?.author || 'Unknown'
+  const tweetAuthor = item.content?.author_name || 'Unknown'
   const tweetText = item.content?.description?.substring(0, 100) || ''
 
   // Set activeItemObject and trigger fitToBox for UIKit Container
@@ -88,8 +88,7 @@ export const TemplateTweetUIKit = ({ item, itemIndex, categoryId }: TemplateTwee
             positionLeft={0}
             positionRight={0}
             padding={16}
-            backgroundColor="#000000"
-            backgroundOpacity={0.7}
+            backgroundColor="rgba(0, 0, 0, 0.7)"
             flexDirection="column"
             gap={8}
           >

@@ -51,6 +51,7 @@ export const NormalWireframe = () => {
         }
     })
     
+    // @ts-expect-error - Custom r3f material type
     return <customShaderMaterial ref={materialRef} wireframe side={THREE.BackSide} />
 }
 

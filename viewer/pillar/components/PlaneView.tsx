@@ -113,9 +113,9 @@ export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick, is
   useEffect(() => {
     if (active) {
       const activeItemObject = useContentStore.getState().activeItemObject
-      if (activeItemObject && activeItemObject.geometry) {
+      if (activeItemObject && 'geometry' in activeItemObject && activeItemObject.geometry) {
         // Force geometry to recompute its bounding box after dimension changes
-        activeItemObject.geometry.computeBoundingBox()
+        (activeItemObject as THREE.Mesh).geometry.computeBoundingBox()
 
         // Trigger fitToBox to reframe content with updated geometry
         requestAnimationFrame(() => {
@@ -146,7 +146,6 @@ export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick, is
     }
   }, [imageAspect, screenAspect])
 
-  // @ts-expect-error - Type incompatibility between @react-three/fiber@8.2.2 and Three.js loader types
   const imageTexture = useLoader(
     THREE.TextureLoader,
     url,
@@ -406,6 +405,7 @@ export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick, is
 
       <mesh ref={planeRef} position={[0, 0, 0.001]} scale={[coverScale, coverScale, 1]}>
         <planeGeometry args={[imageAspect[0], imageAspect[1]]} />
+        {/* @ts-expect-error - Custom r3f material type */}
         <fadeShaderMaterial
           attach="material"
           thumbnailTexture={imageTexture}

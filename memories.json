@@ -2358,7 +2358,26 @@
       "lastAccessed": "2025-12-02T01:33:46.357Z",
       "lastVerified": "2025-12-02T01:33:46.357Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764644587126_lvpwevttd",
+      "content": "Build fixes completed for fivethirty project (2025-12-01):\n\nTypeScript errors fixed:\n1. `app/show/[slug]/episode/new/page.tsx` - Fixed null check: `show && show.schedule_day_of_week !== null`\n2. `tsconfig.json` - Added excludes: [\"node_modules\", \"bot\", \"extension\", \"extension-dev\", \"scripts\"]\n3. `viewer/core/store/contentStore.tsx` - Added `description: ''` and `news_id: item.id` to content blocks, changed `activeItemObject` type from `Group` to `Object3D`\n4. `viewer/core/video/VideoPreloadManager.ts` - Fixed zustand v5 subscribe API (single callback)\n5. `viewer/models/AudioResponsiveSphere.tsx` - Added @ts-expect-error for custom shader material\n6. `viewer/models/materials/NormalWireframe.tsx` - Added @ts-expect-error for custom shader material\n7. `viewer/pillar/components/PlaneView.tsx` - Added type guard for geometry access, added @ts-expect-error for fadeShaderMaterial\n8. `viewer/pillar/components/TextPlaneView.tsx` - Replaced backgroundOpacity with rgba color format\n9. `viewer/pillar/templates/Tweet.tsx` - Replaced `author` with `author_name`, removed extractDisplayName/extractHandle fallbacks, changed `created_at` to `content_created_at`\n10. `viewer/pillar/templates/TweetUIKit.tsx` - Replaced `author` with `author_name`, replaced backgroundOpacity with rgba format\n11. `app/login/page.tsx` - Wrapped useSearchParams in Suspense boundary\n\nDeleted stale directory: `components/viewer/`\n\nWarnings: baseline-browser-mapping warning from nested dependencies is harmless and can be ignored.",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "typescript",
+        "api",
+        "build",
+        "fixes",
+        "fivethirty"
+      ],
+      "timestamp": "2025-12-02T03:03:07.126Z",
+      "context": "Build fix session for production build success",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-02T03:03:07.126Z",
+      "lastVerified": "2025-12-02T03:03:07.126Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-02T01:33:46.357Z"
+  "lastUpdated": "2025-12-02T03:03:07.126Z"
 }

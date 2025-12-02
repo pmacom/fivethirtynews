@@ -242,11 +242,11 @@ export default function CreateEpisodePage() {
         </div>
 
         {/* Schedule Info */}
-        {show?.schedule_day_of_week !== null && (
+        {show && show.schedule_day_of_week !== null && (
           <div className="bg-zinc-800/30 border border-zinc-700/50 rounded-lg p-4 mb-6">
             <p className="text-sm text-zinc-400">
               <span className="text-zinc-300 font-medium">Regular Schedule:</span>{' '}
-              {DAYS_OF_WEEK[show.schedule_day_of_week!]}s at{' '}
+              {DAYS_OF_WEEK[show.schedule_day_of_week]}s at{' '}
               {show.schedule_time ? formatTime(show.schedule_time) : 'TBD'}
             </p>
           </div>

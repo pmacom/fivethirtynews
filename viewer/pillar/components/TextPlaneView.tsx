@@ -58,9 +58,8 @@ export const TextPlaneView = ({
         width={screenAspect[0]}
         height={screenAspect[1]}
 
-        // Card styling
-        backgroundColor="#15202b"
-        backgroundOpacity={0.95}
+        // Card styling - using rgba for opacity
+        backgroundColor="rgba(21, 32, 43, 0.95)"
         borderRadius={0.015}
         padding={0.025}
 
@@ -78,7 +77,6 @@ export const TextPlaneView = ({
             height={0.08}
             borderRadius={0.04}
             backgroundColor="#1d9bf0"
-            backgroundOpacity={1}
           />
 
           {/* Name and Handle */}
