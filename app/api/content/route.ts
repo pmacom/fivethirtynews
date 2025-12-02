@@ -105,17 +105,19 @@ export async function POST(request: NextRequest) {
     const token = sessionToken || bearerToken;
 
     let submitterUserId: string | null = null;
+    let submitterUsername: string | null = null;
     let autoApprove = false;
 
     if (token) {
       const { data: user } = await supabase
         .from('users')
-        .select('id, is_admin, is_moderator')
+        .select('id, is_admin, is_moderator, discord_username')
         .eq('session_token', token)
         .single();
 
       if (user) {
         submitterUserId = user.id;
+        submitterUsername = user.discord_username;
         // Admins and moderators get auto-approved (hierarchical)
         autoApprove = user.is_admin || user.is_moderator;
       }
@@ -208,6 +210,8 @@ export async function POST(request: NextRequest) {
 
     } else {
       // Create new content (id is auto-generated UUID)
+      // Note: 'content' field maps to 'description' column if description not provided
+      const finalDescription = description || content || null;
       const contentData: Record<string, unknown> = {
         platform,
         platform_content_id: platformContentId,
@@ -216,11 +220,11 @@ export async function POST(request: NextRequest) {
         channels: hasChannels ? channels : [],
         primary_channel: hasChannels ? (primaryChannel || channels[0] || null) : null,
         title: title || null,
-        description: description || null,
+        description: finalDescription,
         content_type: platform, // Map to existing column
         content_url: url, // Map to existing column
         content_id: platformContentId, // Map to existing column
-        submitted_by: authorUsername || author || 'extension',
+        submitted_by: submitterUsername || 'extension',
         author_name: author || null,
         author_username: authorUsername || null,
         author_url: authorUrl || null,

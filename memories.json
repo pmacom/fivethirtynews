@@ -2267,7 +2267,61 @@
       "lastAccessed": "2025-12-01T21:49:00.207Z",
       "lastVerified": "2025-12-01T21:49:00.207Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764632586994_iprmnyfyp",
+      "content": "Bottom Hover Area UI Implementation - Viewer Codebase Architecture\n\nKEY COMPONENTS:\n1. **Details Component** (viewer/ui/details/details.tsx) - Main bottom hover overlay\n   - Shows at bottom-left when hovering (fixed position, auto-hides after 2s)\n   - Contains: DetailNotes + CopyButton + SourceIcon + VideoBar\n\n2. **DetailNotes Component** (viewer/ui/details/components/DetailNotes.tsx)\n   - Displays author info (avatar, name, username)\n   - Shows note text\n   - Shows description (clamped to 3 lines)\n   - NO DATE DISPLAYED\n\n3. **VideoBar Component** (viewer/ui/details/components/VideoBar.tsx)\n   - Progress bar for videos with time display\n   - Shows current time, hover time, and total duration\n   - Uses formatTime() utility for MM:SS formatting\n   - Only shown when isContentVideo = true\n\n4. **Chyron Component** (viewer/ui/chyron/chyron.tsx)\n   - Shows category name when category changes\n   - Fixed top-right, shows for 3 seconds then auto-hides\n   - Displays \"NOW VIEWING\" + category title\n\nDATA FLOW:\n- PillarColumnItem.tsx sets activeItemData when activeItemId matches content_id\n- activeItemData contains LiveViewContentBlockItems with full LiveViewContent object\n- LiveViewContent has: content_created_at, submitted_at, author_name, author_username, author_avatar_url\n\nAVAILABLE DATE FIELDS IN LiveViewContent:\n- content_created_at: When content was created (e.g., tweet posted)\n- submitted_at: When content was submitted to system\n- created_at: When added to database (used in sorting, not in LiveViewContent interface)\n\nSTYLING:\n- Details CSS: Empty file (uses Tailwind inline)\n- Details wrapper: bg-black bg-opacity-30, fixed bottom-0 left-0\n- Detail notes: flex row with author avatar + text info\n- Auto-hide via setTimeout: 2000ms\n\nEXISTING DATE FORMATTING:\n- VideoBar: formatTime() for seconds → MM:SS or HH:MM:SS\n- App browse pages: formatDate(dateStr) → \"Jan 1, 2025\" format using toLocaleDateString\n",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "database",
+        "viewer-ui",
+        "hover-overlay",
+        "date-display",
+        "components"
+      ],
+      "timestamp": "2025-12-01T23:43:06.994Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-01T23:43:06.994Z",
+      "lastVerified": "2025-12-01T23:43:06.994Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764632855048_fw5zoysdz",
+      "content": "Updated bottom hover area (Details component) in viewer:\n1. Created DateDisplay.tsx - formats dates as \"Sep 8th, 2021 - 4 years ago\"\n2. Updated DetailNotes.tsx - added date display, shows note OR description (not both)\n3. Updated details.tsx - increased bg-opacity from 30% to 70%, added backdrop-blur-sm\nFiles: viewer/ui/details/details.tsx, viewer/ui/details/components/DetailNotes.tsx, viewer/ui/details/components/DateDisplay.tsx",
+      "type": "general",
+      "tags": [
+        "general",
+        "viewer",
+        "ui",
+        "details",
+        "date-display",
+        "hover-area"
+      ],
+      "timestamp": "2025-12-01T23:47:35.048Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-01T23:47:35.048Z",
+      "lastVerified": "2025-12-01T23:47:35.048Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764633316987_v5t27k44c",
+      "content": "Fixed tweet text not being saved: The content API route needed to map 'content' field to 'description' column when CREATING new content (line 212). The extension sends tweet text as `content: tweetText` but API only used `description` directly. Fix: `const finalDescription = description || content || null;`\n\nFile: app/api/content/route.ts",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "bug-fix",
+        "content",
+        "tweets",
+        "extension"
+      ],
+      "timestamp": "2025-12-01T23:55:16.987Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-01T23:55:16.987Z",
+      "lastVerified": "2025-12-01T23:55:16.987Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-01T21:49:00.207Z"
+  "lastUpdated": "2025-12-01T23:55:16.987Z"
 }
