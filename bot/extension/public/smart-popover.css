@@ -1,0 +1,157 @@
+/* 530 SmartPopover Styles */
+
+/* Base popover container */
+.five-thirty-popover {
+  all: initial !important;
+  box-sizing: border-box !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+  position: fixed !important;
+  z-index: 2147483646 !important;
+  background: #1e1e1e !important;
+  border: 1px solid #333 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+  color: #e4e4e4 !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+
+  /* Animation - start hidden */
+  opacity: 0 !important;
+  transform: scale(0.95) translateY(-4px) !important;
+  transition: opacity 0.15s ease, transform 0.15s ease !important;
+  pointer-events: none !important;
+}
+
+/* Open state */
+.five-thirty-popover--open {
+  opacity: 1 !important;
+  transform: scale(1) translateY(0) !important;
+  pointer-events: auto !important;
+}
+
+/* Nested popover - higher z-index */
+.five-thirty-popover--nested {
+  z-index: 2147483647 !important;
+}
+
+/* CSS Anchor Positioning (Chrome 125+) */
+@supports (anchor-name: --test) {
+  .five-thirty-popover[data-placement="bottom"] {
+    position-area: block-end span-inline-end !important;
+    margin-block-start: 8px !important;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline !important;
+  }
+
+  .five-thirty-popover[data-placement="bottom"][data-alignment="center"] {
+    position-area: block-end !important;
+  }
+
+  .five-thirty-popover[data-placement="bottom"][data-alignment="end"] {
+    position-area: block-end span-inline-start !important;
+  }
+
+  .five-thirty-popover[data-placement="top"] {
+    position-area: block-start span-inline-end !important;
+    margin-block-end: 8px !important;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline !important;
+  }
+
+  .five-thirty-popover[data-placement="top"][data-alignment="center"] {
+    position-area: block-start !important;
+  }
+
+  .five-thirty-popover[data-placement="top"][data-alignment="end"] {
+    position-area: block-start span-inline-start !important;
+  }
+}
+
+/* Popover arrow (optional - can be enabled via class) */
+.five-thirty-popover--with-arrow::before {
+  content: '' !important;
+  position: absolute !important;
+  width: 12px !important;
+  height: 12px !important;
+  background: #1e1e1e !important;
+  border: 1px solid #333 !important;
+  transform: rotate(45deg) !important;
+  z-index: -1 !important;
+}
+
+.five-thirty-popover--with-arrow[data-actual-placement="bottom"]::before,
+.five-thirty-popover--with-arrow[data-placement="bottom"]::before {
+  top: -7px !important;
+  left: 20px !important;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+
+.five-thirty-popover--with-arrow[data-actual-placement="top"]::before,
+.five-thirty-popover--with-arrow[data-placement="top"]::before {
+  bottom: -7px !important;
+  left: 20px !important;
+  border-left: none !important;
+  border-top: none !important;
+}
+
+/* Animation keyframes */
+@keyframes five-thirty-popover-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes five-thirty-popover-exit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+}
+
+/* Scrollbar styling for popover content */
+.five-thirty-popover ::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.five-thirty-popover ::-webkit-scrollbar-track {
+  background: #2a2a2a !important;
+  border-radius: 3px !important;
+}
+
+.five-thirty-popover ::-webkit-scrollbar-thumb {
+  background: #444 !important;
+  border-radius: 3px !important;
+}
+
+.five-thirty-popover ::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
+}
+
+/* Reset common elements inside popover */
+.five-thirty-popover * {
+  box-sizing: border-box !important;
+}
+
+.five-thirty-popover button {
+  font-family: inherit !important;
+  cursor: pointer !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: inherit !important;
+}
+
+.five-thirty-popover input {
+  font-family: inherit !important;
+  font-size: inherit !important;
+}

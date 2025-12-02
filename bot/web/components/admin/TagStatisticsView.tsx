@@ -1,0 +1,454 @@
+'use client'
+
+import { useMemo } from 'react'
+
+interface Tag {
+  id: string
+  slug: string
+  name: string
+  parent_id: string | null
+  path: string[]
+  depth: number
+  description: string | null
+  icon: string | null
+  color: string | null
+  is_system: boolean
+  created_at: string
+  updated_at: string
+}
+
+interface TagRelationship {
+  id: string
+  tag_id_1: string
+  tag_id_2: string
+  relationship_type: 'related' | 'tool_of' | 'technique_of' | 'part_of'
+  strength: number
+  created_at: string
+  tag1: Tag
+  tag2: Tag
+}
+
+interface TagStatisticsViewProps {
+  tags: Tag[]
+  relationships: TagRelationship[]
+}
+
+export default function TagStatisticsView({ tags, relationships }: TagStatisticsViewProps) {
+  // Calculate statistics
+  const stats = useMemo(() => {
+    // Depth distribution
+    const depthCounts: Record<number, number> = {}
+    tags.forEach(tag => {
+      depthCounts[tag.depth] = (depthCounts[tag.depth] || 0) + 1
+    })
+
+    // Relationship type distribution
+    const relationshipTypeCounts: Record<string, number> = {
+      related: 0,
+      tool_of: 0,
+      technique_of: 0,
+      part_of: 0
+    }
+    relationships.forEach(rel => {
+      relationshipTypeCounts[rel.relationship_type]++
+    })
+
+    // Tags with relationship counts
+    const tagRelationshipCounts = new Map<string, number>()
+    relationships.forEach(rel => {
+      tagRelationshipCounts.set(rel.tag_id_1, (tagRelationshipCounts.get(rel.tag_id_1) || 0) + 1)
+      tagRelationshipCounts.set(rel.tag_id_2, (tagRelationshipCounts.get(rel.tag_id_2) || 0) + 1)
+    })
+
+    // Most connected tags
+    const mostConnected = tags
+      .map(tag => ({
+        tag,
+        connectionCount: tagRelationshipCounts.get(tag.id) || 0
+      }))
+      .sort((a, b) => b.connectionCount - a.connectionCount)
+      .slice(0, 10)
+
+    // Orphaned tags (no relationships)
+    const orphanedTags = tags.filter(tag => !tagRelationshipCounts.has(tag.id))
+
+    // Root tags (no parent)
+    const rootTags = tags.filter(tag => !tag.parent_id)
+
+    // Leaf tags (no children)
+    const tagIdsWithChildren = new Set(tags.filter(t => t.parent_id).map(t => t.parent_id))
+    const leafTags = tags.filter(tag => !tagIdsWithChildren.has(tag.id))
+
+    // System vs user tags
+    const systemTagCount = tags.filter(t => t.is_system).length
+    const userTagCount = tags.length - systemTagCount
+
+    // Average relationship strength
+    const avgStrength = relationships.length > 0
+      ? relationships.reduce((sum, rel) => sum + rel.strength, 0) / relationships.length
+      : 0
+
+    // Tags by depth
+    const maxDepth = Math.max(...tags.map(t => t.depth), 0)
+
+    return {
+      depthCounts,
+      relationshipTypeCounts,
+      mostConnected,
+      orphanedTags,
+      rootTags,
+      leafTags,
+      systemTagCount,
+      userTagCount,
+      avgStrength,
+      maxDepth
+    }
+  }, [tags, relationships])
+
+  const StatCard = ({ title, value, subtitle, icon, color }: {
+    title: string
+    value: string | number
+    subtitle?: string
+    icon: string
+    color: string
+  }) => (
+    <div className={`${color} text-white p-6 rounded-xl shadow-lg`}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-2xl">{icon}</span>
+        <span className="text-3xl font-bold">{value}</span>
+      </div>
+      <div className="text-sm font-medium opacity-90">{title}</div>
+      {subtitle && <div className="text-xs opacity-75 mt-1">{subtitle}</div>}
+    </div>
+  )
+
+  const ProgressBar = ({ percentage, color }: { percentage: number; color: string }) => (
+    <div className="w-full bg-gray-200 rounded-full h-2.5">
+      <div
+        className={`${color} h-2.5 rounded-full transition-all duration-300`}
+        style={{ width: `${percentage}%` }}
+      />
+    </div>
+  )
+
+  return (
+    <div className="space-y-8">
+      {/* Overview Cards */}
+      <div>
+        <h2 className="text-2xl font-bold text-foreground mb-4">Overview Statistics</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard
+            title="Total Tags"
+            value={tags.length}
+            icon="🏷️"
+            color="bg-gradient-to-br from-purple-500 to-purple-600"
+          />
+          <StatCard
+            title="Root Categories"
+            value={stats.rootTags.length}
+            subtitle="Top-level tags"
+            icon="🌳"
+            color="bg-gradient-to-br from-blue-500 to-blue-600"
+          />
+          <StatCard
+            title="Leaf Tags"
+            value={stats.leafTags.length}
+            subtitle="No children"
+            icon="🍃"
+            color="bg-gradient-to-br from-green-500 to-green-600"
+          />
+          <StatCard
+            title="Max Depth"
+            value={stats.maxDepth}
+            subtitle="Hierarchy levels"
+            icon="📏"
+            color="bg-gradient-to-br from-orange-500 to-orange-600"
+          />
+        </div>
+      </div>
+
+      {/* Tag Composition */}
+      <div>
+        <h2 className="text-2xl font-bold text-foreground mb-4">Tag Composition</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-foreground mb-4">System vs User Tags</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-muted-foreground">System Tags</span>
+                  <span className="font-semibold text-pink-600">
+                    {stats.systemTagCount} ({((stats.systemTagCount / tags.length) * 100).toFixed(1)}%)
+                  </span>
+                </div>
+                <ProgressBar
+                  percentage={(stats.systemTagCount / tags.length) * 100}
+                  color="bg-pink-500"
+                />
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-muted-foreground">User Tags</span>
+                  <span className="font-semibold text-blue-600">
+                    {stats.userTagCount} ({((stats.userTagCount / tags.length) * 100).toFixed(1)}%)
+                  </span>
+                </div>
+                <ProgressBar
+                  percentage={(stats.userTagCount / tags.length) * 100}
+                  color="bg-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Depth Distribution</h3>
+            <div className="space-y-3">
+              {Object.entries(stats.depthCounts)
+                .sort(([a], [b]) => Number(a) - Number(b))
+                .map(([depth, count]) => (
+                  <div key={depth}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Level {depth}</span>
+                      <span className="font-semibold text-foreground">
+                        {count} ({((count / tags.length) * 100).toFixed(1)}%)
+                      </span>
+                    </div>
+                    <ProgressBar
+                      percentage={(count / tags.length) * 100}
+                      color={`bg-${['purple', 'blue', 'green', 'yellow', 'orange', 'red'][Number(depth) % 6]}-500`}
+                    />
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Relationship Statistics */}
+      <div>
+        <h2 className="text-2xl font-bold text-foreground mb-4">Relationship Statistics</h2>
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <StatCard
+            title="Total Relationships"
+            value={relationships.length}
+            icon="🔗"
+            color="bg-gradient-to-br from-indigo-500 to-indigo-600"
+          />
+          <StatCard
+            title="Avg Strength"
+            value={`${(stats.avgStrength * 100).toFixed(1)}%`}
+            subtitle="Relationship quality"
+            icon="💪"
+            color="bg-gradient-to-br from-teal-500 to-teal-600"
+          />
+        </div>
+
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-foreground mb-4">Relationship Type Distribution</h3>
+          <div className="space-y-4">
+            {Object.entries(stats.relationshipTypeCounts).map(([type, count]) => {
+              const percentage = relationships.length > 0 ? (count / relationships.length) * 100 : 0
+              const colors = {
+                related: { bar: 'bg-blue-500', text: 'text-blue-600' },
+                tool_of: { bar: 'bg-green-500', text: 'text-green-600' },
+                technique_of: { bar: 'bg-purple-500', text: 'text-purple-600' },
+                part_of: { bar: 'bg-orange-500', text: 'text-orange-600' }
+              }
+              const color = colors[type as keyof typeof colors]
+
+              return (
+                <div key={type}>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-muted-foreground capitalize">{type.replace('_', ' ')}</span>
+                    <span className={`font-semibold ${color.text}`}>
+                      {count} ({percentage.toFixed(1)}%)
+                    </span>
+                  </div>
+                  <ProgressBar percentage={percentage} color={color.bar} />
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Most Connected Tags */}
+      <div>
+        <h2 className="text-2xl font-bold text-foreground mb-4">Most Connected Tags</h2>
+        <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-muted">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rank
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tag
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Depth
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Connections
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Network Density
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-card divide-y divide-border">
+              {stats.mostConnected.map((item, index) => {
+                const maxConnections = stats.mostConnected[0]?.connectionCount || 1
+                const density = (item.connectionCount / maxConnections) * 100
+
+                return (
+                  <tr key={item.tag.id} className="hover:bg-accent">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-white font-bold text-sm">
+                        {index + 1}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {item.tag.icon && <span className="mr-2 text-lg">{item.tag.icon}</span>}
+                        <div>
+                          <div className="text-sm font-medium text-foreground">{item.tag.name}</div>
+                          <div className="text-xs text-gray-500">{item.tag.slug}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        Level {item.tag.depth}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-semibold text-foreground">{item.connectionCount}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="w-32 mr-3">
+                          <ProgressBar
+                            percentage={density}
+                            color={
+                              density >= 75 ? 'bg-green-500' :
+                              density >= 50 ? 'bg-yellow-500' :
+                              density >= 25 ? 'bg-orange-500' :
+                              'bg-red-500'
+                            }
+                          />
+                        </div>
+                        <span className="text-sm text-muted-foreground">{density.toFixed(0)}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Orphaned Tags */}
+      {stats.orphanedTags.length > 0 && (
+        <div>
+          <h2 className="text-2xl font-bold text-foreground mb-4">
+            Orphaned Tags
+            <span className="ml-3 text-sm font-normal text-gray-500">
+              ({stats.orphanedTags.length} tags with no relationships)
+            </span>
+          </h2>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 shadow-sm">
+            <div className="flex items-start mb-4">
+              <span className="text-2xl mr-3">⚠️</span>
+              <div>
+                <h3 className="text-sm font-semibold text-yellow-900 mb-1">
+                  Tags Without Relationships
+                </h3>
+                <p className="text-sm text-yellow-800">
+                  These tags have no semantic relationships defined. Consider adding relationships to improve tag suggestions.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {stats.orphanedTags.slice(0, 20).map(tag => (
+                <div
+                  key={tag.id}
+                  className="bg-card border border-yellow-300 rounded-lg p-3 hover:border-yellow-400 transition-colors"
+                >
+                  <div className="flex items-center">
+                    {tag.icon && <span className="mr-2 text-lg">{tag.icon}</span>}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">{tag.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{tag.slug}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {stats.orphanedTags.length > 20 && (
+              <p className="text-sm text-yellow-700 mt-4 text-center">
+                And {stats.orphanedTags.length - 20} more...
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Health Indicators */}
+      <div>
+        <h2 className="text-2xl font-bold text-foreground mb-4">System Health</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {/* Relationship Coverage */}
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-foreground">Relationship Coverage</h3>
+              <span className="text-2xl">
+                {((tags.length - stats.orphanedTags.length) / tags.length) * 100 >= 70 ? '✅' : '⚠️'}
+              </span>
+            </div>
+            <div className="text-3xl font-bold text-foreground mb-2">
+              {(((tags.length - stats.orphanedTags.length) / tags.length) * 100).toFixed(1)}%
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {tags.length - stats.orphanedTags.length} of {tags.length} tags have relationships
+            </p>
+          </div>
+
+          {/* Avg Connections per Tag */}
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-foreground">Avg Connections</h3>
+              <span className="text-2xl">
+                {(relationships.length * 2) / tags.length >= 2 ? '✅' : '⚠️'}
+              </span>
+            </div>
+            <div className="text-3xl font-bold text-foreground mb-2">
+              {((relationships.length * 2) / tags.length).toFixed(1)}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Connections per tag (target: 2+)
+            </p>
+          </div>
+
+          {/* Relationship Quality */}
+          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-foreground">Relationship Quality</h3>
+              <span className="text-2xl">
+                {stats.avgStrength >= 0.7 ? '✅' : stats.avgStrength >= 0.5 ? '⚠️' : '❌'}
+              </span>
+            </div>
+            <div className="text-3xl font-bold text-foreground mb-2">
+              {(stats.avgStrength * 100).toFixed(1)}%
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Average strength (target: 70%+)
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

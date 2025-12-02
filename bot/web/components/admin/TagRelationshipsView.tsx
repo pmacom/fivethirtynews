@@ -1,0 +1,530 @@
+'use client'
+
+import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
+
+interface Tag {
+  id: string
+  slug: string
+  name: string
+  parent_id: string | null
+  path: string[]
+  depth: number
+  description: string | null
+  icon: string | null
+  color: string | null
+  is_system: boolean
+}
+
+interface TagRelationship {
+  id: string
+  tag_id_1: string
+  tag_id_2: string
+  relationship_type: 'related' | 'tool_of' | 'technique_of' | 'part_of'
+  strength: number
+  created_at: string
+  tag1: Tag
+  tag2: Tag
+}
+
+interface Props {
+  tags: Tag[]
+  relationships: TagRelationship[]
+  onRefresh: () => void
+}
+
+const RELATIONSHIP_TYPES = [
+  { value: 'related', label: 'Related', description: 'General semantic connection', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20', icon: '↔️' },
+  { value: 'tool_of', label: 'Tool Of', description: 'Tag 1 is a tool/software for Tag 2', color: 'bg-green-500/10 text-green-400 border-green-500/20', icon: '🔧' },
+  { value: 'technique_of', label: 'Technique Of', description: 'Tag 1 is a technique within Tag 2', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20', icon: '⚡' },
+  { value: 'part_of', label: 'Part Of', description: 'Tag 1 is a component of Tag 2', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20', icon: '🧩' }
+] as const
+
+export default function TagRelationshipsView({ tags, relationships, onRefresh }: Props) {
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [selectedRelationship, setSelectedRelationship] = useState<TagRelationship | null>(null)
+  const [filterType, setFilterType] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const [formData, setFormData] = useState({
+    tag_id_1: '',
+    tag_id_2: '',
+    relationship_type: 'related' as TagRelationship['relationship_type'],
+    strength: 0.7
+  })
+
+  const filteredRelationships = relationships.filter(rel => {
+    const matchesType = filterType === 'all' || rel.relationship_type === filterType
+    const matchesSearch = searchQuery === '' ||
+      rel.tag1.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      rel.tag2.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      rel.tag1.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      rel.tag2.slug.toLowerCase().includes(searchQuery.toLowerCase())
+
+    return matchesType && matchesSearch
+  })
+
+  async function handleCreateRelationship() {
+    if (!formData.tag_id_1 || !formData.tag_id_2) {
+      alert('Please select both tags')
+      return
+    }
+
+    if (formData.tag_id_1 === formData.tag_id_2) {
+      alert('Cannot create relationship between a tag and itself')
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('tag_relationships')
+        .insert({
+          tag_id_1: formData.tag_id_1,
+          tag_id_2: formData.tag_id_2,
+          relationship_type: formData.relationship_type,
+          strength: formData.strength
+        })
+
+      if (error) throw error
+
+      setShowCreateForm(false)
+      setFormData({ tag_id_1: '', tag_id_2: '', relationship_type: 'related', strength: 0.7 })
+      onRefresh()
+    } catch (error: any) {
+      console.error('Error creating relationship:', error)
+      if (error.code === '23505') {
+        alert('This relationship already exists')
+      } else {
+        alert('Error creating relationship')
+      }
+    }
+  }
+
+  async function handleUpdateRelationship() {
+    if (!selectedRelationship) return
+
+    try {
+      const { error } = await supabase
+        .from('tag_relationships')
+        .update({
+          strength: formData.strength,
+          relationship_type: formData.relationship_type
+        })
+        .eq('id', selectedRelationship.id)
+
+      if (error) throw error
+
+      setShowEditForm(false)
+      setSelectedRelationship(null)
+      setFormData({ tag_id_1: '', tag_id_2: '', relationship_type: 'related', strength: 0.7 })
+      onRefresh()
+    } catch (error) {
+      console.error('Error updating relationship:', error)
+      alert('Error updating relationship')
+    }
+  }
+
+  async function handleDeleteRelationship(id: string) {
+    if (!confirm('Are you sure you want to delete this relationship?')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('tag_relationships')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+      onRefresh()
+    } catch (error) {
+      console.error('Error deleting relationship:', error)
+      alert('Error deleting relationship')
+    }
+  }
+
+  function openEditForm(relationship: TagRelationship) {
+    setSelectedRelationship(relationship)
+    setFormData({
+      tag_id_1: relationship.tag_id_1,
+      tag_id_2: relationship.tag_id_2,
+      relationship_type: relationship.relationship_type,
+      strength: relationship.strength
+    })
+    setShowEditForm(true)
+  }
+
+  function getStrengthLabel(strength: number): string {
+    if (strength >= 0.9) return 'Very Strong'
+    if (strength >= 0.7) return 'Strong'
+    if (strength >= 0.5) return 'Moderate'
+    return 'Weak'
+  }
+
+  function getStrengthColor(strength: number): string {
+    if (strength >= 0.9) return 'text-green-600'
+    if (strength >= 0.7) return 'text-blue-600'
+    if (strength >= 0.5) return 'text-yellow-600'
+    return 'text-muted-foreground'
+  }
+
+  const relationshipCounts = RELATIONSHIP_TYPES.map(type => ({
+    ...type,
+    count: relationships.filter(r => r.relationship_type === type.value).length
+  }))
+
+  return (
+    <div>
+      {/* Actions Bar */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm"
+          >
+            + Create Relationship
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search relationships..."
+            className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent w-64"
+          />
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+            <option value="all">All Types</option>
+            {RELATIONSHIP_TYPES.map(type => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Type Stats */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        {relationshipCounts.map(type => (
+          <button
+            key={type.value}
+            onClick={() => setFilterType(filterType === type.value ? 'all' : type.value)}
+            className={`p-4 rounded-lg border-2 transition-all ${
+              filterType === type.value
+                ? 'border-purple-600 bg-purple-50'
+                : 'border-border hover:border-border'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-2xl">{type.icon}</span>
+              <span className="text-2xl font-bold text-foreground">{type.count}</span>
+            </div>
+            <div className="text-sm font-medium text-foreground">{type.label}</div>
+            <div className="text-xs text-muted-foreground mt-1">{type.description}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* Relationships List */}
+      <div className="space-y-3">
+        {filteredRelationships.length === 0 ? (
+          <div className="text-center py-12 text-gray-500">
+            {searchQuery || filterType !== 'all'
+              ? 'No relationships match your filters'
+              : 'No relationships yet. Create one to get started!'}
+          </div>
+        ) : (
+          filteredRelationships.map(rel => {
+            const typeConfig = RELATIONSHIP_TYPES.find(t => t.value === rel.relationship_type)!
+
+            return (
+              <div
+                key={rel.id}
+                className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:shadow-md transition-shadow group"
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  {/* Tag 1 */}
+                  <div className="flex items-center gap-2">
+                    {rel.tag1.icon && <span className="text-lg">{rel.tag1.icon}</span>}
+                    <div>
+                      <div className="font-semibold text-foreground">{rel.tag1.name}</div>
+                      <div className="text-xs text-gray-500 font-mono">{rel.tag1.slug}</div>
+                    </div>
+                  </div>
+
+                  {/* Relationship Type */}
+                  <div className="flex items-center gap-2">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                    <div className="text-center">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${typeConfig.color}`}>
+                        {typeConfig.icon} {typeConfig.label}
+                      </span>
+                      <div className={`text-xs mt-1 font-semibold ${getStrengthColor(rel.strength)}`}>
+                        {(rel.strength * 100).toFixed(0)}% • {getStrengthLabel(rel.strength)}
+                      </div>
+                    </div>
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+
+                  {/* Tag 2 */}
+                  <div className="flex items-center gap-2">
+                    {rel.tag2.icon && <span className="text-lg">{rel.tag2.icon}</span>}
+                    <div>
+                      <div className="font-semibold text-foreground">{rel.tag2.name}</div>
+                      <div className="text-xs text-gray-500 font-mono">{rel.tag2.slug}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => openEditForm(rel)}
+                    className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteRelationship(rel.id)}
+                    className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* Create Form Modal */}
+      {showCreateForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-xl p-6 w-full max-w-2xl shadow-2xl">
+            <h2 className="text-2xl font-bold text-foreground mb-6">Create Tag Relationship</h2>
+
+            <div className="space-y-6">
+              {/* Tag Selection */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Tag 1 (Source) *
+                  </label>
+                  <select
+                    value={formData.tag_id_1}
+                    onChange={(e) => setFormData({ ...formData, tag_id_1: e.target.value })}
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="">Select tag...</option>
+                    {tags.map(tag => (
+                      <option key={tag.id} value={tag.id}>
+                        {tag.icon ? `${tag.icon} ` : ''}{tag.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Tag 2 (Target) *
+                  </label>
+                  <select
+                    value={formData.tag_id_2}
+                    onChange={(e) => setFormData({ ...formData, tag_id_2: e.target.value })}
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="">Select tag...</option>
+                    {tags.filter(t => t.id !== formData.tag_id_1).map(tag => (
+                      <option key={tag.id} value={tag.id}>
+                        {tag.icon ? `${tag.icon} ` : ''}{tag.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Relationship Type */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-3">
+                  Relationship Type *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {RELATIONSHIP_TYPES.map(type => (
+                    <button
+                      key={type.value}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, relationship_type: type.value as any })}
+                      className={`p-4 rounded-lg border-2 text-left transition-all ${
+                        formData.relationship_type === type.value
+                          ? `border-primary bg-primary/10 ${type.color}`
+                          : 'border-border hover:border-muted-foreground/20 bg-card'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg">{type.icon}</span>
+                        <span className="font-semibold">{type.label}</span>
+                      </div>
+                      <div className="text-xs opacity-70">{type.description}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Strength Slider */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Relationship Strength: {(formData.strength * 100).toFixed(0)}% ({getStrengthLabel(formData.strength)})
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={formData.strength}
+                  onChange={(e) => setFormData({ ...formData, strength: parseFloat(e.target.value) })}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>Weak (0%)</span>
+                  <span>Moderate (50%)</span>
+                  <span>Very Strong (100%)</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowCreateForm(false)
+                  setFormData({ tag_id_1: '', tag_id_2: '', relationship_type: 'related', strength: 0.7 })
+                }}
+                className="flex-1 px-4 py-2 border border-border text-foreground rounded-lg hover:bg-accent font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateRelationship}
+                disabled={!formData.tag_id_1 || !formData.tag_id_2}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+              >
+                Create Relationship
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Form Modal */}
+      {showEditForm && selectedRelationship && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-xl p-6 w-full max-w-2xl shadow-2xl">
+            <h2 className="text-2xl font-bold text-foreground mb-6">Edit Relationship</h2>
+
+            <div className="space-y-6">
+              {/* Display Tags (read-only) */}
+              <div className="bg-muted rounded-lg p-4">
+                <div className="flex items-center justify-center gap-4">
+                  <div className="text-center">
+                    {selectedRelationship.tag1.icon && (
+                      <span className="text-2xl block mb-1">{selectedRelationship.tag1.icon}</span>
+                    )}
+                    <div className="font-semibold">{selectedRelationship.tag1.name}</div>
+                    <div className="text-xs text-gray-500">{selectedRelationship.tag1.slug}</div>
+                  </div>
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  <div className="text-center">
+                    {selectedRelationship.tag2.icon && (
+                      <span className="text-2xl block mb-1">{selectedRelationship.tag2.icon}</span>
+                    )}
+                    <div className="font-semibold">{selectedRelationship.tag2.name}</div>
+                    <div className="text-xs text-gray-500">{selectedRelationship.tag2.slug}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Relationship Type */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-3">
+                  Relationship Type *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {RELATIONSHIP_TYPES.map(type => (
+                    <button
+                      key={type.value}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, relationship_type: type.value as any })}
+                      className={`p-4 rounded-lg border-2 text-left transition-all ${
+                        formData.relationship_type === type.value
+                          ? `border-primary bg-primary/10 ${type.color}`
+                          : 'border-border hover:border-muted-foreground/20 bg-card'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-lg">{type.icon}</span>
+                        <span className="font-semibold">{type.label}</span>
+                      </div>
+                      <div className="text-xs opacity-70">{type.description}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Strength Slider */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Relationship Strength: {(formData.strength * 100).toFixed(0)}% ({getStrengthLabel(formData.strength)})
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={formData.strength}
+                  onChange={(e) => setFormData({ ...formData, strength: parseFloat(e.target.value) })}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>Weak (0%)</span>
+                  <span>Moderate (50%)</span>
+                  <span>Very Strong (100%)</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowEditForm(false)
+                  setSelectedRelationship(null)
+                  setFormData({ tag_id_1: '', tag_id_2: '', relationship_type: 'related', strength: 0.7 })
+                }}
+                className="flex-1 px-4 py-2 border border-border text-foreground rounded-lg hover:bg-accent font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateRelationship}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors"
+              >
+                Update Relationship
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

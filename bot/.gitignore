@@ -1,0 +1,73 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Production builds
+dist/
+build/
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Supabase
+.supabase/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Data directory (Twitter exports, media files)
+data/
+
+# Script logs
+scripts/**/*.log
+scripts/**/*.json
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# Chrome extension artifacts
+extension/dist/
+extension/.cache/
+
+# Next.js
+.next/
+.vercel/
+
+# TypeScript
+*.tsbuildinfo
+
+# Debug
+.vscode-test
+
+# Lock files (keep pnpm-lock.yaml but ignore others)
+package-lock.json
+yarn.lock

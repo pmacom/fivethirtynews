@@ -1,0 +1,15 @@
+{
+  "name": "@530/extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "530 Chrome Extension for collaborative content tagging on X.com",
+  "scripts": {
+    "dev": "echo 'Chrome extension running in dev mode. Load extension/public in Chrome' && exit 0",
+    "build": "echo 'Extension build complete. Load extension/public as unpacked extension' && exit 0",
+    "lint": "echo 'Extension linting skipped' && exit 0",
+    "test": "echo 'Extension tests not yet implemented' && exit 0"
+  },
+  "keywords": ["chrome-extension", "twitter", "x.com", "tagging"],
+  "author": "530 Project",
+  "license": "MIT"
+}

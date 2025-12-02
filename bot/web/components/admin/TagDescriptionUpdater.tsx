@@ -1,0 +1,408 @@
+'use client'
+
+import { useState, useMemo } from 'react'
+import { supabase } from '@/lib/supabase'
+
+interface Tag {
+  id: string
+  slug: string
+  name: string
+  parent_id: string | null
+  path: string[]
+  depth: number
+  description: string | null
+  icon: string | null
+  color: string | null
+  is_system: boolean
+  created_at: string
+  updated_at: string
+}
+
+interface TagDescriptionUpdaterProps {
+  tags: Tag[]
+  onRefresh: () => void
+}
+
+interface DescriptionUpdate {
+  slug: string
+  name: string
+  description: string
+  children?: DescriptionUpdate[]
+}
+
+export default function TagDescriptionUpdater({ tags, onRefresh }: TagDescriptionUpdaterProps) {
+  const [jsonInput, setJsonInput] = useState('')
+  const [parsedData, setParsedData] = useState<DescriptionUpdate[] | null>(null)
+  const [parseError, setParseError] = useState<string | null>(null)
+  const [processing, setProcessing] = useState(false)
+  const [previewMode, setPreviewMode] = useState(true)
+  const [updateResults, setUpdateResults] = useState<{
+    success: number
+    failed: number
+    skipped: number
+    details: string[]
+  } | null>(null)
+
+  // Flatten the hierarchical structure
+  const flattenDescriptions = (data: DescriptionUpdate[]): Map<string, string> => {
+    const map = new Map<string, string>()
+
+    const process = (items: DescriptionUpdate[]) => {
+      items.forEach(item => {
+        if (item.description) {
+          map.set(item.slug, item.description)
+        }
+        if (item.children) {
+          process(item.children)
+        }
+      })
+    }
+
+    process(data)
+    return map
+  }
+
+  // Parse JSON input
+  const handleParse = () => {
+    try {
+      const parsed = JSON.parse(jsonInput)
+
+      // Validate structure
+      if (!Array.isArray(parsed)) {
+        throw new Error('JSON must be an array of tag objects')
+      }
+
+      // Validate each item has required fields
+      const validate = (items: any[]): boolean => {
+        return items.every(item => {
+          if (!item.slug || !item.name) return false
+          if (item.children && !validate(item.children)) return false
+          return true
+        })
+      }
+
+      if (!validate(parsed)) {
+        throw new Error('Each tag must have "slug" and "name" fields')
+      }
+
+      setParsedData(parsed)
+      setParseError(null)
+    } catch (error: any) {
+      setParseError(error.message)
+      setParsedData(null)
+    }
+  }
+
+  // Match descriptions with existing tags
+  const matches = useMemo(() => {
+    if (!parsedData) return []
+
+    const descMap = flattenDescriptions(parsedData)
+
+    return tags.map(tag => {
+      const newDescription = descMap.get(tag.slug)
+      return {
+        tag,
+        newDescription,
+        hasUpdate: !!newDescription,
+        hasExisting: !!tag.description,
+        willUpdate: !!newDescription && newDescription !== tag.description
+      }
+    }).filter(m => m.hasUpdate)
+  }, [parsedData, tags])
+
+  // Statistics
+  const stats = useMemo(() => {
+    if (!matches.length) return null
+
+    return {
+      total: matches.length,
+      new: matches.filter(m => !m.hasExisting).length,
+      updates: matches.filter(m => m.hasExisting && m.willUpdate).length,
+      unchanged: matches.filter(m => m.hasExisting && !m.willUpdate).length
+    }
+  }, [matches])
+
+  // Perform bulk update
+  const handleUpdate = async () => {
+    if (!matches.length) return
+
+    setProcessing(true)
+    const results = {
+      success: 0,
+      failed: 0,
+      skipped: 0,
+      details: [] as string[]
+    }
+
+    try {
+      for (const match of matches) {
+        if (!match.willUpdate) {
+          results.skipped++
+          continue
+        }
+
+        try {
+          const { error } = await supabase
+            .from('tags')
+            .update({ description: match.newDescription })
+            .eq('id', match.tag.id)
+
+          if (error) throw error
+
+          results.success++
+          results.details.push(`✓ ${match.tag.slug}: Updated description`)
+        } catch (error: any) {
+          results.failed++
+          results.details.push(`✗ ${match.tag.slug}: ${error.message}`)
+        }
+      }
+
+      setUpdateResults(results)
+      onRefresh()
+    } catch (error) {
+      console.error('Bulk update error:', error)
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Bulk Description Updater</h2>
+        <p className="text-muted-foreground">
+          Import descriptions from JSON and update multiple tags at once
+        </p>
+      </div>
+
+      {/* Input Section */}
+      <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Step 1: Paste JSON Data</h3>
+
+        <textarea
+          value={jsonInput}
+          onChange={(e) => setJsonInput(e.target.value)}
+          placeholder='Paste your JSON array here, e.g., [{"slug": "ai", "name": "AI", "description": "...", "children": [...]}]'
+          className="w-full h-64 px-4 py-3 border border-border rounded-lg font-mono text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        />
+
+        <div className="flex items-center justify-between mt-4">
+          <div className="text-sm text-gray-500">
+            {jsonInput.length > 0 && `${jsonInput.length} characters`}
+          </div>
+          <button
+            onClick={handleParse}
+            disabled={!jsonInput.trim()}
+            className="px-6 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Parse & Validate
+          </button>
+        </div>
+
+        {parseError && (
+          <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">❌</span>
+              <div>
+                <h4 className="text-sm font-semibold text-red-900 mb-1">Parse Error</h4>
+                <p className="text-sm text-red-800">{parseError}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Preview Section */}
+      {parsedData && stats && (
+        <>
+          {/* Statistics */}
+          <div className="grid grid-cols-4 gap-4">
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
+              <div className="text-3xl font-bold">{stats.total}</div>
+              <div className="text-sm opacity-90">Tags to Process</div>
+            </div>
+            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
+              <div className="text-3xl font-bold">{stats.new}</div>
+              <div className="text-sm opacity-90">New Descriptions</div>
+            </div>
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
+              <div className="text-3xl font-bold">{stats.updates}</div>
+              <div className="text-sm opacity-90">Will Update</div>
+            </div>
+            <div className="bg-gradient-to-br from-gray-500 to-gray-600 text-white p-6 rounded-xl shadow-lg">
+              <div className="text-3xl font-bold">{stats.unchanged}</div>
+              <div className="text-sm opacity-90">Unchanged</div>
+            </div>
+          </div>
+
+          {/* Preview/Results Toggle */}
+          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-muted px-6 py-4 border-b border-border flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-foreground">
+                {updateResults ? 'Update Results' : 'Step 2: Preview Changes'}
+              </h3>
+              {!updateResults && (
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={previewMode}
+                      onChange={(e) => setPreviewMode(e.target.checked)}
+                      className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                    />
+                    <span className="text-sm font-medium text-foreground">Show only changes</span>
+                  </label>
+                  <button
+                    onClick={handleUpdate}
+                    disabled={processing || stats.updates === 0}
+                    className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {processing ? 'Updating...' : `Update ${stats.updates} Tag(s)`}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Results Display */}
+            {updateResults ? (
+              <div className="p-6">
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-green-900">{updateResults.success}</div>
+                    <div className="text-sm text-green-700">Successful</div>
+                  </div>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-red-900">{updateResults.failed}</div>
+                    <div className="text-sm text-red-700">Failed</div>
+                  </div>
+                  <div className="bg-muted border border-border rounded-lg p-4">
+                    <div className="text-2xl font-bold text-foreground">{updateResults.skipped}</div>
+                    <div className="text-sm text-foreground">Skipped</div>
+                  </div>
+                </div>
+
+                <div className="bg-muted border border-border rounded-lg p-4 max-h-96 overflow-y-auto">
+                  <h4 className="font-semibold text-foreground mb-3">Details:</h4>
+                  <div className="space-y-1 font-mono text-sm">
+                    {updateResults.details.map((detail, idx) => (
+                      <div
+                        key={idx}
+                        className={detail.startsWith('✓') ? 'text-green-700' : 'text-red-700'}
+                      >
+                        {detail}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setUpdateResults(null)
+                    setParsedData(null)
+                    setJsonInput('')
+                  }}
+                  className="mt-4 w-full px-6 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
+                >
+                  Start New Update
+                </button>
+              </div>
+            ) : (
+              <div className="max-h-[600px] overflow-y-auto">
+                <table className="min-w-full divide-y divide-border">
+                  <thead className="bg-muted sticky top-0">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tag</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Current</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">New</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-card divide-y divide-border">
+                    {matches
+                      .filter(m => !previewMode || m.willUpdate)
+                      .map((match, idx) => (
+                        <tr key={idx} className={match.willUpdate ? 'bg-blue-50' : ''}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              {match.tag.icon && <span className="mr-2">{match.tag.icon}</span>}
+                              <div>
+                                <div className="text-sm font-medium text-foreground">{match.tag.name}</div>
+                                <div className="text-xs text-gray-500">{match.tag.slug}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {match.willUpdate ? (
+                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                Will Update
+                              </span>
+                            ) : match.hasExisting ? (
+                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-muted text-foreground">
+                                Unchanged
+                              </span>
+                            ) : (
+                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                New
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-muted-foreground max-w-md line-clamp-2">
+                              {match.tag.description || <em className="text-gray-400">No description</em>}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-foreground max-w-md line-clamp-2">
+                              {match.newDescription}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Instructions */}
+      {!parsedData && !parseError && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">💡</span>
+            <div>
+              <h3 className="text-sm font-semibold text-blue-900 mb-2">How to Use</h3>
+              <ol className="text-sm text-blue-800 space-y-2 list-decimal list-inside">
+                <li>Paste your JSON array containing tag descriptions in the text area above</li>
+                <li>Click "Parse & Validate" to check the format</li>
+                <li>Review the preview of changes that will be made</li>
+                <li>Click "Update X Tag(s)" to apply the descriptions to your database</li>
+              </ol>
+              <div className="mt-4 bg-blue-100 rounded-lg p-3">
+                <p className="text-sm font-semibold text-blue-900 mb-1">Expected JSON Format:</p>
+                <pre className="text-xs text-blue-800 overflow-x-auto">
+{`[
+  {
+    "slug": "ai",
+    "name": "Artificial Intelligence",
+    "description": "Your description here...",
+    "children": [
+      {
+        "slug": "machine-learning",
+        "name": "Machine Learning",
+        "description": "ML description..."
+      }
+    ]
+  }
+]`}
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

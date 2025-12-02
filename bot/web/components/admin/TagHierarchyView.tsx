@@ -1,0 +1,546 @@
+'use client'
+
+import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
+
+interface Tag {
+  id: string
+  slug: string
+  name: string
+  parent_id: string | null
+  path: string[]
+  depth: number
+  description: string | null
+  icon: string | null
+  color: string | null
+  is_system: boolean
+  created_at: string
+  updated_at: string
+}
+
+interface TagTreeNode extends Tag {
+  children: TagTreeNode[]
+}
+
+interface Props {
+  tags: Tag[]
+  onRefresh: () => void
+  searchQuery: string
+}
+
+export default function TagHierarchyView({ tags, onRefresh, searchQuery }: Props) {
+  const [selectedTag, setSelectedTag] = useState<Tag | null>(null)
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set())
+
+  const [formData, setFormData] = useState({
+    name: '',
+    slug: '',
+    parent_id: null as string | null,
+    description: '',
+    icon: '',
+    color: '#667eea'
+  })
+
+  // Build tree structure
+  const tagTree = buildTagTree(tags)
+
+  function buildTagTree(allTags: Tag[]): TagTreeNode[] {
+    const tagMap = new Map<string, TagTreeNode>()
+    const roots: TagTreeNode[] = []
+
+    allTags.forEach(tag => {
+      tagMap.set(tag.id, { ...tag, children: [] })
+    })
+
+    allTags.forEach(tag => {
+      const node = tagMap.get(tag.id)!
+      if (tag.parent_id) {
+        const parent = tagMap.get(tag.parent_id)
+        if (parent) {
+          parent.children.push(node)
+        }
+      } else {
+        roots.push(node)
+      }
+    })
+
+    return roots
+  }
+
+  function toggleNode(nodeId: string) {
+    setExpandedNodes(prev => {
+      const next = new Set(prev)
+      if (next.has(nodeId)) {
+        next.delete(nodeId)
+      } else {
+        next.add(nodeId)
+      }
+      return next
+    })
+  }
+
+  function expandAll() {
+    const allIds = new Set(tags.map(t => t.id))
+    setExpandedNodes(allIds)
+  }
+
+  function collapseAll() {
+    setExpandedNodes(new Set())
+  }
+
+  async function handleCreateTag() {
+    try {
+      const { error } = await supabase
+        .from('tags')
+        .insert({
+          name: formData.name,
+          slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
+          parent_id: formData.parent_id,
+          description: formData.description || null,
+          icon: formData.icon || null,
+          color: formData.color || null
+        })
+
+      if (error) throw error
+
+      setShowCreateForm(false)
+      setFormData({ name: '', slug: '', parent_id: null, description: '', icon: '', color: '#667eea' })
+      onRefresh()
+    } catch (error) {
+      console.error('Error creating tag:', error)
+      alert('Error creating tag')
+    }
+  }
+
+  async function handleUpdateTag() {
+    if (!selectedTag) return
+
+    try {
+      const { error } = await supabase
+        .from('tags')
+        .update({
+          name: formData.name,
+          slug: formData.slug,
+          parent_id: formData.parent_id,
+          description: formData.description || null,
+          icon: formData.icon || null,
+          color: formData.color || null
+        })
+        .eq('id', selectedTag.id)
+
+      if (error) throw error
+
+      setShowEditForm(false)
+      setSelectedTag(null)
+      setFormData({ name: '', slug: '', parent_id: null, description: '', icon: '', color: '#667eea' })
+      onRefresh()
+    } catch (error) {
+      console.error('Error updating tag:', error)
+      alert('Error updating tag')
+    }
+  }
+
+  async function handleDeleteTag(tagId: string, isSystem: boolean) {
+    if (isSystem) {
+      alert('Cannot delete system tags')
+      return
+    }
+
+    if (!confirm('Are you sure you want to delete this tag? Its children will become root tags.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('tags')
+        .delete()
+        .eq('id', tagId)
+
+      if (error) throw error
+      onRefresh()
+    } catch (error) {
+      console.error('Error deleting tag:', error)
+      alert('Error deleting tag')
+    }
+  }
+
+  function openEditForm(tag: Tag) {
+    setSelectedTag(tag)
+    setFormData({
+      name: tag.name,
+      slug: tag.slug,
+      parent_id: tag.parent_id,
+      description: tag.description || '',
+      icon: tag.icon || '',
+      color: tag.color || '#667eea'
+    })
+    setShowEditForm(true)
+  }
+
+  function renderTagNode(node: TagTreeNode, level: number = 0): JSX.Element {
+    const indent = level * 24
+    const hasChildren = node.children.length > 0
+    const isExpanded = expandedNodes.has(node.id)
+
+    return (
+      <div key={node.id}>
+        <div
+          className="flex items-center justify-between py-2.5 px-4 hover:bg-muted/5 hover:bg-muted/10 rounded-lg group transition-colors"
+          style={{ marginLeft: `${indent}px` }}
+        >
+          <div className="flex items-center gap-3 flex-1">
+            {hasChildren && (
+              <button
+                onClick={() => toggleNode(node.id)}
+                className="text-muted-foreground hover:text-muted-foreground transition-colors"
+              >
+                <span className="text-sm font-bold">
+                  {isExpanded ? '▼' : '▶'}
+                </span>
+              </button>
+            )}
+            {!hasChildren && level > 0 && (
+              <span className="text-muted-foreground text-sm ml-3.5">└</span>
+            )}
+            {!hasChildren && level === 0 && (
+              <span className="w-3.5"></span>
+            )}
+
+            {node.icon && <span className="text-xl">{node.icon}</span>}
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-foreground">{node.name}</span>
+                <span className="text-xs text-muted-foreground font-mono bg-muted px-2 py-0.5 rounded">
+                  {node.slug}
+                </span>
+                {node.is_system && (
+                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                    System
+                  </span>
+                )}
+                <span className="text-xs text-muted-foreground">
+                  Level {node.depth}
+                </span>
+                {hasChildren && (
+                  <span className="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded">
+                    {node.children.length} children
+                  </span>
+                )}
+              </div>
+              {node.description && (
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{node.description}</p>
+              )}
+            </div>
+
+            {node.color && (
+              <div
+                className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
+                style={{ backgroundColor: node.color }}
+                title={`Color: ${node.color}`}
+              />
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity ml-4">
+            <button
+              onClick={() => openEditForm(node)}
+              className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+            >
+              Edit
+            </button>
+            {!node.is_system && (
+              <button
+                onClick={() => handleDeleteTag(node.id, node.is_system)}
+                className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        </div>
+
+        {hasChildren && isExpanded && (
+          <div className="mt-1">
+            {node.children.map(child => renderTagNode(child, level + 1))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      {/* Actions Bar */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm"
+          >
+            + Create Tag
+          </button>
+          <button
+            onClick={expandAll}
+            className="px-3 py-2 text-sm text-foreground border border-border rounded-lg hover:bg-muted/5 hover:bg-muted/10 transition-colors"
+          >
+            Expand All
+          </button>
+          <button
+            onClick={collapseAll}
+            className="px-3 py-2 text-sm text-foreground border border-border rounded-lg hover:bg-muted/5 hover:bg-muted/10 transition-colors"
+          >
+            Collapse All
+          </button>
+        </div>
+
+        {searchQuery && (
+          <div className="text-sm text-muted-foreground">
+            Showing {tags.length} result{tags.length !== 1 ? 's' : ''}
+          </div>
+        )}
+      </div>
+
+      {/* Tag Tree */}
+      <div className="space-y-1">
+        {tagTree.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            {searchQuery ? 'No tags match your search' : 'No tags yet. Create one to get started!'}
+          </div>
+        ) : (
+          tagTree.map(node => renderTagNode(node))
+        )}
+      </div>
+
+      {/* Create Form Modal */}
+      {showCreateForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-xl p-6 w-full max-w-lg shadow-2xl">
+            <h2 className="text-2xl font-bold text-foreground mb-6">Create New Tag</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Tag Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="e.g., Machine Learning"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Slug (URL-friendly ID)
+                </label>
+                <input
+                  type="text"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
+                  placeholder="Auto-generated from name"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Leave blank to auto-generate</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Parent Tag
+                </label>
+                <select
+                  value={formData.parent_id || ''}
+                  onChange={(e) => setFormData({ ...formData, parent_id: e.target.value || null })}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="">None (Root Tag)</option>
+                  {tags.map(tag => (
+                    <option key={tag.id} value={tag.id}>
+                      {'  '.repeat(tag.depth)}{tag.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  rows={3}
+                  placeholder="Brief description of this tag..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Icon (Emoji)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.icon}
+                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-2xl"
+                    placeholder="🏷️"
+                    maxLength={2}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Color
+                  </label>
+                  <input
+                    type="color"
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    className="w-full h-[42px] border border-border rounded-lg cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowCreateForm(false)
+                  setFormData({ name: '', slug: '', parent_id: null, description: '', icon: '', color: '#667eea' })
+                }}
+                className="flex-1 px-4 py-2 border border-border text-foreground rounded-lg hover:bg-muted/5 hover:bg-muted/10 font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateTag}
+                disabled={!formData.name}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+              >
+                Create Tag
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Form Modal */}
+      {showEditForm && selectedTag && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-xl p-6 w-full max-w-lg shadow-2xl">
+            <h2 className="text-2xl font-bold text-foreground mb-6">Edit Tag</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Tag Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Slug (URL-friendly ID)
+                </label>
+                <input
+                  type="text"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Parent Tag
+                </label>
+                <select
+                  value={formData.parent_id || ''}
+                  onChange={(e) => setFormData({ ...formData, parent_id: e.target.value || null })}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="">None (Root Tag)</option>
+                  {tags.filter(t => t.id !== selectedTag.id).map(tag => (
+                    <option key={tag.id} value={tag.id}>
+                      {'  '.repeat(tag.depth)}{tag.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Icon (Emoji)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.icon}
+                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                    className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-2xl"
+                    maxLength={2}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Color
+                  </label>
+                  <input
+                    type="color"
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    className="w-full h-[42px] border border-border rounded-lg cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowEditForm(false)
+                  setSelectedTag(null)
+                  setFormData({ name: '', slug: '', parent_id: null, description: '', icon: '', color: '#667eea' })
+                }}
+                className="flex-1 px-4 py-2 border border-border text-foreground rounded-lg hover:bg-muted/5 hover:bg-muted/10 font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateTag}
+                disabled={!formData.name}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+              >
+                Update Tag
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,7 @@
+-- Seed data for 530 Project
+-- Tags are created via migration 20251011182546_replace_tags_with_api_structure.sql
+--
+-- For demo content, use: supabase/scripts/seed-demo-content.sql
+--
+-- This file is intentionally minimal to keep the database clean by default.
+-- Use the scripts in supabase/scripts/ to populate test data as needed.

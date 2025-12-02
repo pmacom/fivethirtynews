@@ -1,0 +1,373 @@
+/* 530 ChannelSelector Styles */
+
+/* Main container */
+.five-thirty-channel-selector {
+  width: 340px !important;
+  max-width: calc(100vw - 32px) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.five-thirty-cs-main {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Selected channels area */
+.five-thirty-cs-selected {
+  padding: 12px !important;
+  border-bottom: 1px solid #333 !important;
+  min-height: 52px !important;
+  background: #252525 !important;
+}
+
+.five-thirty-cs-loading,
+.five-thirty-cs-empty {
+  font-size: 13px !important;
+  color: #888 !important;
+  text-align: center !important;
+  padding: 8px 0 !important;
+}
+
+.five-thirty-cs-chips {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+/* Channel chip */
+.five-thirty-cs-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 5px 8px !important;
+  background: #333 !important;
+  border: 1px solid #444 !important;
+  border-radius: 16px !important;
+  font-size: 12px !important;
+  color: #e4e4e4 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  max-width: 150px !important;
+}
+
+.five-thirty-cs-chip:hover {
+  background: #3a3a3a !important;
+  border-color: #555 !important;
+}
+
+/* Primary chip */
+.five-thirty-cs-chip--primary {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: #f59e0b !important;
+  color: #fbbf24 !important;
+}
+
+.five-thirty-cs-chip--primary:hover {
+  background: rgba(245, 158, 11, 0.25) !important;
+}
+
+.five-thirty-cs-chip-star {
+  color: #f59e0b !important;
+  font-size: 10px !important;
+}
+
+.five-thirty-cs-chip-icon {
+  font-size: 12px !important;
+  flex-shrink: 0 !important;
+}
+
+.five-thirty-cs-chip-name {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.five-thirty-cs-chip-remove {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  color: #888 !important;
+  transition: all 0.15s ease !important;
+  flex-shrink: 0 !important;
+  margin-left: 2px !important;
+}
+
+.five-thirty-cs-chip-remove:hover {
+  background: #ef4444 !important;
+  color: white !important;
+}
+
+/* Group buttons bar */
+.five-thirty-cs-groups {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 12px !important;
+  background: #1e1e1e !important;
+}
+
+.five-thirty-cs-group-btn {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 8px !important;
+  background: #2a2a2a !important;
+  border: 2px solid transparent !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.five-thirty-cs-group-btn:hover {
+  background: #333 !important;
+  border-color: #444 !important;
+  transform: scale(1.05) !important;
+}
+
+.five-thirty-cs-group-btn--active {
+  background: #333 !important;
+  border-color: #667eea !important;
+}
+
+.five-thirty-cs-group-btn--has-selection {
+  background: rgba(102, 126, 234, 0.15) !important;
+}
+
+.five-thirty-cs-group-btn--has-primary {
+  background: rgba(245, 158, 11, 0.15) !important;
+}
+
+.five-thirty-cs-group-btn--has-primary.five-thirty-cs-group-btn--active {
+  border-color: #f59e0b !important;
+}
+
+.five-thirty-cs-group-icon {
+  font-size: 20px !important;
+  line-height: 1 !important;
+}
+
+.five-thirty-cs-group-star {
+  position: absolute !important;
+  top: -4px !important;
+  right: -4px !important;
+  font-size: 12px !important;
+  color: #f59e0b !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+.five-thirty-cs-group-dot {
+  position: absolute !important;
+  top: -2px !important;
+  right: -2px !important;
+  width: 10px !important;
+  height: 10px !important;
+  background: #667eea !important;
+  border-radius: 50% !important;
+  border: 2px solid #1e1e1e !important;
+}
+
+/* Sub-popover (channel list) */
+.five-thirty-channel-selector-sub {
+  width: 280px !important;
+  max-width: calc(100vw - 32px) !important;
+  max-height: 320px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.five-thirty-cs-sub {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: 320px !important;
+}
+
+.five-thirty-cs-sub-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 12px !important;
+  border-bottom: 1px solid #333 !important;
+  background: #252525 !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1 !important;
+}
+
+.five-thirty-cs-sub-icon {
+  font-size: 18px !important;
+}
+
+.five-thirty-cs-sub-name {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #e4e4e4 !important;
+}
+
+.five-thirty-cs-sub-channels {
+  overflow-y: auto !important;
+  flex: 1 !important;
+  padding: 4px !important;
+}
+
+/* Channel item */
+.five-thirty-cs-channel {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 10px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease !important;
+  text-align: left !important;
+}
+
+.five-thirty-cs-channel:hover {
+  background: #2a2a2a !important;
+}
+
+.five-thirty-cs-channel--selected {
+  background: rgba(102, 126, 234, 0.1) !important;
+}
+
+.five-thirty-cs-channel--selected:hover {
+  background: rgba(102, 126, 234, 0.15) !important;
+}
+
+.five-thirty-cs-channel-check {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  border: 2px solid #444 !important;
+  border-radius: 4px !important;
+  font-size: 12px !important;
+  color: white !important;
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+  transition: all 0.15s ease !important;
+}
+
+.five-thirty-cs-channel--selected .five-thirty-cs-channel-check {
+  background: #667eea !important;
+  border-color: #667eea !important;
+}
+
+.five-thirty-cs-channel-icon {
+  font-size: 16px !important;
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+}
+
+.five-thirty-cs-channel-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.five-thirty-cs-channel-name {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #e4e4e4 !important;
+  line-height: 1.3 !important;
+}
+
+.five-thirty-cs-channel-desc {
+  font-size: 11px !important;
+  color: #888 !important;
+  line-height: 1.4 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.five-thirty-cs-channel-star {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 4px !important;
+  font-size: 14px !important;
+  color: #555 !important;
+  flex-shrink: 0 !important;
+  transition: all 0.15s ease !important;
+  background: transparent !important;
+}
+
+.five-thirty-cs-channel-star:hover {
+  color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+}
+
+.five-thirty-cs-channel-star--active {
+  color: #f59e0b !important;
+}
+
+/* Scrollbar styling */
+.five-thirty-cs-sub-channels::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.five-thirty-cs-sub-channels::-webkit-scrollbar-track {
+  background: #2a2a2a !important;
+  border-radius: 3px !important;
+}
+
+.five-thirty-cs-sub-channels::-webkit-scrollbar-thumb {
+  background: #444 !important;
+  border-radius: 3px !important;
+}
+
+.five-thirty-cs-sub-channels::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .five-thirty-channel-selector {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  .five-thirty-channel-selector-sub {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 60vh !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  .five-thirty-cs-group-btn {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .five-thirty-cs-group-icon {
+    font-size: 22px !important;
+  }
+}

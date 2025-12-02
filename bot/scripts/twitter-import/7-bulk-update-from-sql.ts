@@ -1,0 +1,344 @@
+#!/usr/bin/env tsx
+
+import { readFileSync, existsSync, writeFileSync } from 'fs'
+import { join } from 'path'
+import { createClient } from '@supabase/supabase-js'
+import { batchArray, formatProgress, delay } from './utils/twitter-parser'
+import * as dotenv from 'dotenv'
+
+// Load environment variables
+dotenv.config()
+
+// Wrap everything in async IIFE to support top-level await
+;(async () => {
+
+console.log('📊 Bulk Updating Authors from SQL Data...\n')
+
+// Configuration
+const BATCH_SIZE = parseInt(process.env.DB_INSERT_BATCH_SIZE || '50')
+const DELAY_MS = parseInt(process.env.DB_INSERT_DELAY_MS || '100')
+
+// Paths
+const SQL_FILE = join(process.cwd(), 'data/supabase_data/tweets_rows.sql')
+const REPORT_FILE = join(process.cwd(), 'data/twitter-export/bulk-update-report.json')
+
+// Check if SQL file exists
+if (!existsSync(SQL_FILE)) {
+  console.error('❌ Error: tweets_rows.sql not found at:', SQL_FILE)
+  console.error('📝 Please place your SQL export file at: data/supabase_data/tweets_rows.sql')
+  process.exit(1)
+}
+
+console.log('✅ Found tweets_rows.sql file')
+
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Error: Supabase credentials not configured')
+  console.error('📝 Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env')
+  process.exit(1)
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey)
+console.log('✅ Connected to Supabase\n')
+
+// Parse SQL file
+console.log('📖 Reading SQL file...')
+const sqlContent = readFileSync(SQL_FILE, 'utf-8')
+console.log(`✅ Loaded ${(sqlContent.length / 1024 / 1024).toFixed(2)}MB of SQL data\n`)
+
+// Extract ALL author data from SQL
+console.log('🔍 Parsing SQL file for all author data...')
+
+interface AuthorData {
+  tweetId: string
+  username: string
+  displayName: string | null
+  profileImage: string | null
+  verified: boolean
+  isBlueVerified: boolean
+}
+
+const authorMap = new Map<string, AuthorData>()
+let parseErrors = 0
+
+// Split into individual records - they're separated by '), ('
+const records = sqlContent.split('), (').map(r => r.replace(/^INSERT.*VALUES \('/, '').replace(/'\);?$/, ''))
+
+console.log(`   Found ${records.length} potential records`)
+
+for (const record of records) {
+  try {
+    // Extract fields using quote parsing
+    const quotes = []
+    let inQuote = false
+    let quoteStart = -1
+    let escapeNext = false
+
+    for (let i = 0; i < record.length; i++) {
+      if (escapeNext) {
+        escapeNext = false
+        continue
+      }
+
+      if (record[i] === '\\') {
+        escapeNext = true
+        continue
+      }
+
+      if (record[i] === "'") {
+        if (inQuote) {
+          if (i + 1 < record.length && record[i + 1] === "'") {
+            i++
+            continue
+          }
+          quotes.push(record.substring(quoteStart + 1, i))
+          inQuote = false
+        } else {
+          quoteStart = i
+          inQuote = true
+        }
+      }
+    }
+
+    if (quotes.length >= 5) {
+      const tweetId = quotes[0]
+      const username = quotes[4]
+      const profileImage = quotes.length >= 6 ? quotes[5] : null
+
+      let displayName: string | null = null
+      let verified = false
+      let isBlueVerified = false
+
+      try {
+        const jsonStr = quotes[1].replace(/''/g, "'")
+        const data = JSON.parse(jsonStr)
+        if (data.user) {
+          displayName = data.user.name || null
+          verified = data.user.verified || false
+          isBlueVerified = data.user.is_blue_verified || false
+        }
+      } catch {
+        // JSON parse failed, continue with what we have
+      }
+
+      const author: AuthorData = {
+        tweetId: tweetId,
+        username: username,
+        displayName: displayName,
+        profileImage: profileImage,
+        verified: verified,
+        isBlueVerified: isBlueVerified
+      }
+
+      authorMap.set(tweetId, author)
+    }
+  } catch (error) {
+    parseErrors++
+  }
+}
+
+console.log(`✅ Parsed ${authorMap.size} tweets with author data`)
+if (parseErrors > 0) {
+  console.log(`⚠️  Skipped ${parseErrors} tweets due to parse errors\n`)
+} else {
+  console.log()
+}
+
+if (authorMap.size === 0) {
+  console.error('❌ Error: No author data found in SQL file')
+  process.exit(1)
+}
+
+// Build creators map (unique authors)
+console.log('👥 Building creators list...')
+const creatorsMap = new Map<string, any>()
+
+for (const [_, author] of authorMap) {
+  const creatorId = `twitter:${author.username}`
+
+  if (!creatorsMap.has(creatorId)) {
+    creatorsMap.set(creatorId, {
+      id: creatorId,
+      platform: 'twitter',
+      username: author.username,
+      display_name: author.displayName || author.username,
+      avatar_url: author.profileImage,
+      verified: author.verified || author.isBlueVerified,
+      metadata: {
+        source: 'sql_bulk_import',
+        is_blue_verified: author.isBlueVerified,
+        imported_at: new Date().toISOString()
+      }
+    })
+  }
+}
+
+console.log(`✅ Found ${creatorsMap.size} unique creators\n`)
+
+// Upsert ALL creators to database
+console.log('💾 Upserting creators to database...')
+const creatorsArray = Array.from(creatorsMap.values())
+const creatorBatches = batchArray(creatorsArray, BATCH_SIZE)
+
+let creatorsInserted = 0
+
+for (let i = 0; i < creatorBatches.length; i++) {
+  const batch = creatorBatches[i]
+  console.log(`   Batch ${i + 1}/${creatorBatches.length} (${batch.length} creators)`)
+
+  try {
+    const { error } = await supabase
+      .from('creators')
+      .upsert(batch, {
+        onConflict: 'platform,username',
+        ignoreDuplicates: false
+      })
+
+    if (error) {
+      console.warn(`   ⚠️  Batch warning: ${error.message}`)
+    } else {
+      creatorsInserted += batch.length
+      console.log(`   ✅ Upserted ${batch.length} creators`)
+    }
+  } catch (error: any) {
+    console.error(`   ❌ Batch failed: ${error.message}`)
+  }
+
+  if (i < creatorBatches.length - 1) {
+    await delay(DELAY_MS)
+  }
+}
+
+console.log(`✅ Creators upserted: ${creatorsInserted}\n`)
+
+// Now bulk update ALL content that matches tweet IDs in our SQL data
+console.log('🔗 Bulk updating content with author data...')
+
+// Build update queries by tweet ID
+const updatePromises: Promise<any>[] = []
+let updatedCount = 0
+let updateErrors = 0
+
+// Process in batches
+const authorsArray = Array.from(authorMap.values())
+const updateBatches = batchArray(authorsArray, BATCH_SIZE)
+
+for (let i = 0; i < updateBatches.length; i++) {
+  const batch = updateBatches[i]
+  console.log(`   Batch ${i + 1}/${updateBatches.length} (${batch.length} records)`)
+
+  for (const author of batch) {
+    const authorId = `twitter:${author.username}`
+
+    try {
+      const { error, count } = await supabase
+        .from('content')
+        .update({
+          author_id: authorId,
+          author_username: author.username,
+          author_name: author.displayName || author.username,
+          author_avatar_url: author.profileImage,
+          author_url: `https://twitter.com/${author.username}`
+        })
+        .eq('platform', 'twitter')
+        .eq('platform_content_id', author.tweetId)
+
+      if (error) {
+        updateErrors++
+      } else {
+        updatedCount++
+      }
+    } catch (error) {
+      updateErrors++
+    }
+  }
+
+  console.log(`   Progress: ${formatProgress(updatedCount, authorsArray.length)}`)
+
+  if (i < updateBatches.length - 1) {
+    await delay(DELAY_MS)
+  }
+}
+
+console.log(`✅ Content updated: ${updatedCount}`)
+if (updateErrors > 0) {
+  console.log(`❌ Update errors: ${updateErrors}`)
+}
+console.log()
+
+// Verify results
+console.log('🔍 Verifying bulk update...')
+const { count: totalWithAuthors, error: countError } = await supabase
+  .from('content')
+  .select('*', { count: 'exact', head: true })
+  .eq('platform', 'twitter')
+  .not('author_id', 'is', null)
+
+if (countError) {
+  console.error('❌ Error verifying:', countError)
+} else {
+  console.log(`✅ Total content with authors: ${totalWithAuthors}`)
+}
+
+const { count: totalContent } = await supabase
+  .from('content')
+  .select('*', { count: 'exact', head: true })
+  .eq('platform', 'twitter')
+
+const coverage = totalWithAuthors && totalContent
+  ? ((totalWithAuthors / totalContent) * 100).toFixed(1)
+  : '0'
+
+console.log(`📊 Coverage: ${coverage}% (${totalWithAuthors}/${totalContent})`)
+
+// Generate report
+const report = {
+  timestamp: new Date().toISOString(),
+  sql_tweets_parsed: authorMap.size,
+  unique_creators: creatorsMap.size,
+  creators_upserted: creatorsInserted,
+  content_updated: updatedCount,
+  update_errors: updateErrors,
+  total_content: totalContent,
+  content_with_authors: totalWithAuthors,
+  coverage_percent: parseFloat(coverage)
+}
+
+writeFileSync(REPORT_FILE, JSON.stringify(report, null, 2))
+
+// Final statistics
+console.log('\n📊 BULK UPDATE RESULTS')
+console.log('═'.repeat(60))
+console.log(`✅ SQL tweets parsed: ${authorMap.size}`)
+console.log(`✅ Unique creators: ${creatorsMap.size}`)
+console.log(`✅ Creators upserted: ${creatorsInserted}`)
+console.log(`✅ Content updated: ${updatedCount}`)
+console.log(`📊 Final coverage: ${coverage}%`)
+console.log(`\n💾 Report saved to: ${REPORT_FILE}`)
+
+// Show sample enriched creators
+console.log('\n👥 Sample enriched creators:')
+const { data: sampleCreators } = await supabase
+  .from('creators')
+  .select('username, display_name, verified')
+  .eq('platform', 'twitter')
+  .eq('metadata->>source', 'sql_bulk_import')
+  .limit(10)
+
+if (sampleCreators && sampleCreators.length > 0) {
+  sampleCreators.forEach((creator, idx) => {
+    const verifiedBadge = creator.verified ? '✓' : ''
+    console.log(`   ${idx + 1}. @${creator.username} ${verifiedBadge}`)
+    console.log(`      ${creator.display_name}`)
+  })
+}
+
+console.log('\n✨ Bulk update complete!\n')
+
+})().catch(error => {
+  console.error('❌ Fatal error:', error)
+  process.exit(1)
+})

@@ -1,0 +1,45 @@
+{
+  "name": "530-project",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Community-curated social media tagging platform",
+  "scripts": {
+    "dev": "pnpm --filter \"./extension\" dev & pnpm --filter \"./web\" dev",
+    "build": "pnpm --filter \"./extension\" build && pnpm --filter \"./web\" build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "db:reset": "npx supabase db reset --local",
+    "db:reset-content": "psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/scripts/reset-content.sql",
+    "db:counts": "psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/scripts/show-counts.sql",
+    "db:seed-demo": "psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/scripts/seed-demo-content.sql",
+    "import:analyze": "tsx scripts/twitter-import/1-analyze-export.ts",
+    "import:rename": "tsx scripts/twitter-import/2-rename-media.ts",
+    "import:upload": "tsx scripts/twitter-import/3-upload-to-spaces.ts",
+    "import:db": "tsx scripts/twitter-import/4-import-to-db.ts",
+    "import:enrich": "tsx scripts/twitter-import/5-enrich-authors.ts",
+    "import:enrich-sql": "tsx scripts/twitter-import/6-enrich-from-sql.ts",
+    "import:bulk-update": "tsx scripts/twitter-import/7-bulk-update-from-sql.ts"
+  },
+  "keywords": [
+    "chrome-extension",
+    "social-media",
+    "tagging",
+    "community"
+  ],
+  "author": "530 Project",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.913.0",
+    "dotenv": "^17.2.3",
+    "mime-types": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/mime-types": "^3.0.1",
+    "tsx": "^4.20.6"
+  }
+}

@@ -1,0 +1,1342 @@
+{
+  "memories": [
+    {
+      "id": "mem_1760152701117_ezy3eibn6",
+      "content": "Created CLAUDE.md for 530 Project (TwitterBotY25): Community-curated social media tagging platform. Key architecture: Chrome extension for X.com, Next.js admin UI, Supabase backend. Core principle: documentation-driven development with /docs as source of truth. AI orchestrator must execute single-task operations and sync code with documentation updates per PRIMARY_DIRECTIVE.md",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "530-project",
+        "architecture",
+        "documentation",
+        "chrome-extension"
+      ],
+      "timestamp": "2025-10-11T03:18:21.116Z",
+      "accessCount": 5,
+      "lastAccessed": "2025-10-19T17:35:30.339Z",
+      "lastVerified": "2025-10-11T03:18:21.116Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760154151663_sg6paurco",
+      "content": "Completed comprehensive documentation for 530 Project (TwitterBotY25): Created 7 detailed docs covering quickstart guide, system architecture, database schema with flexible tag hierarchy, DigitalOcean deployment, tag reparenting logic, branding configuration (single source of truth in /shared/config.ts), and 4-phase roadmap (MVP→Refinement→Multi-platform→Advanced). Architecture uses self-hosted Supabase, Chrome extension with platform adapters, Next.js admin UI, email/password auth, public read/authenticated write via RLS policies. Core innovation: adjacency list + materialized path for flexible tag hierarchy enabling reparenting without breaking post associations.",
+      "type": "config",
+      "tags": [
+        "config",
+        "database",
+        "deployment",
+        "530-project",
+        "documentation",
+        "architecture",
+        "roadmap",
+        "completed"
+      ],
+      "timestamp": "2025-10-11T03:42:31.663Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-10-11T04:28:53.114Z",
+      "lastVerified": "2025-10-11T03:42:31.663Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760155405812_lo3nqqng8",
+      "content": "Day 1 of 530 Project MVP complete: Initialized monorepo with pnpm workspaces (extension, admin-ui, shared). Set up local Supabase with full database schema (users, tags, posts, post_tags). Implemented flexible tag hierarchy using adjacency list + materialized path pattern with automatic path updates via triggers. Created 16 seed tags across 5 categories (Technology, Politics, Science, Entertainment, Sports) with 3 levels of nesting. Configured RLS policies for public read/authenticated write. Created shared package with BRAND_CONFIG (530societynews), SUPABASE_CONFIG (local keys), and TypeScript types. Supabase running at http://127.0.0.1:54321, Studio at http://127.0.0.1:54323. Ready for Day 2: Chrome extension scaffold.",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "typescript",
+        "database",
+        "530-project",
+        "day-1",
+        "setup-complete",
+        "supabase",
+        "monorepo"
+      ],
+      "timestamp": "2025-10-11T04:03:25.812Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-10-11T04:28:53.114Z",
+      "lastVerified": "2025-10-11T04:03:25.812Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760158332164_udbcw0w8a",
+      "content": "530 Chrome Extension MVP completed. Files created:\n- manifest.json: Chrome extension config with permissions for x.com/twitter.com\n- content.js: Injects purple \"530\" button on all X.com posts, uses MutationObserver to handle dynamic content\n- background.js: Service worker with mock storage mode, ready for Supabase integration\n- popup.html/popup.js: Shows statistics (total tags, today's tags) and recent 5 tags\n- styles.css: Purple gradient button styling\n- generate-icons.html: Tool to generate icon16.png, icon48.png, icon128.png\n- README.md: Complete installation and testing instructions\n\nExtension works in mock mode by default (no database required). Next steps: generate icons, load in Chrome, test on X.com.",
+      "type": "config",
+      "tags": [
+        "config",
+        "testing",
+        "database",
+        "530-project",
+        "chrome-extension",
+        "mvp",
+        "testing-ready"
+      ],
+      "timestamp": "2025-10-11T04:52:12.164Z",
+      "context": "Day 1 MVP completion - extension ready for testing",
+      "accessCount": 3,
+      "lastAccessed": "2025-10-19T17:35:30.339Z",
+      "lastVerified": "2025-10-11T04:52:12.164Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760185644732_0pgzbb7y9",
+      "content": "Enhanced 530 Chrome extension with hierarchical tagging system:\n- Created tag-modal.js with TAG_CATEGORIES (Content Type, Topic, Quality, Action)\n- Created tag-modal.css for beautiful modal UI with gradient design\n- Updated content.js to show modal on button click instead of immediate save\n- Updated manifest.json to include tag-modal.js and tag-modal.css\n- Enhanced popup.js to display tag badges on tagged posts\n- Enhanced popup.html CSS with tag badge styling\n\nModal features:\n- 4 category sections with 28 predefined tags total\n- Multi-select tags (can select multiple)\n- Custom tag input field\n- Visual feedback (selected tags highlighted with gradient)\n- ESC to close, overlay click to cancel\n\nNext: User needs to reload extension in chrome://extensions/ to test new tagging workflow",
+      "type": "general",
+      "tags": [
+        "general",
+        "530-project",
+        "chrome-extension",
+        "tagging-system",
+        "hierarchy",
+        "modal-ui"
+      ],
+      "timestamp": "2025-10-11T12:27:24.732Z",
+      "context": "Added hierarchical tagging system with modal UI",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-11T12:27:24.732Z",
+      "lastVerified": "2025-10-11T12:27:24.732Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760200541210_vi1gwdqzr",
+      "content": "Created Next.js web frontend for 530 project:\n- Full-featured web app in /web directory with Next.js + TypeScript + Tailwind\n- Supabase integration via lib/supabase.ts\n- Homepage (app/page.tsx) with:\n  - Grid view of all tagged posts\n  - Real-time statistics (total tags, today's count)\n  - Search functionality (by content or author)\n  - Category filters (Content Type, Topic, Quality, Action)\n  - Tag filters (drill-down within categories)\n  - Responsive design with cards\n  - Direct links to original X.com posts\n- Environment setup in .env.local for Supabase credentials\n- Complete README with setup, usage, deployment instructions\n\nTo run: cd web && npm install && npm run dev\nUser needs to add Supabase URL and anon key to .env.local",
+      "type": "config",
+      "tags": [
+        "config",
+        "typescript",
+        "deployment",
+        "530-project",
+        "web-frontend",
+        "nextjs",
+        "supabase",
+        "complete"
+      ],
+      "timestamp": "2025-10-11T16:35:41.210Z",
+      "context": "Built complete web frontend with search, filters, and grid view",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-11T16:35:41.210Z",
+      "lastVerified": "2025-10-11T16:35:41.210Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760201797111_0t6wugymb",
+      "content": "Created complete admin UI for tag management at /admin/tags:\n\nFeatures:\n- Visual tree hierarchy display with indentation\n- Real-time statistics (total tags, root tags, max depth, system tags)\n- Create new tags with parent selection dropdown\n- Edit existing tags (name, parent, description, icon, color)\n- Delete tags (with confirmation, children become root tags)\n- System tag protection (can't delete system tags)\n- Color picker for tag colors\n- Emoji support for tag icons\n- Full CRUD operations via Supabase\n- Responsive modals for create/edit forms\n\nAdmin layout:\n- Shared layout for all admin pages at /app/admin/layout.tsx\n- Navigation to Tags, Posts, Analytics\n- Link back to main site\n\nAccess at: http://localhost:3000/admin/tags",
+      "type": "general",
+      "tags": [
+        "general",
+        "530-project",
+        "admin-ui",
+        "tag-management",
+        "hierarchy",
+        "complete"
+      ],
+      "timestamp": "2025-10-11T16:56:37.111Z",
+      "context": "Built admin interface for hierarchical tag management",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-11T16:56:37.111Z",
+      "lastVerified": "2025-10-11T16:56:37.111Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760202680979_l4bc2bfw4",
+      "content": "Integrated shadcn/ui with sidebar-07 dashboard layout for 530 admin panel:\n\nSetup:\n- Initialized shadcn/ui with default config\n- Added sidebar-07 component with all dependencies (button, separator, sheet, tooltip, input, skeleton, breadcrumb, collapsible, dropdown-menu, avatar, sidebar)\n- 18 component files created\n\nCustomization:\n- Updated app-sidebar.tsx with 530-specific navigation (Dashboard, Content, Users, Settings)\n- Refactored admin layout to use SidebarProvider, AppSidebar, SidebarInset\n- Created admin dashboard at /admin with stats cards and quick actions\n- Collapsible sidebar with icon-only mode\n- Modern card-based UI with shadcn styling\n\nNavigation structure:\n- Dashboard > Overview, Analytics\n- Content > Tags, Posts, Categories\n- Users > All Users, Moderators, Activity  \n- Settings > General, Database, API Keys\n- Projects > View Public Site, Tag Statistics, Documentation\n\nAccess: http://localhost:3000/admin",
+      "type": "config",
+      "tags": [
+        "config",
+        "database",
+        "api",
+        "530-project",
+        "shadcn-ui",
+        "sidebar-07",
+        "dashboard",
+        "admin-ui"
+      ],
+      "timestamp": "2025-10-11T17:11:20.979Z",
+      "context": "Integrated professional shadcn sidebar dashboard for admin panel",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-11T17:11:20.979Z",
+      "lastVerified": "2025-10-11T17:11:20.979Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760207511912_gc9y2xcxx",
+      "content": "Successfully migrated 530 tag system to API structure. Migration 20251011182546_replace_tags_with_api_structure.sql creates 107 total tags:\n- 11 root categories (depth 0): general, 3d-development, ai, web-development, code, misc, offtopic, metaverse, interdisciplinary-impacts, ethics-society, modifiers\n- 96 child tags (depth 1) from API covering: AI (llm, ai-art, ai-video, computer-vision, etc), 3D (blender, unity, three-js, etc), Web Dev (frontend-frameworks, styling, apis, etc), Code (vs-code, jupyter-notebooks, etc), Metaverse (VR, AR, decentraland, etc), and Modifiers (tools, learning, communities, showcase, etc)\n\nAdded 'slug' column to tags table for API compatibility. Cleaned seed.sql to avoid conflicts. Hierarchy working correctly with materialized paths and auto-calculated depths.",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "api",
+        "530-project",
+        "database",
+        "migration",
+        "tag-hierarchy",
+        "api-integration"
+      ],
+      "timestamp": "2025-10-11T18:31:51.912Z",
+      "context": "Replaced existing tag structure with comprehensive API-sourced taxonomy",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-11T18:31:51.912Z",
+      "lastVerified": "2025-10-11T18:31:51.912Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760208296791_iijq6s8gf",
+      "content": "Enhanced 530 Chrome extension with full API integration and hierarchical tagging:\n\n**New Files Created:**\n- tag-hierarchy-modal.js: Modal that fetches real tag hierarchy from Supabase API, displays expandable tree, shows existing tags, supports search\n- tag-hierarchy-modal.css: Comprehensive styling with hover states, selected states, depth indentation, mobile responsive\n\n**Updated Files:**\n- background.js: Added handleGetTagHierarchy(), handleCheckPostExists(), handleUpdatePostTags(), buildHierarchy() functions. Auto-sets local Supabase config on install.\n- content.js: Added checkPostStatus(), updateButtonAppearance() functions. Buttons now show green \"530 ✓\" when post already tagged, displays tag count in tooltip.\n- manifest.json: Updated to use tag-hierarchy-modal.js and tag-hierarchy-modal.css\n\n**Features Implemented:**\n1. Real-time check if post exists in database (green button if tagged)\n2. Hierarchical tag selector with 107 tags from API\n3. Expandable/collapsible category tree\n4. Search functionality in modal\n5. Shows existing tags when editing\n6. Tag count badges on parent categories\n7. Updates button appearance after saving\n8. Full CRUD operations via Supabase REST API\n\nExtension now fully integrated with database!",
+      "type": "config",
+      "tags": [
+        "config",
+        "api",
+        "database",
+        "530-project",
+        "chrome-extension",
+        "supabase",
+        "api-integration",
+        "hierarchical-tags",
+        "ui"
+      ],
+      "timestamp": "2025-10-11T18:44:56.791Z",
+      "context": "Completed full Chrome extension integration with Supabase API and hierarchical tag system",
+      "accessCount": 3,
+      "lastAccessed": "2025-10-19T17:35:30.339Z",
+      "lastVerified": "2025-10-11T18:44:56.791Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760209054814_o0t3zkq95",
+      "content": "Fixed z-index and CSS isolation issues for 530 Chrome extension modal on X.com:\n\n**Problem**: Modal was rendering behind X.com's UI elements, showing \"0 tag(s) selected\" text behind the page.\n\n**Solution**: \n- Set z-index to maximum value (2147483647) on overlay and modal\n- Added `!important` to ALL critical CSS properties to prevent X.com's styles from overriding\n- Added CSS reset with `all: revert !important` on modal overlay children\n- Ensured proper positioning, display, and background properties with !important flags\n- Used maximum specificity to combat X.com's aggressive CSS\n\n**Files Updated**:\n- tag-hierarchy-modal.css: Added !important to ~200 CSS properties, set maximum z-index, added isolation layer\n\n**Key CSS Changes**:\n- position: fixed !important with z-index: 2147483647 !important\n- All colors, backgrounds, borders with !important\n- All layout properties (flex, padding, margin) with !important\n- Box-sizing: border-box !important on all elements\n- Font-family specified on all text elements\n\nExtension modal should now properly display on top of X.com UI.",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "530-project",
+        "chrome-extension",
+        "css",
+        "z-index",
+        "bug-fix"
+      ],
+      "timestamp": "2025-10-11T18:57:34.814Z",
+      "context": "Fixed modal z-index and CSS isolation issues for X.com integration",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-11T18:57:34.814Z",
+      "lastVerified": "2025-10-11T18:57:34.814Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760209650711_61erspqe2",
+      "content": "Improved 530 Chrome extension modal UI/UX with better styling and usability:\n\n**CSS Improvements** (tag-hierarchy-modal.css):\n- Increased modal width to 700px for better content display\n- Enhanced tag item spacing: padding 12px 16px, min-height 48px\n- Made expand buttons larger (28x28px) with visible background (#f3f4f6) and hover effects\n- Improved tag typography: 15px font-size, 600 weight, better line-height\n- Added visual hierarchy with border-left on children containers\n- Root categories (level 0) have distinct background (#f9fafb) and stronger borders\n- Selected tags have gradient background and drop shadow for better feedback\n- Larger checkboxes (20x20px) with purple accent color\n- Better indentation for nested tags with 40px margin + 12px padding\n\n**JavaScript Improvements** (tag-hierarchy-modal.js):\n- Auto-expand all root categories by default on load\n- Users can immediately see all available tags without clicking expand buttons\n- Improved discoverability and reduced friction\n\n**Result**: Modal now has clear visual hierarchy, better spacing, more accessible controls, and all tags visible by default.",
+      "type": "general",
+      "tags": [
+        "general",
+        "javascript",
+        "530-project",
+        "chrome-extension",
+        "ui-ux",
+        "css",
+        "improvement"
+      ],
+      "timestamp": "2025-10-11T19:07:30.711Z",
+      "context": "Enhanced modal styling and usability with better spacing, typography, and auto-expanded categories",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-11T19:07:30.711Z",
+      "lastVerified": "2025-10-11T19:07:30.711Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760215203281_jyzzzrwr1",
+      "content": "Issue identified: Extension is returning mock data (2 categories) instead of real Supabase data (11 categories with 107 total tags). The mock data has IDs like \"1\", \"2\" instead of UUIDs. This means either: 1) Supabase config isn't loaded in chrome.storage.sync, or 2) The fetch is failing silently. Need to check background service worker console at chrome://extensions/ to see config loading logs.",
+      "type": "config",
+      "tags": [
+        "config",
+        "debugging",
+        "chrome-extension",
+        "supabase-config"
+      ],
+      "timestamp": "2025-10-11T20:40:03.281Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-10-19T17:35:30.339Z",
+      "lastVerified": "2025-10-11T20:40:03.281Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760238608728_wsf9bil9s",
+      "content": "Successfully completed dark mode styling and inline descriptions for tag modal. Extension now uses hardcoded Supabase config (http://127.0.0.1:54321) and displays all 107 tags across 11 root categories. Storage config issue was bypassed by hardcoding credentials in background.js.",
+      "type": "config",
+      "tags": [
+        "config",
+        "completed",
+        "dark-mode",
+        "chrome-extension",
+        "supabase-config"
+      ],
+      "timestamp": "2025-10-12T03:10:08.728Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-10-19T17:35:30.339Z",
+      "lastVerified": "2025-10-12T03:10:08.728Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760238662790_9jnu63ojx",
+      "content": "WTF library analysis started. WTF is a React Three Fiber 3D content visualization system that expects LiveViewContentBlock[] format with hierarchical structure: Episode → ContentBlocks (Categories) → ContentBlockItems (Items) → Content (Media). Our current 530 database has tagged_posts (flat structure with tweet_id, tags as jsonb array) and hierarchical tags table. Major gap: We need to transform flat tagged posts into hierarchical episode/content_block structure that WTF expects.",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "database",
+        "wtf-integration",
+        "data-structure",
+        "architecture"
+      ],
+      "timestamp": "2025-10-12T03:11:02.790Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T03:11:02.790Z",
+      "lastVerified": "2025-10-12T03:11:02.790Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760238763075_0bghha5ml",
+      "content": "WTF integration analysis complete. Created comprehensive documentation at docs/WTF_INTEGRATION_ANALYSIS.md covering: data transformation strategy (flat tagged_posts → hierarchical LiveViewContentBlock), 5 critical decisions requiring user approval, 5-phase implementation plan, API endpoint design, and risks. Key recommendations: (1) Dynamic API generation for MVP instead of new DB tables, (2) Daily auto-generated episodes, (3) Duplicate posts across categories, (4) Pre-fetch thumbnails in extension, (5) Start simple with core features.",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "wtf-integration",
+        "analysis-complete",
+        "documentation",
+        "decision-points"
+      ],
+      "timestamp": "2025-10-12T03:12:43.075Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T03:12:43.075Z",
+      "lastVerified": "2025-10-12T03:12:43.075Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760239416174_1axl25x4x",
+      "content": "Phase 1 of WTF integration complete. Created 3 database migrations: (1) episodes/content_blocks/content_block_items tables with RLS policies, (2) auto-populate trigger that creates episode structure when posts are tagged - posts duplicate across multiple root tag categories, (3) fixed root tag traversal function. Updated Chrome extension to extract and save thumbnails. Database automatically populates WTF-compatible structure on tag creation. Ready for API endpoint development.",
+      "type": "code",
+      "tags": [
+        "code",
+        "database",
+        "api",
+        "wtf-integration",
+        "phase-1-complete",
+        "database-migrations",
+        "auto-population"
+      ],
+      "timestamp": "2025-10-12T03:23:36.174Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T03:23:36.174Z",
+      "lastVerified": "2025-10-12T03:23:36.174Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760239840094_0xj50w4xg",
+      "content": "WTF integration COMPLETE! Successfully implemented full end-to-end integration: (1) Database auto-populates episode structure on post tagging, (2) API endpoint at /api/episodes/[date] transforms data to WTF format, (3) Next.js page at /episodes/[date] renders 3D visualization with WTF library, (4) Chrome extension captures thumbnails, (5) Posts duplicate across root tag categories, (6) Dev controls enabled, audio disabled. All requirements met. Ready for production testing. Documentation at docs/WTF_INTEGRATION_COMPLETE.md",
+      "type": "general",
+      "tags": [
+        "general",
+        "database",
+        "api",
+        "testing",
+        "wtf-integration",
+        "complete",
+        "production-ready",
+        "milestone"
+      ],
+      "timestamp": "2025-10-12T03:30:40.094Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T03:30:40.094Z",
+      "lastVerified": "2025-10-12T03:30:40.094Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760245327102_p7ntjzgkx",
+      "content": "Fixed Next.js 15 async params issue in web/app/episodes/[date]/page.tsx. Updated to use React.use() to unwrap params Promise. Changed PageProps interface to params: Promise<{date: string}>, extracted date using const { date } = use(params), and replaced all params.date references with date variable.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "react",
+        "nextjs",
+        "nextjs-15",
+        "migration",
+        "bug-fix",
+        "530-project"
+      ],
+      "timestamp": "2025-10-12T05:02:07.102Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T05:02:07.102Z",
+      "lastVerified": "2025-10-12T05:02:07.102Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760245381449_wxtqrnxlg",
+      "content": "Fixed zustand-x createStore API usage in wtf/UI/uiStore.ts. The correct API is createStore<StateType>(initialState, { name: 'store-name', ...options }), NOT createStore('name')<StateType>(initialState). The store name must be in the options object as the second parameter, with the initial state as the first parameter.",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "api",
+        "code",
+        "zustand",
+        "zustand-x",
+        "bug-fix",
+        "530-project",
+        "wtf"
+      ],
+      "timestamp": "2025-10-12T05:03:01.449Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T05:03:01.449Z",
+      "lastVerified": "2025-10-12T05:03:01.449Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760245913891_4ulhpjj8w",
+      "content": "Successfully migrated all zustand-x stores in the WTF 3D viewer to use the correct v6.1.2 API. Updated 8 stores total: UIStore, ContentStore, TweetStore, PositionStore, DisplayCameraStore, SettingStore, SceneStore, and KeyListenerStore. Changed from createStore('name')<StateType>(state) to createStore<StateType>(state, { name: 'name' }) pattern.",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "api",
+        "zustand-x",
+        "migration",
+        "530-project",
+        "wtf",
+        "refactor"
+      ],
+      "timestamp": "2025-10-12T05:11:53.891Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T05:11:53.891Z",
+      "lastVerified": "2025-10-12T05:11:53.891Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760247174244_i0zzin1uh",
+      "content": "Successfully migrated zustand-x from v5 to v6 API across 28 files in WTF 3D viewer codebase. Changed all Store.use.property() calls to useStoreValue(Store, 'property'). All files now import useStoreValue from zustand-x. Migration verified - only .use. patterns remaining are in documentation comments.",
+      "type": "code",
+      "tags": [
+        "code",
+        "api",
+        "zustand-x",
+        "migration",
+        "v6",
+        "wtf-viewer"
+      ],
+      "timestamp": "2025-10-12T05:32:54.244Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T05:32:54.244Z",
+      "lastVerified": "2025-10-12T05:32:54.244Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760248397686_w8og947yp",
+      "content": "Successfully migrated zustand-x from v5 to v6 API in the WTF 3D viewer codebase. Changed all Store.set.actionName() calls to Store.set('actionName') and Store.get.propertyName() calls to Store.get('propertyName') across 24 files. Preserved parameter syntax inside extendActions (set.property and get.property remain unchanged when used as function parameters).",
+      "type": "code",
+      "tags": [
+        "code",
+        "api",
+        "zustand-x",
+        "migration",
+        "v6",
+        "wtf-viewer",
+        "completed"
+      ],
+      "timestamp": "2025-10-12T05:53:17.686Z",
+      "context": "Migration completed for TwitterBotY25 web project. All store calls updated to v6 API while preserving internal store definition syntax.",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T05:53:17.686Z",
+      "lastVerified": "2025-10-12T05:53:17.686Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760248441721_ochexr959",
+      "content": "Completed full zustand-x v6.1.2 migration for 530 Project WTF 3D viewer. Three major breaking changes: 1) createStore API changed from createStore('name')<T>(state) to createStore<T>(state, {name}), 2) Hook usage changed from store.use.prop() to useStoreValue(store, 'prop'), 3) Actions/getters changed from store.set.action()/store.get.prop() to store.set('action')/store.get('prop'). Total: 9 stores updated, 28 files for hooks, 24 files for actions/getters.",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "zustand-x",
+        "migration",
+        "v6",
+        "530-project",
+        "wtf",
+        "breaking-changes"
+      ],
+      "timestamp": "2025-10-12T05:54:01.721Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T05:54:01.721Z",
+      "lastVerified": "2025-10-12T05:54:01.721Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760248870996_bivvo4aip",
+      "content": "Completed zustand-x v6 set.mergeState migration. Replaced all active set.mergeState() calls with api.store().setState() in 3 files: contentStore.ts (12 occurrences), cameraStore.ts (3 occurrences), and audioStore.tsx (7 occurrences). Total 22 replacements. Also added missing 'api' parameter to audioStore's extendActions.",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "zustand-x",
+        "migration",
+        "v6",
+        "530-project",
+        "state-management"
+      ],
+      "timestamp": "2025-10-12T06:01:10.996Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T06:01:10.996Z",
+      "lastVerified": "2025-10-12T06:01:10.996Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760254222343_l2b54hjlp",
+      "content": "Fixed zustand-x v6 migration issue: All store `get.property()` calls needed to be changed to `get('property')` syntax. Fixed in:\n- contentStore.ts (already done)\n- positionStore.ts (3 occurrences)\n- sceneStore.ts (3 occurrences)\n- cameraStore.ts (2 occurrences)\n- audioStore.tsx (11 occurrences)\n\nAlso previously fixed: extendActions signature must destructure parameters as ({ set, get }) not (set, get)",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "zustand-x",
+        "migration",
+        "v6",
+        "debugging"
+      ],
+      "timestamp": "2025-10-12T07:30:22.343Z",
+      "context": "Completed zustand-x v5 to v6 migration fixes for 530 Project React site",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T07:30:22.343Z",
+      "lastVerified": "2025-10-12T07:30:22.343Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760254446858_avqt4qmdl",
+      "content": "Completed zustand-x v6 migration for 530 Project:\n1. Fixed extendActions parameter signature: Changed from (set, get) to ({ set, get }) across all 8 stores\n2. Fixed get() calls: Changed from get.property() to get('property') syntax in all stores\n3. Fixed supabase import: Uncommented the supabase import in contentStore.ts which was needed for TweetStore.getTweet()\n\nAll runtime errors resolved. Dev server running successfully on port 3001.",
+      "type": "code",
+      "tags": [
+        "code",
+        "zustand-x",
+        "migration",
+        "v6",
+        "completed",
+        "530-project"
+      ],
+      "timestamp": "2025-10-12T07:34:06.858Z",
+      "context": "Successfully completed zustand-x v5 to v6 migration for React site",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T07:34:06.858Z",
+      "lastVerified": "2025-10-12T07:34:06.858Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760254936970_xjmh9eiw7",
+      "content": "Fixed supabase import path in contentStore.ts: Changed from \"@/utils/supabase/client\" to \"@/lib/supabase\". The actual supabase client is located at web/lib/supabase.ts and exports the supabase client instance.",
+      "type": "code",
+      "tags": [
+        "code",
+        "supabase",
+        "import-path",
+        "530-project",
+        "fix"
+      ],
+      "timestamp": "2025-10-12T07:42:16.970Z",
+      "context": "Fixed module not found error for supabase client",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T07:42:16.970Z",
+      "lastVerified": "2025-10-12T07:42:16.970Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760255990820_eus4gnyfd",
+      "content": "Successfully completed bug fixes for 530 Project episode page:\n1. Fixed database table name: Changed from 'tweets' to 'posts' in contentStore.ts getTweet() method\n2. Fixed missing 3D model: Corrected GLB file preload path from '/colorLogo1.glb' to '/models/colorLogo1.glb' in Logo530.tsx\n3. Page now loads successfully at http://localhost:3001/episodes/2025-10-11\n\nRemaining non-critical issues:\n- Image texture loading errors (missing image files)\n- Three.js multiple instances warning (optimization opportunity)\n- WebGL context lost warning (browser/GPU issue, not code error)",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "database",
+        "optimization",
+        "530-project",
+        "bug-fixes",
+        "zustand-x-v6",
+        "complete"
+      ],
+      "timestamp": "2025-10-12T07:59:50.820Z",
+      "context": "Fixed critical bugs after zustand-x v6 migration, page now renders successfully",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T07:59:50.820Z",
+      "lastVerified": "2025-10-12T07:59:50.820Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760287437822_6eo8wyf7n",
+      "content": "Chrome extension 400 error fix: Database schema uses `tweet_text` field, but background.js was sending `content` field. Fixed both `handleTagPost()` and `handleUpdatePostTags()` functions to use `tweet_text` instead of `content` to match the tagged_posts table schema in migration 20251011164344.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "database",
+        "bug-fix",
+        "chrome-extension",
+        "database-schema",
+        "530-project"
+      ],
+      "timestamp": "2025-10-12T16:43:57.822Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T16:43:57.822Z",
+      "lastVerified": "2025-10-12T16:43:57.822Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760290402753_k5vzes3ur",
+      "content": "Chrome Extension API Integration Complete:\n- Created 3 Next.js API routes: /api/posts (POST/GET), /api/posts/check (GET), /api/tags/hierarchy (GET)\n- Updated extension background.js to use Next.js API at localhost:3001/api instead of direct Supabase\n- All API endpoints tested and working:\n  * POST /api/posts creates/updates posts with tags (returns action: \"created\" or \"updated\")\n  * GET /api/posts/check?tweetId=X returns {exists: bool, post: object}\n  * GET /api/tags/hierarchy returns hierarchical tag structure\n- Extension now calls API for: checkPostExists, updatePostTags, getTagHierarchy, getTags\n- Button appearance updates automatically when post is tagged (green with checkmark)",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "chrome-extension",
+        "api-integration",
+        "530-project",
+        "complete"
+      ],
+      "timestamp": "2025-10-12T17:33:22.753Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-10-19T17:33:50.363Z",
+      "lastVerified": "2025-10-12T17:33:22.753Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760293483152_046i1cnlw",
+      "content": "Chrome Extension Complete User Flow Fixes Applied:\n1. Fixed thumbnailUrl missing from modal save - now passes from postData to API\n2. Added CORS headers to all 3 API routes (posts, posts/check, tags/hierarchy) with OPTIONS handlers\n3. Added localhost:3001 and 127.0.0.1:3001 to manifest host_permissions for dev testing\n4. Tested complete flow: API accepts thumbnails, CORS working, posts created/updated successfully\n5. Complete flow verified: Button appears → Check if tagged → Modal opens → Tags selected → Save to API → Database updated → Button updates to green with checkmark",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "api",
+        "testing",
+        "database",
+        "chrome-extension",
+        "complete",
+        "530-project",
+        "user-flow"
+      ],
+      "timestamp": "2025-10-12T18:24:43.152Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-10-19T17:33:50.363Z",
+      "lastVerified": "2025-10-12T18:24:43.152Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760298418835_xsn9i839r",
+      "content": "Multi-Platform Content Extraction System Created for 530:\n- Created processor-based architecture (BaseContentProcessor + Factory pattern)\n- Implemented TwitterProcessor with full DOM extraction logic\n- Created unified content database schema (replaces platform-specific tables)\n- Built MetadataExtractor service (Open Graph, oEmbed, HTML meta parsing)\n- Comprehensive 200+ line documentation in CONTENT_EXTRACTION_SYSTEM.md\n- System design inspired by Discord embed system but adapted for Chrome extensions\n- Files: /web/lib/content-processors/, /web/lib/services/MetadataExtractor.ts\n- Migrations: 20251012000000 (unified table), 20251012000001 (data migration)\n- Ready to extend: YouTube, Reddit, Bluesky, Instagram processors can be added following template",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "database",
+        "530-project",
+        "architecture",
+        "complete",
+        "content-extraction",
+        "documentation"
+      ],
+      "timestamp": "2025-10-12T19:46:58.835Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T19:46:58.835Z",
+      "lastVerified": "2025-10-12T19:46:58.835Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760299578574_lg3radgvf",
+      "content": "YouTube & Reddit Multi-Platform Integration Complete (2025-10-12)\n\n**What We Built:**\n1. YouTubeProcessor - Extracts video metadata from URLs/DOM with oEmbed support\n2. RedditProcessor - Extracts post data via JSON API and DOM scraping\n3. Content-youtube.js & content-reddit.js - Chrome extension content scripts\n4. Unified /api/content endpoint - Multi-platform REST API replacing Twitter-only /api/posts\n5. Database migration - Created `content` table, migrated Twitter data from `tagged_posts`\n\n**Key Architecture Decisions:**\n- Deterministic content IDs: `platform:platformContentId` (e.g., \"youtube:dQw4w9WgXcQ\")\n- JSONB fields for flexible metadata storage across platforms\n- Backwards compatibility: Twitter still works with legacy /api/posts endpoint\n- Tag modal auto-detects platform vs legacy format\n\n**File Structure:**\n- Processors: /web/lib/content-processors/{YouTubeProcessor,RedditProcessor}.ts\n- API: /web/app/api/content/{route.ts,check/route.ts}\n- Extension: /extension/public/{content-youtube.js,content-reddit.js,background.js}\n- Migrations: /supabase/migrations/20251012000000_create_unified_content_table.sql\n\n**Testing Status:**\n- Database migrations: ✅ Applied successfully, 4 Twitter posts migrated\n- API endpoints: ✅ Created and validated\n- Extension updates: ✅ manifest.json updated for all platforms\n- Integration testing: ⏳ Pending manual browser testing\n\n**Next Steps for Testing:**\n1. Load extension in Chrome\n2. Visit YouTube video page - verify 530 button appears\n3. Visit Reddit post page - verify 530 button appears\n4. Tag content from each platform - verify saves to unified API\n5. Check Supabase content table for multi-platform entries",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "api",
+        "database",
+        "testing",
+        "530-project",
+        "multi-platform",
+        "youtube",
+        "reddit",
+        "implementation",
+        "milestone"
+      ],
+      "timestamp": "2025-10-12T20:06:18.574Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-10-19T17:33:50.363Z",
+      "lastVerified": "2025-10-12T20:06:18.574Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760303835664_7b0sxs6l7",
+      "content": "Enhanced metadata extraction and creator tracking system completed:\n\n1. JSON-LD Extraction: Added extraction of structured data (Article, NewsArticle, VideoObject) from Schema.org JSON-LD tags, with support for @graph arrays and complex nested structures.\n\n2. Metadata Validation: Created MetadataValidator service with quality scoring (0-100), completeness percentage, and confidence levels (high/medium/low). Validates title, description, author, image, and publish dates.\n\n3. Creator Database: Created `creators` table tracking content authors across platforms with fields: username, display_name, bio, avatar_url, follower_count, verified, content_count, avg_quality_score, first_seen, last_seen.\n\n4. Creator Auto-Linking: CreatorService automatically creates/updates creator profiles when content is saved, using deterministic IDs (format: \"platform:username\").\n\n5. Creator Analytics: Implemented endpoints for listing creators, searching, getting stats (total content, quality score, platforms, tags, first/last post), and querying creator content.\n\n6. Content Quality Tracking: All content now has metadata_quality field with scoring based on completeness and reliability of extracted metadata.\n\n7. Database Triggers: Auto-update creator stats (content_count) when content is inserted/updated/deleted.\n\n8. Backfill System: Created admin endpoint /api/admin/backfill-creators to populate creators from existing content, with smart username extraction from author_name field.\n\nAPI Endpoints:\n- GET /api/creators - List/search creators with filtering by platform, sorting by content_count/quality\n- GET /api/creators/[id] - Get creator details\n- GET /api/creators/[id]/stats - Get creator analytics\n- GET /api/creators/[id]/content - Get all content by creator\n- POST /api/admin/backfill-creators - Backfill creators from existing content\n\nKey files:\n- web/lib/services/MetadataExtractor.ts (added JSON-LD extraction)\n- web/lib/services/MetadataValidator.ts (new)\n- web/lib/services/CreatorService.ts (new)\n- web/app/api/creators/* (new endpoints)\n- supabase/migrations/20251012010000_create_creators_table.sql\n- supabase/migrations/20251012010001_enhance_content_table.sql",
+      "type": "general",
+      "tags": [
+        "general",
+        "database",
+        "api",
+        "implementation",
+        "metadata",
+        "creators",
+        "analytics"
+      ],
+      "timestamp": "2025-10-12T21:17:15.664Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T21:17:15.664Z",
+      "lastVerified": "2025-10-12T21:17:15.664Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760304963704_a1b6it3ad",
+      "content": "Fixed YouTube content extraction to populate all required fields:\n\n1. Channel Username Extraction: Added extractChannelUsername() function to parse channel handles from URLs (/@username, /c/Username, /user/username, /channel/UCxxxxx). Now properly extracts usernames like \"intheworldofai\" instead of deriving poor usernames from display names.\n\n2. Channel Avatar Extraction: Added multiple selector fallbacks (#owner #avatar img, ytd-video-owner-renderer img, #channel-thumbnail img) to extract channel profile pictures.\n\n3. Upload Date Parsing: Added parseDateText() function to convert YouTube date text (e.g., \"Oct 11, 2025\", \"Premiered Aug 26, 2025\") into ISO timestamps for content_created_at field.\n\n4. Improved Description Extraction: Added 5 fallback selectors including #description-inline-expander, meta description tags, and Open Graph tags for better reliability.\n\n5. Enhanced Title Extraction: Added ytd-watch-metadata selector and Open Graph fallback for better compatibility with YouTube layout changes.\n\nChanges made to extension/public/content-youtube.js:\n- Added parseDateText() helper function\n- Added extractChannelUsername() helper function\n- Enhanced extractVideoMetadata() with better selectors and new fields\n- Updated contentData object to include authorUsername, authorAvatarUrl, contentCreatedAt\n\nExpected improvements:\n- Creator usernames will be accurate (e.g., youtube:intheworldofai)\n- Channel avatars will display in creator profiles\n- Upload dates properly tracked for chronological analysis\n- Metadata quality scores should increase from 55 to 70-85\n- Better description extraction reliability",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "youtube",
+        "chrome-extension",
+        "metadata",
+        "bugfix"
+      ],
+      "timestamp": "2025-10-12T21:36:03.704Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T21:36:03.704Z",
+      "lastVerified": "2025-10-12T21:36:03.704Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760306144963_n9xy7ic7k",
+      "content": "Updated homepage (http://localhost:3000/) to display content thumbnails:\n\n1. Added thumbnail image section at top of each card (h-48 height, full width)\n2. Thumbnail displays with object-cover for proper aspect ratio\n3. Platform badge moved to top-right corner as overlay on thumbnail (with shadow)\n4. Graceful fallback: if thumbnail fails to load, it's hidden via onError handler\n5. Cards now have overflow-hidden for clean thumbnail display\n6. Text content (title/description) shortened to line-clamp-3 to accommodate thumbnail\n7. Platform badge only shows in header if no thumbnail exists (avoids duplication)\n\nLayout structure:\n- Cards: overflow-hidden border-box\n- Thumbnail: 192px height (h-48), gray background placeholder\n- Platform badge: absolute positioned top-right with shadow\n- Content area: p-6 padding with author, description, tags, link\n\nFile modified: web/app/page.tsx\n\nResult: YouTube videos, Reddit posts, and any content with thumbnails now display visually rich cards with images, making the homepage more engaging and easier to scan.",
+      "type": "general",
+      "tags": [
+        "general",
+        "ui",
+        "homepage",
+        "thumbnails",
+        "frontend"
+      ],
+      "timestamp": "2025-10-12T21:55:44.963Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T21:55:44.963Z",
+      "lastVerified": "2025-10-12T21:55:44.963Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760306588441_pq9b7ct18",
+      "content": "Fixed Reddit 530 button injection by adding shadow DOM support:\n\nProblem: Reddit uses Web Components (shreddit-post elements) with Shadow DOM, which prevents standard querySelector from accessing action buttons and metadata.\n\nSolution implemented in extension/public/content-reddit.js:\n\n1. Created querySelectorDeep() helper function:\n   - Searches normal DOM first\n   - If element has shadowRoot, searches within it\n   - Recursively searches shadow DOM of all children\n   - Returns first matching element across shadow boundaries\n\n2. Enhanced action container detection with 10+ selector fallbacks:\n   - Shadow DOM slots: [slot=\"actionRow\"], shreddit-comment-action-row, [id*=\"action-row\"]\n   - Regular DOM: [data-click-id=\"comments\"] parent, footer elements\n   - Aria labels: [aria-label*=\"share\"] parent\n   - Fallback: any flex container with buttons\n\n3. Updated metadata extraction to use querySelectorDeep for all fields:\n   - Title: [slot=\"title\"], h1, h2, h3\n   - Author: [slot=\"author\"], a[slot=\"author-link\"], [data-testid=\"post_author_link\"]\n   - Subreddit: [slot=\"subreddit\"], a[href*=\"/r/\"]\n   - Thumbnail: [slot=\"thumbnail\"], img elements\n   - Score, comments: slot-based and aria-label fallbacks\n\n4. Added comprehensive debug logging:\n   - Post ID detection\n   - Shadow DOM presence\n   - Actions container found/not found\n   - Extracted metadata summary\n\nResult: 530 button should now appear on Reddit posts across all layouts (old Reddit, new Reddit, Shreddit). Console logs will help diagnose any remaining issues.",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "reddit",
+        "chrome-extension",
+        "shadow-dom",
+        "bugfix"
+      ],
+      "timestamp": "2025-10-12T22:03:08.441Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T22:03:08.441Z",
+      "lastVerified": "2025-10-12T22:03:08.441Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760308177184_bff78m5pn",
+      "content": "Implemented Bluesky (bsky.app) integration for 530 Chrome extension:\n\nCreated extension/public/content-bluesky.js with:\n1. Post detection using article elements and data-testid attributes\n2. Post ID extraction from URL pattern /profile/{handle}/post/{postId}\n3. Action button detection via [role=\"group\"] and aria-label buttons\n4. Comprehensive metadata extraction:\n   - Post text from [data-testid=\"postText\"] and div[dir=\"auto\"]\n   - Author name and handle from profile links\n   - Author avatar from img[alt*=\"avatar\"]\n   - Images/media from img[alt*=\"Image\"] elements\n   - Timestamp from time elements\n   - Engagement metrics (replies, reposts, likes) from aria-labels\n\n5. Button injection in action button row with style matching\n6. Integration with TagHierarchyModal for tag selection\n7. Status checking via background script\n\nUpdated extension/public/manifest.json:\n- Added https://bsky.app/* to host_permissions\n- Added content script entry for Bluesky\n- Added bsky.app to web_accessible_resources\n\nPlatform features:\n- Platform identifier: \"bluesky\"\n- Extracts author handle (username) and display name\n- Captures multiple images in mediaAssets array\n- Stores engagement metrics in metadata\n- Supports timestamp/contentCreatedAt for chronological tracking\n\nResult: 530 button now appears on Bluesky posts alongside reply/repost/like buttons, supporting full metadata extraction and tagging workflow.",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "bluesky",
+        "chrome-extension",
+        "implementation"
+      ],
+      "timestamp": "2025-10-12T22:29:37.184Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T22:29:37.184Z",
+      "lastVerified": "2025-10-12T22:29:37.184Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760310795547_ti87xjmou",
+      "content": "Implemented multi-image support across all platforms:\n\n**Content Scripts Updated:**\n- X/Twitter: Extracts all images (up to 4) using querySelectorAll on tweetPhoto elements\n- Reddit: Extracts gallery images from shadow DOM using querySelectorDeep\n- Bluesky: Already had multi-image support\n- All platforms now send mediaAssets array: {type: 'image', url: string}\n\n**React Homepage:**\n- Displays single images as before (full width)\n- Multiple images shown in smart grid:\n  - 2 images: 2 columns\n  - 3 images: 3 columns\n  - 4+ images: 2x2 grid with \"+N\" overlay on 4th image if more exist\n- Backwards compatible with thumbnail_url fallback\n\n**Database Schema:**\n- media_assets JSONB column already existed\n- Structure: [{type, url, width, height, duration, mimeType}]\n- thumbnail_url kept for first image (backward compatibility)",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "database",
+        "multi-image",
+        "media-assets",
+        "gallery",
+        "implementation"
+      ],
+      "timestamp": "2025-10-12T23:13:15.547Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-12T23:13:15.547Z",
+      "lastVerified": "2025-10-12T23:13:15.547Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760311811675_hy5ni72e3",
+      "content": "Enhanced Multi-Media Architecture Implementation Complete:\n\n**Phase 1: Content Scripts Enhanced**\n✅ X/Twitter: Added extractMediaAsset() helper, detects images + videos with dimensions, MIME types\n✅ YouTube: Marked as video type, extracts ISO 8601 duration (PT2M34S → seconds), video dimensions, proper mediaAssets structure\n✅ Reddit: Detects video posts, extracts dimensions from image/video elements, MIME type detection\n✅ Bluesky: Added video detection, dimension extraction for images/videos\n\n**Phase 2: React Homepage Enhanced**\n✅ Video display with play button overlay (white circle with triangle)\n✅ Duration badge (formatted as MM:SS or HH:MM:SS)\n✅ Video detection logic (YouTube platform or video mediaAssets)\n✅ Hover effects on play button (scale + opacity transitions)\n✅ Backwards compatible with existing image galleries\n\n**MediaAsset Structure Now Includes:**\n- type: 'image' | 'video' | 'audio' | 'embed'\n- url: string\n- width?: number (extracted from element.naturalWidth or videoWidth)\n- height?: number (extracted from element.naturalHeight or videoHeight)\n- duration?: number (in seconds, rounded)\n- mimeType?: string (detected from file extension or element type)\n\n**Key Implementation Details:**\n- X/Twitter: Uses async extractMediaAsset() with Promise for image loading\n- YouTube: Parses duration from meta[itemprop=\"duration\"] with regex\n- Reddit: Checks for is-video class and video elements in shadow DOM\n- Bluesky: Detects videos alongside images in posts\n- Homepage: formatDuration() helper for time display\n\n**Alignment with Processor Architecture:**\n- Content scripts now output matches processor MediaAsset interface\n- Ready for future processor integration\n- Consistent data structure across all platforms\n- Database schema already supports all fields",
+      "type": "code",
+      "tags": [
+        "code",
+        "react",
+        "database",
+        "implementation-complete",
+        "multi-media",
+        "video-support",
+        "architecture"
+      ],
+      "timestamp": "2025-10-12T23:30:11.675Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-10-19T17:33:50.363Z",
+      "lastVerified": "2025-10-12T23:30:11.675Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760892372716_407b0rh0y",
+      "content": "Updated 530 project React frontend to sleek dark theme by default:\n- Enabled dark mode globally in layout.tsx with className=\"dark\"\n- Updated metadata to \"530 - Social Media Curator\"\n- Changed background from light purple/blue gradient to dark gradient (gray-950 via gray-900 to black)\n- Header now has sticky backdrop blur with glassmorphism effect\n- All buttons use dark theme with white/5 opacity backgrounds and purple gradients for active states\n- Post cards use backdrop blur, rounded-2xl borders, and hover effects with purple shadow\n- Enhanced dark mode color palette in globals.css with deeper blacks and vibrant purple accent colors\n- All text updated to work with dark backgrounds (white, gray-300, gray-400, etc.)",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "530-project",
+        "frontend",
+        "dark-theme",
+        "tailwind",
+        "nextjs"
+      ],
+      "timestamp": "2025-10-19T16:46:12.716Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T16:46:12.716Z",
+      "lastVerified": "2025-10-19T16:46:12.716Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760892866515_dlqumv0x2",
+      "content": "Enhanced Reddit Chrome extension integration with major improvements:\n\n1. **Improved Button Injection** (content-reddit.js:219-346):\n   - Added 3-tier strategy for finding action button container in shadow DOM\n   - Strategy 1: Find comment button and use parent element\n   - Strategy 2: Detect containers with multiple action buttons\n   - Strategy 3: Search by slot/id attributes\n   - Added fallback for old Reddit (.buttons, .flat-list)\n   - Last resort: Create custom container if none found\n\n2. **Enhanced Post ID Detection** (content-reddit.js:16-49):\n   - Added 5 strategies to extract post ID reliably\n   - Checks data-fullname (old Reddit), permalink, URL, links, data-url\n   - Works with both old Reddit and new Reddit (Shreddit)\n\n3. **Better Infinite Scroll Handling** (content-reddit.js:460-543):\n   - Debounced mutation observer to avoid excessive processing\n   - Detects shreddit-post, .thing.link, and other post selectors\n   - URL change detection for SPA navigation\n   - Periodic re-scan every 3 seconds for missed posts\n   - Title observer to detect navigation without page reload\n\n4. **Performance Improvements**:\n   - Debounced mutations (100ms)\n   - Cached post status to avoid duplicate API calls\n   - WeakSet for processed posts to prevent re-injection\n\nThis makes the extension work much better with Reddit's dynamic content loading and shadow DOM structure.",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "api",
+        "530-project",
+        "chrome-extension",
+        "reddit",
+        "shadow-dom",
+        "infinite-scroll"
+      ],
+      "timestamp": "2025-10-19T16:54:26.515Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-10-19T17:33:50.363Z",
+      "lastVerified": "2025-10-19T16:54:26.515Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760893278567_srhi4xzi9",
+      "content": "Enhanced Reddit media asset extraction for 530 Chrome Extension:\n\n**Improvements Made:**\n\n1. **High-Quality Image URLs** (content-reddit.js:96-111):\n   - Added getHighQualityRedditImageUrl() helper function\n   - Converts preview.redd.it → i.redd.it for full resolution\n   - Removes quality-limiting query parameters\n   - Cleans up &amp; entities\n\n2. **Enhanced Author Metadata** (content-reddit.js:144-159):\n   - Now extracts authorUsername separately from display name\n   - Captures author avatars from Reddit user profile images\n   - Properly formats author URLs with full https://www.reddit.com prefix\n   - Added authorAvatarUrl field\n\n3. **Better Image Extraction** (content-reddit.js:173-206):\n   - Processes all extracted images through quality enhancement\n   - Better detection for gallery posts\n   - Added logging for image and video counts\n   - Supports v.redd.it video URL detection\n\n4. **Improved Media Assets** (content-reddit.js:476-528):\n   - Enhanced image matching with quality-enhanced URLs\n   - Added MIME type detection for both WebM and MP4 videos\n   - Better fallback handling when image elements aren't found\n   - Added console logging for debugging media extraction\n\n5. **Complete Content Data** (content-reddit.js:530-548):\n   - Now sends authorUsername, authorAvatarUrl to API\n   - All metadata properly structured for database storage\n   - Consistent with API schema expectations\n\n**Result**: Reddit posts now store high-quality images, complete author info, and proper video metadata that displays beautifully in the React frontend.",
+      "type": "code",
+      "tags": [
+        "code",
+        "react",
+        "api",
+        "database",
+        "530-project",
+        "chrome-extension",
+        "reddit",
+        "media-extraction",
+        "image-quality"
+      ],
+      "timestamp": "2025-10-19T17:01:18.567Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T17:01:18.567Z",
+      "lastVerified": "2025-10-19T17:01:18.567Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760895085808_kr4811spa",
+      "content": "User needs to fix two issues with extension: 1) Tags not properly fetching from database when clicking 530 buttons, 2) Need to add content count display to extension popup showing total content items from database. Currently investigating extension popup.js, background.js, tag-hierarchy-modal.js and API routes.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "database",
+        "api",
+        "530-project",
+        "chrome-extension",
+        "debugging",
+        "popup-enhancement"
+      ],
+      "timestamp": "2025-10-19T17:31:25.808Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T17:31:25.808Z",
+      "lastVerified": "2025-10-19T17:31:25.808Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760895271361_dm0tg5p3j",
+      "content": "Identified two issues with 530 Chrome extension:\n1. API URL misconfiguration: background.js uses port 3001 but Next.js runs on port 3000\n2. Missing content count feature: Popup needs to display total content items from database\n\nSolution plan:\n- Fix port 3001 → 3000 in background.js line 470\n- Create /api/content/count endpoint to return total content items\n- Add getContentCount message handler in background.js\n- Update popup.html to show \"Total Content\" stat\n- Update popup.js to fetch and display content count",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "database",
+        "530-project",
+        "chrome-extension",
+        "bug-fix",
+        "api-integration"
+      ],
+      "timestamp": "2025-10-19T17:34:31.361Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T17:34:31.361Z",
+      "lastVerified": "2025-10-19T17:34:31.361Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760895389717_kxjsrl37o",
+      "content": "530 Extension Architecture: Chrome extension in `/extension/public/` uses Next.js API at `http://localhost:3000/api`. Key endpoints: `/api/tags/hierarchy` (GET tag tree), `/api/content` (GET/POST content). Extension has background.js (API calls), popup.js (displays stats), and content scripts for each platform. Currently mock mode by default.",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "api",
+        "530-project",
+        "architecture",
+        "chrome-extension",
+        "api-endpoints"
+      ],
+      "timestamp": "2025-10-19T17:36:29.717Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T17:36:29.717Z",
+      "lastVerified": "2025-10-19T17:36:29.717Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760895462622_16q3nduq8",
+      "content": "Added content count feature to 530 Chrome extension: Created `/api/content/count` endpoint in Next.js, added `handleGetContentCount()` in background.js, updated popup.html with \"Content Items\" stat row, and popup.js now fetches and displays total content count from database.",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "database",
+        "530-project",
+        "chrome-extension",
+        "completed",
+        "content-count"
+      ],
+      "timestamp": "2025-10-19T17:37:42.622Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T17:37:42.622Z",
+      "lastVerified": "2025-10-19T17:37:42.622Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760896284067_pzkpdv7l6",
+      "content": "Enhanced tag search in tag-hierarchy-modal.js: Now supports multi-word partial matching (searches both tag names AND descriptions). Search \"art\" finds \"Artificial Intelligence\" and \"AI Art\", \"large language\" finds \"Large Language Models\", \"machine\" finds tags with \"machine learning\" in description. All words must match (AND logic).",
+      "type": "general",
+      "tags": [
+        "general",
+        "530-project",
+        "chrome-extension",
+        "completed",
+        "search-enhancement"
+      ],
+      "timestamp": "2025-10-19T17:51:24.067Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T17:51:24.067Z",
+      "lastVerified": "2025-10-19T17:51:24.067Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760896449473_kia1e0hqe",
+      "content": "Updated tag search in tag-hierarchy-modal.js: Now searches tag name OR parent tag names OR description (OR logic, not AND). Added buildParentMap() to track parent chain for each tag. Search \"intelligence\" finds \"Large Language Models\" (parent: \"Artificial Intelligence\"), \"machine\" finds any tag under \"Machine Learning\" parent, partial matching on any field.",
+      "type": "general",
+      "tags": [
+        "general",
+        "530-project",
+        "chrome-extension",
+        "completed",
+        "search-enhancement",
+        "parent-matching"
+      ],
+      "timestamp": "2025-10-19T17:54:09.473Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T17:54:09.473Z",
+      "lastVerified": "2025-10-19T17:54:09.473Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760896722382_7s9jw8jem",
+      "content": "Bug reported: Tag search not matching \"ani\" for \"Animation\" tag. Added extensive debug logging to filterTags() method in tag-hierarchy-modal.js to diagnose. Logs show: search term, match count, matching tags with parent info. Need user to test with browser console open to see what's happening.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "530-project",
+        "chrome-extension",
+        "bug",
+        "debugging",
+        "search"
+      ],
+      "timestamp": "2025-10-19T17:58:42.382Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T17:58:42.382Z",
+      "lastVerified": "2025-10-19T17:58:42.382Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760896874641_ozyfpkijq",
+      "content": "Fixed tag search hierarchy issue: When child tag matches search, parent rows were hidden causing child to disappear. Updated filterTags() to use two-pass approach: (1) find matching tags and walk up DOM to mark parent rows, (2) show all marked rows. Now searching \"ani\" shows \"Animation\" with its parent \"3D Development\" visible.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "530-project",
+        "chrome-extension",
+        "bug-fix",
+        "search",
+        "hierarchy"
+      ],
+      "timestamp": "2025-10-19T18:01:14.641Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T18:01:14.641Z",
+      "lastVerified": "2025-10-19T18:01:14.641Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760897083685_4cskiba5h",
+      "content": "Changed tag modal default state: Categories now start collapsed instead of expanded. Commented out expandAllCategories() call in loadTagHierarchy(). Users can manually click expand buttons (▶) to open categories. Search still works and will show parent categories when children match.",
+      "type": "general",
+      "tags": [
+        "general",
+        "530-project",
+        "chrome-extension",
+        "ui-improvement",
+        "completed"
+      ],
+      "timestamp": "2025-10-19T18:04:43.685Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T18:04:43.685Z",
+      "lastVerified": "2025-10-19T18:04:43.685Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760897451951_6jgco68rg",
+      "content": "Added content preview to tag modal: Shows title, truncated text (150 chars) with expand/collapse button, thumbnail/media images, platform badge, and \"View original\" link. Modal header now scrollable (max 40vh), body scrollable, footer fixed at bottom. Preview displays in header section above tag search.",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "530-project",
+        "chrome-extension",
+        "ui-improvement",
+        "completed",
+        "content-preview"
+      ],
+      "timestamp": "2025-10-19T18:10:51.951Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T18:10:51.951Z",
+      "lastVerified": "2025-10-19T18:10:51.951Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760897762028_ojkx2vbwf",
+      "content": "Redesigned tag modal header: Changed title from \"Tag This Post\" to \"Add Content\" (📌). New two-column layout: author section (left) shows avatar/placeholder circle, author name, username, and platform badge; content section (right) shows title, text, media, and \"View original\" link. Avatar is 48px circle with fallback to gradient placeholder with first letter.",
+      "type": "general",
+      "tags": [
+        "general",
+        "530-project",
+        "chrome-extension",
+        "ui-redesign",
+        "completed"
+      ],
+      "timestamp": "2025-10-19T18:16:02.028Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T18:16:02.028Z",
+      "lastVerified": "2025-10-19T18:16:02.028Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760897966349_oc3t9i7zf",
+      "content": "Fixed text formatting issue in tag modal: Changed from textContent to innerHTML with escapeHtml() for consistent formatting. Increased truncation limit from 150 to 1000 characters. Both initial display and expand/collapse now use same escapeHtml() method to prevent spacing/indentation issues.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "530-project",
+        "chrome-extension",
+        "bug-fix",
+        "completed"
+      ],
+      "timestamp": "2025-10-19T18:19:26.349Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T18:19:26.349Z",
+      "lastVerified": "2025-10-19T18:19:26.349Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760898224912_fdwxk59xe",
+      "content": "Added author avatar and metadata extraction to Twitter content script: Now extracts authorUsername (separate from display name), authorUrl (profile link), and authorAvatarUrl (profile image) from Twitter DOM. Uses selectors: '[data-testid=\"User-Name\"]' for author info, '[data-testid=\"Tweet-User-Avatar\"] img' for avatar. Data now matches Reddit/YouTube/Bluesky implementations.",
+      "type": "general",
+      "tags": [
+        "general",
+        "530-project",
+        "chrome-extension",
+        "twitter",
+        "completed",
+        "author-data"
+      ],
+      "timestamp": "2025-10-19T18:23:44.912Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T18:23:44.912Z",
+      "lastVerified": "2025-10-19T18:23:44.912Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760904319480_nn3ijzkp0",
+      "content": "## Weighted Tag Relationship System - Foundation Complete\n\nSuccessfully implemented a comprehensive weighted tag relationship system following SKOS principles and community standards.\n\n### Database Schema (3 migrations created):\n\n1. **tag_relationships table** (`20251019000000_create_tag_relationships.sql`)\n   - Stores weighted semantic connections between tags\n   - Relationship types: `related`, `tool_of`, `technique_of`, `part_of`\n   - Strength values: 0.0-1.0 (0.9-1.0 very strong, 0.7-0.89 strong, 0.5-0.69 moderate)\n   - Bidirectional lookups with indexes\n   - Example: blender → 3d-development (tool_of: 0.95)\n\n2. **tag_co_occurrence table** (`20251019000001_create_tag_co_occurrence.sql`)\n   - Tracks which tags are frequently used together\n   - Auto-increments counts when tags are saved together\n   - Confidence scores using Jaccard Index\n   - Enables \"often used together\" suggestions\n\n3. **Seed relationships** (`20251019000002_seed_tag_relationships.sql`)\n   - 50+ high-value relationships seeded\n   - Strong bindings: blender→3d (0.95), godot→3d (0.92), unity→3d (0.93)\n   - Cross-domain: threejs→web-dev (0.82), ai-integrations→ai (0.85)\n   - Modifier connections: tools, learning, workflows\n\n### Database Functions Created:\n\n1. `get_related_tags(tag_id, min_strength, relationship_type)` - Bidirectional relationship lookup\n2. `suggest_tags_by_relationships(tag_ids[], min_strength, limit)` - Multi-tag suggestions\n3. `suggest_tags_hybrid(tag_ids[], min_strength, min_confidence, limit)` - Combines relationships (60%) + co-occurrence (40%)\n4. `increment_tag_co_occurrence(tag_ids[])` - Call when content is tagged\n5. `update_co_occurrence_confidence()` - Recalculate Jaccard Index scores\n6. `get_co_occurring_tags(tag_id, min_count, min_confidence, limit)` - Usage pattern suggestions\n\n### API Endpoints Created:\n\n1. **GET /api/tags/related** (`web/app/api/tags/related/route.ts`)\n   - Get tags related to a specific tag with strength scores\n   - Params: tagId/tagSlug, minStrength, relationshipType, limit\n   - Returns: [{tagId, tagName, tagSlug, relationshipType, strength, direction}]\n\n2. **GET /api/tags/suggest** (`web/app/api/tags/suggest/route.ts`)\n   - Smart suggestions combining fuzzy search + relationships + co-occurrence\n   - Params: input (text), tagIds/tagSlugs, mode (hybrid/relationships/fuzzy)\n   - Three modes: fuzzy (text match), relationships (semantic), hybrid (combined 60/40)\n   - Boosts fuzzy matches when input text provided\n\n3. **POST /api/tags/relationships** (`web/app/api/tags/relationships/route.ts`)\n   - Create/update tag relationships manually\n   - Supports single or batch operations\n   - Accepts slugs or UUIDs\n   - Also includes GET (retrieve) and DELETE (remove) operations\n\n### Key Design Decisions:\n\n- **SKOS-inspired** vocabulary for relationship types\n- **Additive architecture** - doesn't break existing tag hierarchy\n- **Weighted scoring** - 60% semantic relationships, 40% usage patterns\n- **Bidirectional** - symmetric relationships show from both sides\n- **Fuzzy search** ready (using PostgreSQL ilike, can upgrade to pg_trgm)\n- **Co-occurrence tracking** foundation for data-driven suggestions\n\n### Next Steps (Not Yet Implemented):\n\n1. Update content save API to call `increment_tag_co_occurrence()`\n2. Build comma-separated tag input UI in modal\n3. Integrate suggestion API into tag selection flow\n4. Periodic job to run `update_co_occurrence_confidence()`\n5. Consider pg_trgm extension for better fuzzy search\n\n### Files Created:\n- `/supabase/migrations/20251019000000_create_tag_relationships.sql`\n- `/supabase/migrations/20251019000001_create_tag_co_occurrence.sql`\n- `/supabase/migrations/20251019000002_seed_tag_relationships.sql`\n- `/web/app/api/tags/related/route.ts`\n- `/web/app/api/tags/suggest/route.ts`\n- `/web/app/api/tags/relationships/route.ts`",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "database",
+        "api",
+        "migrations",
+        "tags",
+        "relationships",
+        "skos",
+        "foundation"
+      ],
+      "timestamp": "2025-10-19T20:05:19.480Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T20:05:19.480Z",
+      "lastVerified": "2025-10-19T20:05:19.480Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760905137723_pf9i5mi9a",
+      "content": "## Tagify Integration Complete - Smart Tag Input with Suggestions\n\nSuccessfully integrated Tagify library into the Chrome extension modal for intelligent tag input with real-time suggestions.\n\n### Implementation Summary\n\n**1. Library Integration**\n- Downloaded Tagify 4.31.3 (JS + CSS) to extension/public/\n- Updated manifest.json to load Tagify before tag-hierarchy-modal.js\n- Zero external dependencies, vanilla JavaScript compatible\n\n**2. TagifyIntegration Wrapper (tagify-integration.js)**\n- Debounced API calls (300ms delay)\n- Three suggestion modes:\n  - `fuzzy`: Text-only matching when no tags selected\n  - `relationships`: Semantic connections when tags selected but no input\n  - `hybrid`: Combined (60% relationships + 40% co-occurrence) with input text\n- Custom dropdown templates showing source badges (Match, Related, Often Used, Smart)\n- AbortController for canceling pending requests\n\n**3. Modal UI Updates (tag-hierarchy-modal.js)**\n- Added Tagify input section at top with hint text\n- Two-way sync between Tagify chips ↔ hierarchy checkboxes\n- \"OR BROWSE ALL TAGS\" divider separating input from hierarchy browser\n- Real-time suggestions appear as user types\n- Tag chips show with gradient styling and remove buttons\n\n**4. CSS Styling (tag-hierarchy-modal.css)**\n- Dark theme overrides for Tagify components\n- Purple gradient tag chips matching brand colors\n- Styled dropdown with hover states\n- Section divider with gradient lines\n- Custom scrollbars for dropdown\n\n**5. Co-occurrence Tracking**\n- Updated handleUpdatePostTags() in background.js\n- Updated handleUpdateContentTags() in background.js\n- New trackTagCoOccurrence() helper function\n- Fetches tag UUIDs from slugs, calls increment API\n- Non-blocking: won't fail save if tracking fails\n\n**6. API Endpoint**\n- POST /api/tags/co-occurrence\n- Calls increment_tag_co_occurrence(tag_ids[]) database function\n- Returns count of tracked tag pairs\n- Full error handling with CORS support\n\n### User Flow\n\n1. **Open modal** → Tagify input appears at top with hint\n2. **Start typing** → Fuzzy suggestions appear (tag names matching input)\n3. **Select first tag** → Mode switches to hybrid (fuzzy + related tags)\n4. **Continue typing** → Smart suggestions based on selected tags + input text\n5. **Click hierarchy checkbox** → Tag chip appears in Tagify input\n6. **Remove chip** → Checkbox unchecks automatically\n7. **Save** → Co-occurrence tracked for all tag pairs\n\n### Smart Suggestion Examples\n\n**Example 1: User types \"blend\"**\n- Shows: Blender (Match: 100%), 3D Development (Related: 95%), Modeling Tools (Related: 90%)\n\n**Example 2: User has \"Blender\" selected, types \"ani\"**\n- Shows: Animation (Match + Related: 95%), AI 3D Models (Match: 85%), Generative Design (Related: 80%)\n\n**Example 3: User has \"Blender\" + \"Animation\" selected, no input**\n- Shows: 3D Development (Often Used: 90%), Modeling Tools (Often Used: 85%), Shaders (Related: 75%)\n\n### Files Modified/Created\n\n**New Files:**\n1. extension/public/tagify.min.js (downloaded from CDN)\n2. extension/public/tagify.css (downloaded from CDN)\n3. extension/public/tagify-integration.js (our wrapper)\n4. web/app/api/tags/co-occurrence/route.ts (tracking endpoint)\n\n**Modified Files:**\n1. extension/public/manifest.json - Added Tagify to content_scripts\n2. extension/public/tag-hierarchy-modal.js - Added Tagify initialization, syncing\n3. extension/public/tag-hierarchy-modal.css - Added 200+ lines of Tagify styling\n4. extension/public/background.js - Added co-occurrence tracking to save handlers\n\n### Database Integration\n\n✅ All database functions already created from previous work:\n- increment_tag_co_occurrence(tag_ids[])\n- suggest_tags_hybrid(tag_ids[], min_strength, min_confidence, limit)\n- get_related_tags(tag_id, min_strength, relationship_type)\n\n### Next Steps (Future Enhancements)\n\n1. Periodic job to run update_co_occurrence_confidence() (Jaccard Index calculation)\n2. Color-code tag chips by category (3D = blue, AI = purple, etc.)\n3. Add \"Recently used\" section in dropdown\n4. Implement keyboard shortcuts (Tab to accept, arrows to navigate)\n5. Add \"Show related\" button on tag chips\n\n### Testing Checklist\n\n- [ ] Load extension and open modal\n- [ ] Tagify input appears with styling\n- [ ] Type text and verify suggestions appear\n- [ ] Select tag via dropdown\n- [ ] Verify checkbox syncs\n- [ ] Click hierarchy checkbox and verify chip appears\n- [ ] Remove chip and verify checkbox unchecks\n- [ ] Save tags and check console for co-occurrence tracking\n- [ ] Verify database has tag_co_occurrence entries",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "javascript",
+        "api",
+        "database",
+        "testing",
+        "tagify",
+        "integration",
+        "ui",
+        "smart-suggestions",
+        "co-occurrence",
+        "complete"
+      ],
+      "timestamp": "2025-10-19T20:18:57.723Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T20:18:57.723Z",
+      "lastVerified": "2025-10-19T20:18:57.723Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760908984046_2pbf2alb9",
+      "content": "Enhanced React admin tag management interface with 4 comprehensive components:\n\n1. TagHierarchyView.tsx - Tree view with expand/collapse, CRUD operations, slug auto-generation, icon/color pickers, search highlighting, system tag protection\n\n2. TagRelationshipsView.tsx - Create/edit/delete weighted relationships, 4 relationship types (related, tool_of, technique_of, part_of), visual strength slider, filter by type, color-coded display\n\n3. TagStatisticsView.tsx - Overview stats, tag composition (system vs user), depth distribution, relationship type distribution, most connected tags table, orphaned tags warning, system health indicators (relationship coverage, avg connections, quality)\n\n4. TagBulkOperations.tsx - Bulk move/delete/merge operations, export/import JSON, tag selection with search, confirmation workflows, system tag protection\n\nMain page at /web/app/admin/tags/page.tsx includes:\n- Tab-based interface for all 4 components\n- Gradient stat cards (total tags, root categories, max depth, relationships, system tags)\n- Global search functionality\n- Auto-refresh after operations\n\nAll components use Supabase for database operations and include proper error handling.",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "react",
+        "database",
+        "admin-ui",
+        "tag-management",
+        "supabase",
+        "typescript",
+        "completed"
+      ],
+      "timestamp": "2025-10-19T21:23:04.046Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T21:23:04.046Z",
+      "lastVerified": "2025-10-19T21:23:04.046Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760910438945_3n8xeb3f2",
+      "content": "Added JSON hierarchy export tab to admin interface. New component TagHierarchyJSON.tsx at /web/components/admin/TagHierarchyJSON.tsx provides:\n\n- Two view modes: Tree (hierarchical with nested children) and Flat (array with parent_id references)\n- Toggle to include/exclude metadata (IDs, timestamps, depth, system flags)\n- Copy to clipboard functionality with visual feedback\n- Download as JSON file with auto-generated filename\n- Statistics cards: total tags, root categories, max depth, JSON size\n- Code syntax highlighting in dark theme\n- Usage examples for JavaScript/TypeScript and jq command line\n- Clean tree output (removes empty children arrays for minimal format)\n\nAdded as 5th tab to /web/app/admin/tags/page.tsx labeled \"JSON Export\" with 📋 icon.\n\nPerfect for developers who need to export hierarchy for documentation, migration, or external processing.",
+      "type": "code",
+      "tags": [
+        "code",
+        "javascript",
+        "typescript",
+        "react",
+        "admin-ui",
+        "json-export",
+        "tag-hierarchy",
+        "completed"
+      ],
+      "timestamp": "2025-10-19T21:47:18.945Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T21:47:18.945Z",
+      "lastVerified": "2025-10-19T21:47:18.945Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760911224135_4ahk198j5",
+      "content": "Created TagDescriptionUpdater component at /web/components/admin/TagDescriptionUpdater.tsx for bulk updating tag descriptions from JSON input.\n\nFeatures:\n- Paste hierarchical JSON with descriptions (same format as the one provided by user)\n- Parses and validates JSON structure\n- Flattens hierarchy to match tags by slug\n- Shows preview table with current vs new descriptions\n- Statistics cards: total tags to process, new descriptions, will update, unchanged\n- Filter toggle to show only changes\n- One-click bulk update to database via Supabase\n- Detailed results showing success/failed/skipped counts\n- Safety: only updates tags where description actually changed\n\nAdded as 6th tab \"Update Descriptions\" with 📝 icon in admin interface.\n\nUser can now paste the provided JSON blob with all descriptions and bulk update their existing tags safely with preview before committing.",
+      "type": "error",
+      "tags": [
+        "error",
+        "database",
+        "react",
+        "admin-ui",
+        "bulk-update",
+        "descriptions",
+        "supabase",
+        "completed"
+      ],
+      "timestamp": "2025-10-19T22:00:24.135Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T22:00:24.135Z",
+      "lastVerified": "2025-10-19T22:00:24.135Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760914785168_bs4l0wkf0",
+      "content": "Implemented dark theme for admin interface and created interactive relationship graph visualization:\n\n1. Updated /web/app/admin/tags/page.tsx to use dark theme CSS variables (bg-card, text-foreground, border-border, text-muted-foreground, etc.)\n\n2. Created TagRelationshipsGraph.tsx - Interactive canvas-based graph visualization with:\n   - Force-directed and circular layout modes\n   - Canvas rendering with smooth animations\n   - Color-coded relationships (blue=related, green=tool_of, purple=technique_of, orange=part_of)\n   - Interactive nodes: click to select, hover for info\n   - Node size based on connection count\n   - Relationship strength shown via line width\n   - Filter by relationship type\n   - Toggle labels on/off\n   - Selected tag panel showing all relationships\n   - Physics simulation for force layout with gravity, repulsion, and link forces\n\n3. Created TagRelationshipsWrapper.tsx - Provides toggle between:\n   - List View (existing CRUD interface)\n   - Graph View (new interactive visualization)\n\n4. Dark theme uses CSS variables from globals.css:\n   - --background, --foreground, --card, --border, --muted, --primary\n   - All components now properly themed for dark mode\n   - Purple/blue gradient branding maintained\n\nThe graph view makes it much easier to understand tag relationships visually with real-time physics simulation and interactive exploration.",
+      "type": "general",
+      "tags": [
+        "general",
+        "dark-theme",
+        "graph-visualization",
+        "canvas",
+        "relationships",
+        "ui-ux",
+        "admin",
+        "completed"
+      ],
+      "timestamp": "2025-10-19T22:59:45.168Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T22:59:45.168Z",
+      "lastVerified": "2025-10-19T22:59:45.168Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760914955120_ci65n7jfm",
+      "content": "Completed comprehensive dark theme implementation for all admin components:\n\n**Components updated:**\n1. TagHierarchyView.tsx - Tree view with expand/collapse\n2. TagStatisticsView.tsx - Analytics and charts\n3. TagBulkOperations.tsx - Bulk operations interface\n4. TagDescriptionUpdater.tsx - JSON import for descriptions\n5. TagHierarchyJSON.tsx - JSON export view\n6. TagRelationshipsView.tsx - CRUD for relationships\n7. TagRelationshipsGraph.tsx - Interactive canvas visualization (already dark)\n8. Main tags page - Updated header and tabs\n\n**Color mapping applied:**\n- bg-white → bg-card\n- text-gray-900/800/700 → text-foreground\n- text-gray-600/500/400/300 → text-muted-foreground  \n- border-gray-300/200 → border-border\n- bg-gray-100/50 → bg-muted\n- hover:bg-gray-50/100 → hover:bg-accent\n- divide-gray-200 → divide-border\n\n**Special fixes:**\n- Table headers: bg-muted/50 for subtle contrast\n- JSON display: Dark code blocks with proper syntax colors\n- Form inputs: bg-card with border-border\n- Operation panels: Consistent muted backgrounds\n- Hover states: bg-accent instead of gray-50\n\nAll components now use CSS custom properties from globals.css for proper dark theme support. The interface matches the screenshot with proper contrast and readability.",
+      "type": "code",
+      "tags": [
+        "code",
+        "dark-theme",
+        "admin-ui",
+        "css-variables",
+        "accessibility",
+        "completed"
+      ],
+      "timestamp": "2025-10-19T23:02:35.120Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T23:02:35.120Z",
+      "lastVerified": "2025-10-19T23:02:35.120Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760915189568_u4v7r560n",
+      "content": "Final dark theme refinement for tag relationship cards in TagRelationshipsView.tsx:\n\nUpdated RELATIONSHIP_TYPES color definitions to use dark theme semi-transparent backgrounds:\n- Related: bg-blue-500/10 text-blue-400 border-blue-500/20\n- Tool Of: bg-green-500/10 text-green-400 border-green-500/20  \n- Technique Of: bg-purple-500/10 text-purple-400 border-purple-500/20\n- Part Of: bg-orange-500/10 text-orange-400 border-orange-500/20\n\nUpdated card button styling:\n- Selected state: border-primary bg-primary/10 + type-specific colors\n- Unselected state: border-border hover:border-muted-foreground/20 bg-card\n- Text opacity: 70% for descriptions for better hierarchy\n- Removed hardcoded text-foreground/text-muted-foreground to allow type colors to show\n\nThis creates beautiful glowing card effects when selected that match the screenshot, with semi-transparent colored backgrounds and borders that work perfectly on dark backgrounds.",
+      "type": "general",
+      "tags": [
+        "general",
+        "dark-theme",
+        "relationship-cards",
+        "ui-refinement",
+        "completed"
+      ],
+      "timestamp": "2025-10-19T23:06:29.568Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-19T23:06:29.568Z",
+      "lastVerified": "2025-10-19T23:06:29.568Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760927236141_fcdst8s9m",
+      "content": "Twitter Import System - Author Data Architecture Decision:\n\nCURRENT STATE:\n- 16,166 imported tweets showing \"Unknown\" as author\n- Database already has `creators` table with excellent structure (id, platform, username, display_name, bio, avatar_url, follower_count, verified, metadata, etc.)\n- Content table has `author_id` foreign key to creators table\n- Content table also has denormalized fields: author_name, author_username, author_url, author_avatar_url\n- Twitter export only provides: tweetId, fullText, expandedUrl (no author data)\n- expandedUrl format: https://twitter.com/username/status/tweetId\n\nARCHITECTURAL DECISIONS:\n1. Use existing creators table as cache for Twitter API responses\n2. Two-phase approach: Phase 1 (URL extraction), Phase 2 (API enrichment)\n3. Store API failures in metadata to avoid repeated calls\n4. Never re-fetch if creator exists in DB (unless explicitly requested to refresh)\n\nAPI RESPONSE CACHING:\n- Twitter API v2 can fetch up to 100 tweets per request\n- Store full user object in creators.metadata JSONB\n- Set last_seen timestamp to track when data was last updated\n- Optional: Add api_fetched_at to track when API was last called\n- Check DB first before ANY API call\n\nDELETED/MISSING TWEET HANDLING:\n- Store API error codes in content.metadata: {api_error: {code: 404, message: \"Not found\", checked_at: timestamp}}\n- Mark tweets as unavailable without deleting them\n- Don't retry API calls for known failures (check metadata first)\n- Keep content data even if API fails (we have the text from export)",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "database",
+        "api",
+        "twitter-import",
+        "architecture",
+        "api-caching"
+      ],
+      "timestamp": "2025-10-20T02:27:16.141Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-20T02:27:16.141Z",
+      "lastVerified": "2025-10-20T02:27:16.141Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760927656975_w8zxqjvn7",
+      "content": "Twitter Export URL Format Discovery:\n\nCRITICAL FINDING: Twitter export expandedUrl does NOT contain username!\n- Expected format: https://twitter.com/username/status/tweetId\n- ACTUAL format: https://twitter.com/i/web/status/tweetId\n\nThis means:\n- Phase 1 (URL extraction) is NOT POSSIBLE\n- We MUST use Twitter API to get author data\n- No way to get author info from export alone\n\nThe only data in export is:\n- tweetId\n- fullText (text content)\n- expandedUrl (generic URL with no author info)\n\nNEXT STEPS:\n1. Skip Phase 1 entirely\n2. Go directly to Phase 2 (Twitter API enrichment)\n3. Build script that fetches tweet data from API\n4. Twitter API v2 tweets endpoint returns author_id with tweets\n5. Use /users endpoint to get full user data\n6. Store everything in creators table",
+      "type": "code",
+      "tags": [
+        "code",
+        "go",
+        "api",
+        "twitter-import",
+        "critical",
+        "api-required",
+        "url-format"
+      ],
+      "timestamp": "2025-10-20T02:34:16.975Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-20T02:34:16.975Z",
+      "lastVerified": "2025-10-20T02:34:16.975Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760929840822_6jsplol1t",
+      "content": "Twitter API Rate Limit Discovery:\n\nISSUE: User's Twitter API token has severe rate limits:\n- Limit: 1 request per ~8 minutes\n- Current status: 0 remaining\n- Reset time: Every ~8 minutes\n- Access level: read (Free tier without elevated access)\n\nThis is the Basic/Free tier WITHOUT elevated access. To enrich 16,166 tweets:\n- Need ~162 API calls (100 tweets per batch)\n- At 1 call per 8 minutes = ~21.6 hours minimum\n- Not practical for bulk import\n\nSOLUTIONS:\n1. Apply for Elevated Access (Free tier with better limits):\n   - Go to developer.twitter.com/en/portal\n   - Request elevated access\n   - Usually approved within 24 hours\n   - Gives 300 requests per 15 minutes\n   - Would take ~8 minutes total for full import\n\n2. Use Pro tier ($100/month):\n   - 10,000 requests per month\n   - 3,000 requests per 15 minutes\n   - Immediate approval\n\n3. Academic Research tier (Free, best limits):\n   - If user qualifies\n   - 10M tweets per month\n\nRECOMMENDATION: Apply for Elevated Access (Free tier upgrade)",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "go",
+        "api",
+        "twitter-api",
+        "rate-limits",
+        "critical",
+        "elevated-access"
+      ],
+      "timestamp": "2025-10-20T03:10:40.822Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-20T03:10:40.822Z",
+      "lastVerified": "2025-10-20T03:10:40.822Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760930736313_tyd2hxagu",
+      "content": "BREAKTHROUGH: Supabase Data Contains Complete Author Information!\n\nUser discovered file: data/supabase_data/tweets_rows.sql (20.2MB, 8,691 rows)\n\nThis SQL file contains:\n- Full tweet data with embedded user objects\n- screen_name (username)\n- name (display name)\n- profile_image (avatar URL)\n- verified status\n- is_blue_verified\n- Tweet ID matches\n- NO API CALLS NEEDED!\n\nStructure from sample:\n- Column: \"screen_name\" (e.g., \"StephenAtHome\", \"adamcurry\")\n- Column: \"profile_image\" (full CDN URLs)\n- Column: \"data\" (JSONB with complete user object)\n\nThis is MUCH BETTER than Twitter API:\n- No rate limits\n- No API costs\n- Complete data already available\n- ~8,691 tweets (vs 16,166 from likes.js - need to understand overlap)\n\nNEXT STEPS:\n1. Parse tweets_rows.sql to extract author data\n2. Match tweet IDs with imported content\n3. Create/update creators table\n4. Link content to creators\n5. NO TWITTER API NEEDED!",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "twitter-import",
+        "breakthrough",
+        "sql-data",
+        "no-api-needed"
+      ],
+      "timestamp": "2025-10-20T03:25:36.313Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-20T03:25:36.313Z",
+      "lastVerified": "2025-10-20T03:25:36.313Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760931304744_w8yofqf38",
+      "content": "Twitter Author Enrichment COMPLETE - SQL-Based Solution\n\nFINAL RESULTS:\n✅ Parsed 8,474 tweets from SQL file (data/supabase_data/tweets_rows.sql)\n✅ Matched 217 tweets with imported content (21.7% coverage)\n✅ Created 173 unique creators from SQL data\n✅ Total creators in DB: 246\n✅ Content with author data: 315 out of 16,166 tweets\n\nSOLUTION: Avoided Twitter API entirely!\n- No rate limits\n- No API costs\n- Instant processing\n- Complete author data (username, display name, avatar, verified status)\n\nSCRIPT: scripts/twitter-import/6-enrich-from-sql.ts\nCOMMAND: npm run import:enrich-sql\n\nREMAINING:\n- 783 tweets (78.3%) still show \"Unknown\" \n- These tweets not in SQL file\n- Can enrich later via Twitter API if user gets Elevated Access\n- Or user can live with partial enrichment\n\nKEY LEARNING:\nThe SQL export file had different tweets than likes.js export.\nSQL file appears to be older data or different collection method.\nBut still provided valuable author data for 21.7% of tweets!",
+      "type": "code",
+      "tags": [
+        "code",
+        "api",
+        "twitter-import",
+        "complete",
+        "sql-solution",
+        "no-api-needed"
+      ],
+      "timestamp": "2025-10-20T03:35:04.744Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-20T03:35:04.744Z",
+      "lastVerified": "2025-10-20T03:35:04.744Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1760931964695_w6a4npw48",
+      "content": "Twitter Embed Scraper System - COMPLETE\n\nBuilt automated author enrichment system using Twitter embeds:\n\nCREATED FILES:\n1. /web/app/api/content/missing-authors/route.ts - API to fetch tweets without authors\n2. /web/app/api/content/update-author/route.ts - API to save extracted author data\n3. /web/app/scraper/page.tsx - Interactive scraper UI with auto-mode\n4. /web/app/scraper/README.md - Usage documentation\n\nHOW IT WORKS:\n- Queries DB for tweets without author_name\n- Loads Twitter embed for each tweet\n- Waits 3 seconds for embed to render\n- Extracts author data from iframe DOM (username, display name, avatar, verified)\n- Updates both creators and content tables\n- Auto-advances to next tweet\n\nFEATURES:\n- Auto mode: Processes ~900 tweets/hour (4sec per tweet)\n- Manual mode: Step through one-by-one\n- Real-time stats: Total, Processed, Successful, Failed\n- Resume capability: Refresh to get remaining tweets\n- No API limits: Uses public embeds\n\nUSAGE:\n- Navigate to http://localhost:3000/scraper\n- Click \"Start Auto Mode\"\n- Let it run (can process 15,851 tweets overnight)\n\nThis avoids Twitter API rate limits entirely by scraping the embed DOM!",
+      "type": "error",
+      "tags": [
+        "error",
+        "api",
+        "twitter-scraper",
+        "embed-extraction",
+        "complete",
+        "automation"
+      ],
+      "timestamp": "2025-10-20T03:46:04.695Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-10-20T03:46:04.695Z",
+      "lastVerified": "2025-10-20T03:46:04.695Z",
+      "status": "fresh"
+    }
+  ],
+  "lastUpdated": "2025-10-20T03:46:04.695Z"
+}

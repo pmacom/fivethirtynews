@@ -1,0 +1,26 @@
+import React from 'react'
+import { AudioStore } from "../audioStore"
+import { useStoreValue } from 'zustand-x'
+
+const DisplayFreq = () => {
+  const low = useStoreValue(AudioStore, 'low')
+  const mid = useStoreValue(AudioStore, 'mid')
+  const high = useStoreValue(AudioStore, 'high')
+  const amplitude = useStoreValue(AudioStore, 'amplitude')
+  const rawAmplitude = useStoreValue(AudioStore, 'rawAmplitude')
+
+  return (
+    <div className="p-4 border-2 border-lime-500 fixed top-0 left-0 z-[1]">
+      <div>Frequencies</div>
+      <>
+        <div>Low: {low}</div>
+        <div>Mid: {mid}</div>
+        <div>High: {high}</div>
+        <div>Amp: {amplitude}</div>
+        <div>RAmp: {rawAmplitude}</div>
+      </>
+    </div>
+  )
+}
+
+export default DisplayFreq
