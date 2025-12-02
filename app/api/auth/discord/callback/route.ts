@@ -329,6 +329,10 @@ export async function GET(request: NextRequest) {
     const isModerator = isAdmin || checkModeratorStatus(guildMember.roles);
 
     // 5. Create or update user in database
+    console.log('[Discord Auth] Starting database operation for user:', discordUser.id);
+    console.log('[Discord Auth] Supabase URL configured:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('[Discord Auth] Supabase Key configured:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
     const supabase = await createClient();
     const sessionToken = generateSessionToken();
     const sessionExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
@@ -355,11 +359,14 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (dbError) {
-      console.error('Database error:', dbError);
+      console.error('[Discord Auth] Database error:', JSON.stringify(dbError, null, 2));
+      console.error('[Discord Auth] Failed userData:', JSON.stringify(userData, null, 2));
       return new NextResponse(createCallbackHtml(false, undefined, 'Failed to save user data'), {
         headers: { 'Content-Type': 'text/html' },
       });
     }
+
+    console.log('[Discord Auth] User saved successfully:', user?.id);
 
     // 6. Build the response payload
     const responsePayload = {

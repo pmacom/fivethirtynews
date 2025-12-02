@@ -2377,7 +2377,46 @@
       "lastAccessed": "2025-12-02T03:03:07.126Z",
       "lastVerified": "2025-12-02T03:03:07.126Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764713088252_qhod6id56",
+      "content": "Discord Authentication Flow - 530News Fivethirty Auth Analysis\n\nLOCATION: /Users/patrickmacom/MainQuests/530News/fivethirty/\n\nKEY FILES:\n1. /app/api/auth/discord/callback/route.ts - Main callback handler\n2. /app/api/auth/discord/route.ts - OAuth initiation\n3. /supabase/migrations/20251128000000_add_auth_and_notes.sql - Users table schema\n4. /supabase/migrations/20251128200000_add_roles_and_approval.sql - is_admin column\n5. /utils/supabase/server.ts - Supabase client setup\n\nERROR MESSAGE LOCATION: Line 359 in callback route\n- Triggered when: dbError occurs during user upsert\n- Message: \"Failed to save user data\"\n\nFLOW:\n1. Exchange Discord code for tokens\n2. Fetch Discord user info  \n3. Check guild membership\n4. Get guild member info (roles)\n5. Upsert to users table with discord_id as conflict key\n\nUSERS TABLE SCHEMA:\n- discord_id (UNIQUE, NOT NULL)\n- discord_username, discord_avatar, display_name\n- is_guild_member, is_moderator, is_admin (added in migration 2)\n- discord_roles (array of role IDs)\n- session_token, session_expires_at\n- created_at, updated_at (with triggers)\n\nPOTENTIAL FAILURE POINTS:\n1. Users table doesn't exist (migrations not run)\n2. RLS policies blocking insert/update\n3. discord_id UNIQUE constraint violation\n4. Missing discord_roles column (if migrations incomplete)\n5. Supabase URL/key not configured\n6. onConflict: 'discord_id' failing if column missing",
+      "type": "config",
+      "tags": [
+        "config",
+        "authentication",
+        "api",
+        "auth",
+        "discord",
+        "database",
+        "error-handling",
+        "supabase"
+      ],
+      "timestamp": "2025-12-02T22:04:48.252Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-02T22:04:48.252Z",
+      "lastVerified": "2025-12-02T22:04:48.252Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764713137381_mgqozsv1f",
+      "content": "Discord OAuth \"Failed to save user data\" error investigation:\n\n1. Error occurs at /app/api/auth/discord/callback/route.ts:357-361\n2. The console.error exists but logs aren't appearing\n3. PM2 ecosystem.config.js uses invalid `env_file` option - PM2 doesn't support this\n4. Environment variables likely not loading, causing Supabase connection to fail\n5. Supabase client uses NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY\n\nFix: Use dotenv or load env vars directly in ecosystem config",
+      "type": "config",
+      "tags": [
+        "config",
+        "api",
+        "bug",
+        "discord-auth",
+        "pm2",
+        "production",
+        "530news"
+      ],
+      "timestamp": "2025-12-02T22:05:37.381Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-02T22:05:37.381Z",
+      "lastVerified": "2025-12-02T22:05:37.381Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-02T03:03:07.126Z"
+  "lastUpdated": "2025-12-02T22:05:37.381Z"
 }
