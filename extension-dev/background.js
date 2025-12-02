@@ -3,11 +3,11 @@
 // ===== ENVIRONMENT CONFIGURATION =====
 // These values are replaced during build for production
 const ENV = {
-  API_URL: 'https://530society.com/api',
-  APP_URL: 'https://530society.com',
-  IS_DEV: false,
-  ENV_NAME: 'production',
-  ENV_COLOR: '#10B981',
+  API_URL: 'http://localhost:3000/api',
+  APP_URL: 'http://localhost:3000',
+  IS_DEV: true,
+  ENV_NAME: 'development',
+  ENV_COLOR: '#8B5CF6',
 };
 
 // Log environment with colored badge

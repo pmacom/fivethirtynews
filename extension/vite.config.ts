@@ -2,12 +2,31 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
+// Environment configuration
+const isDev = process.env.EXT_ENV === 'development';
+
+// Environment-specific values
+const envConfig = {
+  development: {
+    API_URL: 'http://localhost:3000/api',
+    APP_URL: 'http://localhost:3000',
+    ENV_COLOR: '#8B5CF6', // Purple
+  },
+  production: {
+    API_URL: 'https://530society.com/api',
+    APP_URL: 'https://530society.com',
+    ENV_COLOR: '#10B981', // Green
+  },
+};
+
+const env = isDev ? envConfig.development : envConfig.production;
+
 // Build each content script as a separate IIFE bundle with all dependencies inlined
 export default defineConfig({
   root: __dirname,
   plugins: [react()],
   build: {
-    outDir: 'dist',
+    outDir: isDev ? resolve(__dirname, '../extension-dev/dist') : 'dist',
     emptyDirBeforeWrite: true,
     rollupOptions: {
       input: {
@@ -31,5 +50,11 @@ export default defineConfig({
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
+    // Environment variables for extension
+    __API_URL__: JSON.stringify(env.API_URL),
+    __APP_URL__: JSON.stringify(env.APP_URL),
+    __IS_DEV__: isDev,
+    __ENV_NAME__: JSON.stringify(isDev ? 'development' : 'production'),
+    __ENV_COLOR__: JSON.stringify(env.ENV_COLOR),
   },
 });

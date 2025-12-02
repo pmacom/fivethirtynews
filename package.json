@@ -15,8 +15,10 @@
     "db:studio": "supabase studio",
     "db:seed:prod": "run-s db:reset db:seed:prod:load",
     "db:seed:prod:load": "psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -f supabase/seed.production.sql",
-    "ext:build": "vite build --config extension/vite.config.ts",
-    "ext:watch": "vite build --config extension/vite.config.ts --watch"
+    "ext:build": "EXT_ENV=production node extension/scripts/generate-manifest.js && EXT_ENV=production vite build --config extension/vite.config.ts",
+    "ext:build:dev": "EXT_ENV=development node extension/scripts/generate-manifest.js && EXT_ENV=development vite build --config extension/vite.config.ts",
+    "ext:watch": "EXT_ENV=production vite build --config extension/vite.config.ts --watch",
+    "ext:watch:dev": "EXT_ENV=development node extension/scripts/generate-manifest.js && EXT_ENV=development vite build --config extension/vite.config.ts --watch"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

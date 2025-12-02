@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "530 News",
+  "name": "530 News (DEV)",
   "version": "0.1.0",
-  "description": "Collaboratively tag and organize social media content",
+  "description": "[DEVELOPMENT] Collaboratively tag and organize social media content",
   "permissions": [
     "storage",
     "activeTab",
@@ -20,9 +20,7 @@
     "http://localhost:3000/*",
     "http://localhost:3001/*",
     "http://127.0.0.1:3000/*",
-    "http://127.0.0.1:3001/*",
-    "https://530society.com/*",
-    "https://*.530society.com/*"
+    "http://127.0.0.1:3001/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -71,15 +69,15 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "16": "icons/icon-dev16.png",
+      "48": "icons/icon-dev48.png",
+      "128": "icons/icon-dev128.png"
     }
   },
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icon-dev16.png",
+    "48": "icons/icon-dev48.png",
+    "128": "icons/icon-dev128.png"
   },
   "web_accessible_resources": [
     {

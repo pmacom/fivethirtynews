@@ -2321,7 +2321,44 @@
       "lastAccessed": "2025-12-01T23:55:16.987Z",
       "lastVerified": "2025-12-01T23:55:16.987Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764638332580_18eafacev",
+      "content": "Chrome Extension Dev/Prod Environment Setup Complete:\n\nBuild Scripts:\n- `npm run ext:build:dev` → builds to `extension-dev/` folder (purple, localhost:3000)\n- `npm run ext:build` → builds to `extension/` folder (green, 530society.com)\n- `npm run ext:watch:dev` → watch mode for dev\n- `npm run ext:watch` → watch mode for prod\n\nKey Files:\n- `extension/scripts/generate-manifest.js` - Generates env-specific manifest and processes files with %%PLACEHOLDER%% replacement\n- `extension/env.ts` - Environment config for Vite-built content scripts\n- `extension/vite.config.ts` - Uses `define` for env injection + dynamic output dir\n\nEnvironment Values:\n- Dev: API_URL=localhost:3000/api, color=#8B5CF6 (purple), icons=icon-dev*.png\n- Prod: API_URL=530society.com/api, color=#10B981 (green), icons=icon*.png\n\nTo load dev extension: chrome://extensions → Load unpacked → select `extension-dev/`\nTo load prod extension: chrome://extensions → Load unpacked → select `extension/`",
+      "type": "config",
+      "tags": [
+        "config",
+        "api",
+        "extension",
+        "chrome",
+        "dev-environment",
+        "build-scripts",
+        "setup"
+      ],
+      "timestamp": "2025-12-02T01:18:52.580Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-02T01:18:52.580Z",
+      "lastVerified": "2025-12-02T01:18:52.580Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764639226357_hbxrd3je2",
+      "content": "Created SETUP.md and .env.example for 530 News project:\n\nSETUP.md covers:\n- Prerequisites (Node 20+, pnpm 9.15+, Docker, Supabase CLI)\n- Quick start for local development\n- Environment configuration for Next.js, Discord bot, and Chrome extension\n- Database setup (local and production)\n- Database seeding process with pg_dump commands\n- Chrome extension build process (dev vs prod)\n- Discord bot setup\n- Production deployment guide (Supabase Cloud, Vercel, Railway)\n- Troubleshooting section\n- Scripts reference\n\n.env.example provides template for all required environment variables:\n- Supabase config (URL, anon key, service role key)\n- Discord OAuth (client ID, secret, bot token)\n- Discord role permissions (admin/moderator role IDs)\n- Bot communication (BOT_URL, BOT_API_SECRET)\n- Optional DO Spaces config\n\nKey database commands:\n- `npm run db:start` - Start local Supabase\n- `npm run db:reset` - Reset with migrations + seed\n- `npm run db:seed:prod` - Seed with production data\n- `supabase db push --db-url \"...\"` - Push migrations to production",
+      "type": "config",
+      "tags": [
+        "config",
+        "database",
+        "deployment",
+        "documentation",
+        "setup",
+        "environment"
+      ],
+      "timestamp": "2025-12-02T01:33:46.357Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-02T01:33:46.357Z",
+      "lastVerified": "2025-12-02T01:33:46.357Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-01T23:55:16.987Z"
+  "lastUpdated": "2025-12-02T01:33:46.357Z"
 }
