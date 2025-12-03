@@ -377,7 +377,7 @@ class VideoPreloadManager {
         error.type === 'error';
 
       if (isCorsError || errorMessage.includes('ERR_FAILED')) {
-        logger.error(`Permanent video error (CORS/Network) for ${itemId}, blacklisting URL`);
+        logger.warn(`Video CORS/Network error for ${itemId}, using thumbnail fallback`);
         this.blacklistedUrls.set(videoUrl, 'CORS or network error');
         this.failedItems.add(itemId);
 

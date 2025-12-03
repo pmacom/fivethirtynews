@@ -67,8 +67,8 @@
       ],
       "timestamp": "2025-11-17T20:42:55.707Z",
       "context": "Project: fivethirty - Local Supabase database setup for content viewer",
-      "accessCount": 4,
-      "lastAccessed": "2025-12-01T16:01:54.329Z",
+      "accessCount": 5,
+      "lastAccessed": "2025-12-03T20:12:27.344Z",
       "lastVerified": "2025-11-17T20:42:55.707Z",
       "status": "fresh"
     },
@@ -931,8 +931,8 @@
         "fivethirty"
       ],
       "timestamp": "2025-11-19T00:05:12.324Z",
-      "accessCount": 9,
-      "lastAccessed": "2025-12-01T19:51:40.649Z",
+      "accessCount": 10,
+      "lastAccessed": "2025-12-03T20:12:27.344Z",
       "lastVerified": "2025-11-19T00:05:12.324Z",
       "status": "fresh"
     },
@@ -1460,8 +1460,8 @@
         "530-project"
       ],
       "timestamp": "2025-11-27T20:47:36.303Z",
-      "accessCount": 13,
-      "lastAccessed": "2025-12-01T19:51:40.649Z",
+      "accessCount": 14,
+      "lastAccessed": "2025-12-03T20:12:27.344Z",
       "lastVerified": "2025-11-27T20:47:36.303Z",
       "status": "fresh"
     },
@@ -1742,8 +1742,8 @@
       ],
       "timestamp": "2025-11-28T18:56:33.241Z",
       "context": "Explored codebase to understand data model for categories, channels, tags",
-      "accessCount": 8,
-      "lastAccessed": "2025-12-01T19:51:40.649Z",
+      "accessCount": 9,
+      "lastAccessed": "2025-12-03T20:12:27.344Z",
       "lastVerified": "2025-11-28T18:56:33.241Z",
       "status": "fresh"
     },
@@ -1857,8 +1857,8 @@
       ],
       "timestamp": "2025-11-29T19:43:10.498Z",
       "context": "User exploration of Chrome extension component architecture before implementation",
-      "accessCount": 4,
-      "lastAccessed": "2025-12-01T19:51:40.649Z",
+      "accessCount": 5,
+      "lastAccessed": "2025-12-03T20:12:27.344Z",
       "lastVerified": "2025-11-29T19:43:10.498Z",
       "status": "fresh"
     },
@@ -2107,8 +2107,8 @@
       ],
       "timestamp": "2025-12-01T15:59:24.132Z",
       "context": "Comprehensive database schema exploration for 530News project to understand how to add new features like shows/programs",
-      "accessCount": 5,
-      "lastAccessed": "2025-12-03T18:29:24.674Z",
+      "accessCount": 6,
+      "lastAccessed": "2025-12-03T20:12:27.344Z",
       "lastVerified": "2025-12-01T15:59:24.132Z",
       "status": "fresh"
     },
@@ -2145,8 +2145,8 @@
       ],
       "timestamp": "2025-12-01T16:08:13.938Z",
       "context": "Scalable architecture plan for Shows feature in 530News/fivethirty project",
-      "accessCount": 0,
-      "lastAccessed": "2025-12-01T16:08:13.938Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-12-03T20:12:27.344Z",
       "lastVerified": "2025-12-01T16:08:13.938Z",
       "status": "fresh"
     },
@@ -2164,8 +2164,8 @@
       ],
       "timestamp": "2025-12-01T16:35:36.635Z",
       "context": "fivethirty project - completed Shows feature for 530News platform",
-      "accessCount": 0,
-      "lastAccessed": "2025-12-01T16:35:36.635Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-12-03T20:12:27.344Z",
       "lastVerified": "2025-12-01T16:35:36.635Z",
       "status": "fresh"
     },
@@ -2432,8 +2432,8 @@
       ],
       "timestamp": "2025-12-03T18:33:23.094Z",
       "context": "Episode CRUD feature implementation for show management",
-      "accessCount": 0,
-      "lastAccessed": "2025-12-03T18:33:23.094Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-12-03T20:12:27.344Z",
       "lastVerified": "2025-12-03T18:33:23.094Z",
       "status": "fresh"
     },
@@ -2458,7 +2458,197 @@
       "lastAccessed": "2025-12-03T18:46:26.482Z",
       "lastVerified": "2025-12-03T18:46:26.482Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764791286580_xhnyvyx8i",
+      "content": "Implemented Kanban board for episode curate page using kibo-ui/dndkit:\n\n## Files Created:\n- `/stores/curateStore.ts` - Zustand store for curate state management\n- `/components/curate/KanbanBoard.tsx` - Main DndContext container\n- `/components/curate/KanbanColumn.tsx` - Droppable column with header\n- `/components/curate/KanbanCard.tsx` - Draggable card with checkbox\n- `/components/curate/ColumnHeader.tsx` - Title, edit/delete buttons\n- `/components/curate/AddColumnDialog.tsx` - Modal to create new category\n- `/app/api/shows/[slug]/episodes/[id]/curate/route.ts` - Unified data endpoint\n- `/app/api/shows/[slug]/episodes/[id]/blocks/[blockId]/route.ts` - Block CRUD\n- `/app/api/shows/[slug]/episodes/[id]/blocks/[blockId]/items/reorder/route.ts` - Item reorder\n- `/app/api/shows/[slug]/episodes/[id]/blocks/reorder/route.ts` - Column reorder\n\n## Key Design Decisions:\n- Columns = Categories (content_blocks), Cards = Content Items\n- Checkbox selection toggles content_block_items table rows\n- Categories are copied per episode (not linked to templates)\n- Drag-drop reordering for selected items only\n- Optimistic UI updates with Zustand store\n- Toggle to show/hide unapproved content\n\n## Database Schema:\n- `content_blocks.tags` column added for custom tag filtering\n- `content_block_items` uses `content_block_id` and `news_id` columns",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "database",
+        "kanban",
+        "curate",
+        "episode",
+        "dndkit",
+        "zustand",
+        "implementation"
+      ],
+      "timestamp": "2025-12-03T19:48:06.580Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-12-03T20:12:27.344Z",
+      "lastVerified": "2025-12-03T19:48:06.580Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764792069635_01defjtwh",
+      "content": "Kanban curate page improvements:\n\n## Tag-based Content Filtering\n- Each column queries content where `content.tags` overlaps with column's configured tags\n- If column has NO tags configured, only shows already-selected items (no suggestions)\n- Tags flow: show_category_templates → show_category_template_tags → content_blocks.tags → content query with `overlaps`\n\n## Select All / Deselect All\n- Added to column header dropdown menu\n- `selectAllInColumn()` and `deselectAllInColumn()` in curateStore\n- Batch creates/deletes content_block_items with optimistic UI updates\n\n## Improved Content Cards\n- Larger thumbnails (20x20) with placeholder icon if missing\n- Relative timestamps (\"2h ago\", \"3d ago\")\n- Matching tags highlighted in primary color\n- Shows up to 4 tags with overflow indicator\n- Platform badge + approval status + time in header row",
+      "type": "general",
+      "tags": [
+        "general",
+        "kanban",
+        "curate",
+        "tags",
+        "select-all",
+        "content-cards"
+      ],
+      "timestamp": "2025-12-03T20:01:09.635Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-03T20:01:09.635Z",
+      "lastVerified": "2025-12-03T20:01:09.635Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764792950758_ouuip50ap",
+      "content": "Fixed content_blocks not inheriting tags from show category templates.\n\nProblem: When episode blocks were created, they had template_id set but tags were empty arrays. This was because the blocks were created before the tag-copying logic was fully working.\n\nSolution: Added backfill logic to `/app/api/shows/[slug]/episodes/[id]/curate/route.ts` (lines 241-288):\n1. When blocks exist, check if any have template_id but empty tags array\n2. Fetch templates with their tags via show_category_template_tags join\n3. Update each block with its template's tags\n4. Update in-memory column data for immediate use\n\nThe backfill runs automatically on curate endpoint access, so existing episodes will get their tags populated on first load.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "fix",
+        "curate",
+        "kanban",
+        "tags",
+        "templates",
+        "530news"
+      ],
+      "timestamp": "2025-12-03T20:15:50.758Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-03T20:15:50.758Z",
+      "lastVerified": "2025-12-03T20:15:50.758Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764793127565_3zp56ldz8",
+      "content": "Fixed JSONB array query error in curate route.\n\nError: `operator does not exist: jsonb && unknown` - Supabase .overlaps() doesn't work with JSONB columns.\n\nSolution in `/app/api/shows/[slug]/episodes/[id]/curate/route.ts`:\nChanged from:\n```typescript\n.overlaps('tags', tagSlugs)\n```\n\nTo (for JSONB arrays):\n```typescript\nconst tagFilters = tagSlugs.map(tag => `tags.cs.[\"${tag}\"]`).join(',');\n// ... \n.or(tagFilters)\n```\n\nThe `.or()` with `.cs` (contains) filters checks if the JSONB array contains ANY of the specified tags.",
+      "type": "code",
+      "tags": [
+        "code",
+        "typescript",
+        "api",
+        "fix",
+        "supabase",
+        "jsonb",
+        "curate",
+        "530news"
+      ],
+      "timestamp": "2025-12-03T20:18:47.565Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-03T20:18:47.565Z",
+      "lastVerified": "2025-12-03T20:18:47.565Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764793395303_uyg7pmchb",
+      "content": "BROWSE vs CURATE Query Difference Analysis\n\nBROWSE PAGE (/browse/[category]):\n- Route: /app/browse/[category]/page.tsx\n- API endpoint: /api/content?group=[category]&limit=20&offset=[offset]\n- Query logic (lines 309-356 in /app/api/content/route.ts):\n  1. Takes 'group' param (e.g., 'preshow')\n  2. Looks up channel_groups table: SELECT * WHERE slug='preshow' AND is_active=true\n  3. Gets all channels in that group\n  4. Builds OR query with: primary_channel.eq.[slug] OR channels.cs.[\"[slug]\"]\n  5. Filters by approval_status = 'approved' only\n  6. Orders by created_at DESC\n\nCURATE PAGE (/show/[slug]/episode/[id]/curate):\n- Route: /app/show/[slug]/episode/[id]/curate/page.tsx\n- API endpoint: /api/shows/[slug]/episodes/[id]/curate\n- Query logic (lines 389-422 in /app/api/shows/[slug]/episodes/[id]/curate/route.ts):\n  1. Gets content_blocks for episode (columns with tags)\n  2. For each column, uses block.tags (array of tag slugs, e.g., ['preshow'])\n  3. Builds OR filter using: tags.cs.[\"preshow\"] (checking JSONB content.tags field)\n  4. Has a DATE RANGE filter: created_at >= sinceDate AND created_at <= untilDate\n  5. Has a toggle: if includeUnapproved=false, filters approval_status='approved'\n  6. orders by created_at DESC, limit 50\n\nKEY DIFFERENCE - TAG MATCHING:\n- BROWSE: queries by CHANNEL (primary_channel column OR channels array)\n- CURATE: queries by TAGS (content.tags JSONB field)\n\nThese are DIFFERENT columns! That's the issue.\nContent can be in 'preshow' CHANNEL but not have 'preshow' TAG.\n\nWORKAROUND CONSIDERATION:\nNeed to check if content at /browse/preshow has channels=['preshow'] but tags doesn't include 'preshow'.\nIf yes, the fix is to ensure when content is tagged for a channel group, it also gets those as tags.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "browse",
+        "curate",
+        "query-difference",
+        "tag-vs-channel"
+      ],
+      "timestamp": "2025-12-03T20:23:15.303Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-03T20:23:15.303Z",
+      "lastVerified": "2025-12-03T20:23:15.303Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764793584859_2tks1l7hb",
+      "content": "Fixed curate page content filtering to query BOTH tags AND channels.\n\nProblem: Browse page uses channels (primary_channel + channels[]), curate used only tags[]. Content didn't appear in curate columns.\n\nSolution in `/app/api/shows/[slug]/episodes/[id]/curate/route.ts`:\n```typescript\n// Build filters for BOTH tags and channels (JSONB arrays) + primary_channel\nconst tagFilters = tagSlugs.map(tag => `tags.cs.[\"${tag}\"]`);\nconst channelFilters = tagSlugs.map(slug => `channels.cs.[\"${slug}\"]`);\nconst primaryChannelFilters = tagSlugs.map(slug => `primary_channel.eq.${slug}`);\n\n// Combine all into one OR clause\nconst allFilters = [...tagFilters, ...channelFilters, ...primaryChannelFilters].join(',');\n.or(allFilters)\n```\n\nContent now appears if it matches ANY of: tags, channels array, or primary_channel.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "typescript",
+        "api",
+        "fix",
+        "curate",
+        "channels",
+        "tags",
+        "530news"
+      ],
+      "timestamp": "2025-12-03T20:26:24.859Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-03T20:26:24.859Z",
+      "lastVerified": "2025-12-03T20:26:24.859Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764793869406_vc5xosczh",
+      "content": "530 News - Thumbnail Extraction Issue Analysis\n\nISSUE: Recent content (after Nov 25 2025) has empty thumbnail_url while older content has Twitter video thumbnails like `https://pbs.twimg.com/ext_tw_video_thumb/...`\n\nROOT CAUSE FOUND:\nThe content creation flow has TWO separate paths for thumbnail extraction:\n\n1. EXTENSION PATH (extension/src/content.tsx, lines 236-237):\n   - Extracts thumbnail directly from DOM: `const thumbnailUrl = firstImage?.src || null;`\n   - Uses selectors: `[data-testid=\"tweetPhoto\"] img` or `[data-testid=\"card.layoutLarge.media\"] img`\n   - This thumbnail is passed to the API in POST body as `thumbnailUrl` parameter\n   - Works for content created BEFORE Nov 25\n\n2. API PATH (app/api/content/route.ts):\n   - Content API receives thumbnailUrl from extension but doesn't extract it when Twitter API is called\n   - Lines 9-54: `fetchAndStoreTweet()` fetches tweet data from `https://cdn.syndication.twimg.com/tweet-result?id={tweetId}`\n   - Stores ONLY the JSON response: `data: tweetData` in tweets table\n   - DOES NOT extract thumbnail from tweetData response\n   - This is a BACKGROUND async operation that doesn't block response\n\nCRITICAL ISSUE TIMELINE:\n- Commit 5a3c594 (Nov 29): Added `fetchAndStoreTweet()` to content route\n- Commit ae08f11 (Nov 30): Approval workflow added (submitter tracking)\n- Commit 9339af9 (Dec 1): Minor changes to submitter handling\n- Commit f791af6 (Dec 3): Column name changes in episode blocks route\n\nThe problem: thumbnail_url is NOT extracted from Twitter syndication API response. The API response contains media data in the response JSON, but the code only stores the raw JSON without extracting thumbnails.\n\nTWITTER SYNDICATION API RESPONSE STRUCTURE (from Twitter embed API docs):\n- Contains entities.media[] array with video thumbnails\n- Contains extended_entities.media[] for extended media\n- Video thumbnails typically in: tweetData.entities?.media?.[0]?.media_url_https or tweetData.entities?.media?.[0]?.url\n- Video poster frames/thumbnails pattern: `https://pbs.twimg.com/ext_tw_video_thumb/...`\n\nMISSING CODE:\nNo code exists to:\n1. Extract thumbnails from Twitter API response body\n2. Update content.thumbnail_url when tweet data is fetched\n3. Process media entities from the syndication API\n\nDATA FLOW ISSUE:\nExtension saves content → API receives thumbnail_url from DOM → API creates content record → API background-fetches tweet data → Tweet data stored BUT thumbnail NOT extracted → thumbnail_url remains null in content table\n\nWHEN THUMBNAILS ARE MISSING:\n- Content saved after Nov 25 where thumbnail could not be extracted from DOM\n- OR content where extension didn't successfully grab thumbnail\n- Backend fetch of tweet data doesn't backfill the thumbnail field\n",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "thumbnail-issue",
+        "twitter-extraction",
+        "content-ingestion",
+        "api-flow"
+      ],
+      "timestamp": "2025-12-03T20:31:09.406Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-03T20:31:09.406Z",
+      "lastVerified": "2025-12-03T20:31:09.406Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764794164241_55ps1wcef",
+      "content": "Fixed missing thumbnails for Twitter content in curate page.\n\nProblem: Recent content had empty thumbnail_url because:\n1. Chrome extension DOM extraction sometimes fails for video tweets\n2. fetchAndStoreTweet() stored raw tweet data but didn't extract/backfill thumbnails\n\nSolution:\n1. Added `extractThumbnailFromTweetData()` function in `/app/api/content/route.ts` that extracts from:\n   - `tweetData.mediaDetails[0].media_url_https` (videos/images)\n   - `tweetData.photos[0].url` (photos)\n   - `tweetData.video.poster` (video poster)\n\n2. Updated `fetchAndStoreTweet()` to backfill thumbnail_url when storing tweet data\n\n3. Created `/app/api/content/backfill-thumbnails/route.ts` endpoint to backfill existing content:\n   - Fetches content with NULL/empty thumbnail_url\n   - Looks up tweet data in batches of 50\n   - Extracts and updates thumbnails\n   - Usage: POST /api/content/backfill-thumbnails (requires auth)",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "fix",
+        "thumbnails",
+        "twitter",
+        "content",
+        "530news"
+      ],
+      "timestamp": "2025-12-03T20:36:04.241Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-03T20:36:04.241Z",
+      "lastVerified": "2025-12-03T20:36:04.241Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764798619010_ikpacynpm",
+      "content": "## Pillar 3D Viewer Architecture & Curate System\n\n### Key Components Found:\n\n**1. PILLAR 3D VIEWER LOCATION**\n- Main files: `/viewer/pillar/pillar.tsx`\n- Viewer entry: `/viewer/viewer.tsx`\n- Content store: `/viewer/core/store/contentStore.tsx`\n\n**2. PILLAR DISPLAY STRUCTURE**\n- Uses React Three Fiber for 3D rendering\n- Displays content in cylindrical pillar arrangement\n- PillarColumn.tsx - renders a vertical column of items (z-axis stacked)\n- PillarColumnItem.tsx - renders individual content items\n- Each category = one column arranged in circle\n- Items within column = vertical stacking\n\n**3. CONTENT ORGANIZATION**\nData structure: LiveViewContentBlock[]\n- Each block = category (title + description + weight)\n- Each block has content_block_items[] (sorted by weight)\n- Items have: id, note, weight, content (with content_type, thumbnail_url, etc)\n\n**4. CURATE SYSTEM STRUCTURE**\n- Route: `/show/[slug]/episode/[id]/curate`\n- Uses Kanban board for curation (horizontal layout)\n- Columns = categories/content blocks\n- Items = content items to select\n- Uses drag-and-drop (dnd-kit library)\n- curateStore.ts manages all state (columns, items, selections)\n\n**5. API ENDPOINTS**\n- GET `/api/shows/[slug]/episodes/[id]/curate` - fetch all columns + items\n- POST/DELETE `/api/shows/[slug]/episodes/[id]/blocks/[blockId]/items` - select/deselect\n- PATCH `/api/shows/[slug]/episodes/[id]/blocks/[blockId]/items/reorder` - reorder items\n- PATCH `/api/shows/[slug]/episodes/[id]/blocks/reorder` - reorder columns\n\n**6. CONTENT FLOW**\n- Episodes have content_blocks (Kanban columns)\n- content_blocks have content_block_items (selected content)\n- Each item references a content entry (actual content data)\n- Show category templates auto-create blocks for new episodes\n",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "react",
+        "api",
+        "p",
+        "i",
+        "l",
+        "a",
+        "r",
+        "-",
+        "3",
+        "d",
+        "v",
+        "e",
+        "w",
+        ",",
+        " ",
+        "c",
+        "u",
+        "t",
+        "s",
+        "y",
+        "m",
+        "h"
+      ],
+      "timestamp": "2025-12-03T21:50:19.010Z",
+      "context": "Explored codebase for understanding pillar 3D viewer and curate system architecture",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-03T21:50:19.010Z",
+      "lastVerified": "2025-12-03T21:50:19.010Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-03T19:00:05.518Z"
+  "lastUpdated": "2025-12-03T21:50:19.010Z"
 }

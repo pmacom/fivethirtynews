@@ -3,7 +3,56 @@ import { cookies } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 
 /**
+ * Extract thumbnail URL from Twitter API response
+ * Handles multiple formats: mediaDetails, photos, video, card, entities
+ */
+function extractThumbnailFromTweetData(tweetData: any): string | null {
+  if (!tweetData || typeof tweetData !== 'object') return null;
+
+  // Try mediaDetails first (most common for videos/images)
+  if (tweetData.mediaDetails && Array.isArray(tweetData.mediaDetails) && tweetData.mediaDetails.length > 0) {
+    const media = tweetData.mediaDetails[0];
+    if (media.media_url_https) {
+      return media.media_url_https;
+    }
+  }
+
+  // Try photos array
+  if (tweetData.photos && Array.isArray(tweetData.photos) && tweetData.photos.length > 0) {
+    const photo = tweetData.photos[0];
+    return photo.url || photo.media_url_https;
+  }
+
+  // Try video thumbnail
+  if (tweetData.video) {
+    if (tweetData.video.poster) return tweetData.video.poster;
+    if (tweetData.video.thumbnail_url) return tweetData.video.thumbnail_url;
+  }
+
+  // Try card (Twitter cards/embeds)
+  if (tweetData.card) {
+    const card = tweetData.card;
+    if (card.binding_values) {
+      const bv = card.binding_values;
+      if (bv.thumbnail_image_large?.image_value?.url) return bv.thumbnail_image_large.image_value.url;
+      if (bv.thumbnail_image?.image_value?.url) return bv.thumbnail_image.image_value.url;
+      if (bv.player_image_large?.image_value?.url) return bv.player_image_large.image_value.url;
+      if (bv.player_image?.image_value?.url) return bv.player_image.image_value.url;
+    }
+  }
+
+  // Try entities.media (older format)
+  if (tweetData.entities?.media && Array.isArray(tweetData.entities.media) && tweetData.entities.media.length > 0) {
+    const media = tweetData.entities.media[0];
+    return media.media_url_https || media.media_url;
+  }
+
+  return null;
+}
+
+/**
  * Fetch tweet data from Twitter's syndication API and store in tweets table
+ * Also extracts and backfills thumbnail_url to content table
  * This runs in the background and doesn't block the response
  */
 async function fetchAndStoreTweet(tweetId: string, supabase: any): Promise<void> {
@@ -47,6 +96,22 @@ async function fetchAndStoreTweet(tweetId: string, supabase: any): Promise<void>
       console.error(`Failed to store tweet ${tweetId}:`, error);
     } else {
       console.log(`Successfully fetched and stored tweet ${tweetId}`);
+    }
+
+    // Extract thumbnail and backfill to content table if missing
+    const thumbnailUrl = extractThumbnailFromTweetData(tweetData);
+    if (thumbnailUrl) {
+      const { error: updateError } = await supabase
+        .from('content')
+        .update({ thumbnail_url: thumbnailUrl })
+        .eq('platform_content_id', tweetId)
+        .is('thumbnail_url', null);
+
+      if (updateError) {
+        console.error(`Failed to backfill thumbnail for tweet ${tweetId}:`, updateError);
+      } else {
+        console.log(`Backfilled thumbnail for tweet ${tweetId}: ${thumbnailUrl}`);
+      }
     }
   } catch (error) {
     console.error(`Error fetching tweet ${tweetId}:`, error);
