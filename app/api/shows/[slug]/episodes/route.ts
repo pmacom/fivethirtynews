@@ -162,6 +162,7 @@ export async function POST(
       scheduled_at,
       episode_number,
       status = 'scheduled',
+      content_starts_at,
     } = body;
 
     // Validate required fields
@@ -198,6 +199,7 @@ export async function POST(
         episode_number: nextEpisodeNumber,
         status,
         created_by: user.id,
+        content_starts_at: content_starts_at || null,
       })
       .select()
       .single();

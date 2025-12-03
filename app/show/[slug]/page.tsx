@@ -19,6 +19,7 @@ import {
   Search,
   Trash2,
   RefreshCw,
+  Pencil,
 } from 'lucide-react';
 
 interface ShowMember {
@@ -121,6 +122,7 @@ export default function ShowDetailPage() {
   const [selectedRole, setSelectedRole] = useState<string>('cohost');
   const [addingMember, setAddingMember] = useState(false);
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+  const [deletingEpisodeId, setDeletingEpisodeId] = useState<string | null>(null);
 
   // Check if current user is a showrunner (for Discord member caching)
   const isShowrunner = useMemo(() => {
@@ -321,6 +323,31 @@ export default function ShowDetailPage() {
     }
   };
 
+  // Delete episode
+  const handleDeleteEpisode = async (episodeId: string, episodeTitle: string) => {
+    if (!confirm(`Delete "${episodeTitle}"? This cannot be undone.`)) return;
+    setDeletingEpisodeId(episodeId);
+    try {
+      const res = await fetch(`/api/shows/${slug}/episodes/${episodeId}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Refresh show data
+        const showRes = await fetch(`/api/shows/${slug}`);
+        const showData = await showRes.json();
+        if (showData.success) setShow(showData.data);
+      } else {
+        alert(data.error || 'Failed to delete episode');
+      }
+    } catch (err) {
+      console.error('Error deleting episode:', err);
+      alert('Failed to delete episode');
+    } finally {
+      setDeletingEpisodeId(null);
+    }
+  };
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-zinc-900 text-white p-8">
@@ -479,14 +506,18 @@ export default function ShowDetailPage() {
                 {show.episodes.map(episode => {
                   const StatusIcon = statusIcons[episode.status]?.icon || Calendar;
                   const statusColor = statusIcons[episode.status]?.color || 'text-zinc-400';
+                  const episodeTitle = episode.title || `Episode #${episode.episode_number}` || 'Untitled Episode';
 
                   return (
                     <div
                       key={episode.id}
-                      className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-4 hover:border-zinc-600 transition-colors cursor-pointer"
+                      className="bg-zinc-800/50 border border-zinc-700/50 rounded-lg p-4 hover:border-zinc-600 transition-colors group"
                     >
                       <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
+                        <div
+                          className="flex-1 cursor-pointer"
+                          onClick={() => router.push(`/show/${slug}/episode/${episode.id}/curate`)}
+                        >
                           <div className="flex items-center gap-2">
                             {episode.episode_number && (
                               <span className="text-sm text-zinc-500">
@@ -506,9 +537,40 @@ export default function ShowDetailPage() {
                             <span>{formatEpisodeDate(episode)}</span>
                           </div>
                         </div>
-                        <div className={`flex items-center gap-1 ${statusColor}`}>
-                          <StatusIcon size={16} />
-                          <span className="text-sm capitalize">{episode.status}</span>
+                        <div className="flex items-center gap-3">
+                          <div className={`flex items-center gap-1 ${statusColor}`}>
+                            <StatusIcon size={16} />
+                            <span className="text-sm capitalize">{episode.status}</span>
+                          </div>
+                          {permissions?.canCreateEpisodes && (
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(`/show/${slug}/episode/${episode.id}/edit`);
+                                }}
+                                className="p-1.5 text-zinc-500 hover:text-arcade-cyan rounded transition-colors"
+                                title="Edit episode"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteEpisode(episode.id, episodeTitle);
+                                }}
+                                disabled={deletingEpisodeId === episode.id}
+                                className="p-1.5 text-zinc-500 hover:text-red-400 rounded transition-colors disabled:opacity-50"
+                                title="Delete episode"
+                              >
+                                {deletingEpisodeId === episode.id ? (
+                                  <div className="w-3.5 h-3.5 border-2 border-zinc-500 border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  <Trash2 size={14} />
+                                )}
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

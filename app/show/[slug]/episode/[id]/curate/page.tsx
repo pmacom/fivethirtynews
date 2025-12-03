@@ -23,9 +23,9 @@ interface ContentItem {
   title: string | null;
   description: string | null;
   author_name: string | null;
-  author_avatar: string | null;
-  image_url: string | null;
-  video_url: string | null;
+  author_avatar_url: string | null;
+  thumbnail_url: string | null;
+  media_assets: any[] | null;
   tags: string[];
   created_at: string;
 }
@@ -70,6 +70,7 @@ export default function EpisodeCuratePage() {
   // Suggestions (for adding new content)
   const [suggestions, setSuggestions] = useState<CategorySuggestion[]>([]);
   const [sinceDate, setSinceDate] = useState<string | null>(null);
+  const [untilDate, setUntilDate] = useState<string | null>(null);
 
   // Search state
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -115,6 +116,7 @@ export default function EpisodeCuratePage() {
       if (suggestionsData.success) {
         setSuggestions(suggestionsData.data.suggestions || []);
         setSinceDate(suggestionsData.data.since_date);
+        setUntilDate(suggestionsData.data.until_date);
       }
     } catch (err) {
       console.error('Error fetching episode data:', err);
@@ -139,6 +141,7 @@ export default function EpisodeCuratePage() {
       if (data.success) {
         setSuggestions(data.data.suggestions || []);
         setSinceDate(data.data.since_date);
+        setUntilDate(data.data.until_date);
       }
     } catch (err) {
       console.error('Error refreshing suggestions:', err);
@@ -261,7 +264,7 @@ export default function EpisodeCuratePage() {
               </p>
               {sinceDate && (
                 <p className="text-zinc-500 text-xs mt-1">
-                  Showing content since {formatDate(sinceDate)}
+                  Content window: {formatDate(sinceDate)} → {untilDate ? formatDate(untilDate) : 'now'}
                 </p>
               )}
             </div>
@@ -369,9 +372,9 @@ export default function EpisodeCuratePage() {
 
                               {/* Thumbnail */}
                               <div className="flex-shrink-0 w-16 h-16 bg-zinc-800 rounded overflow-hidden">
-                                {item.image_url ? (
+                                {item.thumbnail_url ? (
                                   <img
-                                    src={item.image_url}
+                                    src={item.thumbnail_url}
                                     alt=""
                                     className="w-full h-full object-cover"
                                   />
@@ -488,8 +491,8 @@ export default function EpisodeCuratePage() {
                       className="p-3 hover:bg-zinc-800/50 flex items-center gap-3"
                     >
                       <div className="flex-shrink-0 w-12 h-12 bg-zinc-800 rounded overflow-hidden">
-                        {item.image_url ? (
-                          <img src={item.image_url} alt="" className="w-full h-full object-cover" />
+                        {item.thumbnail_url ? (
+                          <img src={item.thumbnail_url} alt="" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <ImageIcon className="w-4 h-4 text-zinc-600" />

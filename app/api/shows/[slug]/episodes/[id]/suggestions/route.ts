@@ -97,7 +97,7 @@ export async function GET(
     // Verify episode exists and belongs to this show
     const { data: episode, error: episodeError } = await supabase
       .from('episodes')
-      .select('id, scheduled_at')
+      .select('id, scheduled_at, date, content_starts_at')
       .eq('id', episodeId)
       .eq('show_id', show.id)
       .single();
@@ -109,18 +109,38 @@ export async function GET(
       );
     }
 
-    // Get last completed episode date (before this one)
-    const { data: lastEpisode } = await supabase
-      .from('episodes')
-      .select('scheduled_at')
-      .eq('show_id', show.id)
-      .eq('status', 'completed')
-      .lt('scheduled_at', episode.scheduled_at || new Date().toISOString())
-      .order('scheduled_at', { ascending: false })
-      .limit(1)
-      .single();
+    // Determine the content window start date
+    // Priority: 1) content_starts_at, 2) 7 days before episode date, 3) last episode, 4) show created_at
+    let sinceDate: string;
 
-    const sinceDate = lastEpisode?.scheduled_at || show.created_at;
+    if (episode.content_starts_at) {
+      // Use explicitly set content window start
+      sinceDate = episode.content_starts_at;
+    } else {
+      // Default to 7 days before episode date
+      const episodeDate = episode.date || episode.scheduled_at?.split('T')[0];
+      if (episodeDate) {
+        const defaultStart = new Date(episodeDate);
+        defaultStart.setDate(defaultStart.getDate() - 7);
+        sinceDate = defaultStart.toISOString();
+      } else {
+        // Fallback: Get last completed episode date (before this one)
+        const { data: lastEpisode } = await supabase
+          .from('episodes')
+          .select('scheduled_at')
+          .eq('show_id', show.id)
+          .eq('status', 'completed')
+          .lt('scheduled_at', episode.scheduled_at || new Date().toISOString())
+          .order('scheduled_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        sinceDate = lastEpisode?.scheduled_at || show.created_at;
+      }
+    }
+
+    // Also determine the end date (episode date) for upper bound
+    const untilDate = episode.scheduled_at || (episode.date ? `${episode.date}T23:59:59Z` : null);
 
     // Get all active templates for this show
     const { data: templates, error: templatesError } = await supabase
@@ -163,8 +183,8 @@ export async function GET(
           };
         }
 
-        // Query content matching template tags since last episode
-        const { data: content, error: contentError } = await supabase
+        // Query content matching template tags within the content window
+        let contentQuery = supabase
           .from('content')
           .select(`
             id,
@@ -173,18 +193,24 @@ export async function GET(
             title,
             description,
             author_name,
-            author_avatar,
-            image_url,
-            video_url,
-            video_embed_url,
+            author_avatar_url,
+            thumbnail_url,
+            media_assets,
             tags,
             created_at
           `)
           .eq('approval_status', 'approved')
-          .gt('created_at', sinceDate)
+          .gte('created_at', sinceDate)
           .overlaps('tags', tagSlugs)
           .order('created_at', { ascending: false })
           .limit(30);
+
+        // Apply upper bound if we have an episode date
+        if (untilDate) {
+          contentQuery = contentQuery.lte('created_at', untilDate);
+        }
+
+        const { data: content, error: contentError } = await contentQuery;
 
         if (contentError) {
           console.error(`Error fetching content for template ${template.id}:`, contentError);
@@ -213,6 +239,7 @@ export async function GET(
         data: {
           episode_id: episodeId,
           since_date: sinceDate,
+          until_date: untilDate,
           suggestions,
         },
       },

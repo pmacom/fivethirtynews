@@ -2107,8 +2107,8 @@
       ],
       "timestamp": "2025-12-01T15:59:24.132Z",
       "context": "Comprehensive database schema exploration for 530News project to understand how to add new features like shows/programs",
-      "accessCount": 4,
-      "lastAccessed": "2025-12-01T19:51:40.649Z",
+      "accessCount": 5,
+      "lastAccessed": "2025-12-03T18:29:24.674Z",
       "lastVerified": "2025-12-01T15:59:24.132Z",
       "status": "fresh"
     },
@@ -2416,7 +2416,49 @@
       "lastAccessed": "2025-12-02T22:05:37.381Z",
       "lastVerified": "2025-12-02T22:05:37.381Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1764786803094_j5gxc824h",
+      "content": "## Episode CRUD Implementation for Shows\n\n### Created Files:\n1. `/app/api/shows/[slug]/episodes/[id]/route.ts` - Single episode API with GET, PUT, DELETE\n2. `/app/show/[slug]/episode/[id]/edit/page.tsx` - Edit episode page with form and delete functionality\n\n### Modified Files:\n1. `/app/show/[slug]/page.tsx` - Added edit/delete buttons on episode cards that appear on hover\n\n### Features:\n- Showrunners can now edit episode title, description, date, time, episode number, and status\n- Showrunners can delete episodes with confirmation modal\n- Episodes are clickable to navigate to curate page\n- Edit/delete buttons appear on hover for users with `canCreateEpisodes` permission\n- Delete confirmation modal prevents accidental deletions\n\n### Permission Check:\nUses `canManageEpisodes` function that allows: site admin, site moderator, or show members with `can_create_episodes`, `can_manage_show`, or `showrunner` role",
+      "type": "code",
+      "tags": [
+        "code",
+        "api",
+        "530news",
+        "episodes",
+        "crud",
+        "shows",
+        "implementation"
+      ],
+      "timestamp": "2025-12-03T18:33:23.094Z",
+      "context": "Episode CRUD feature implementation for show management",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-03T18:33:23.094Z",
+      "lastVerified": "2025-12-03T18:33:23.094Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1764787586482_t48jp9s4v",
+      "content": "## Content Aggregation Window Feature for Episodes\n\n### Database Migration\nFile: `supabase/migrations/20251203000000_add_episode_content_window.sql`\n- Adds `content_starts_at` TIMESTAMPTZ column to episodes table\n- Controls how far back content queries should go when auto-populating categories\n\n### UI Changes\nBoth new episode (`/show/[slug]/episode/new`) and edit episode (`/show/[slug]/episode/[id]/edit`) pages have:\n- Content Window selector with presets: 1 Day, 1 Week (default), 2 Weeks, 1 Month, Custom Date\n- Preview shows the calculated date range\n\n### API Changes\n- POST/PUT `/api/shows/[slug]/episodes` - accepts `content_starts_at` field\n- GET `/api/shows/[slug]/episodes/[id]/suggestions` - Now uses `content_starts_at` to determine content window:\n  1. Uses `content_starts_at` if set on episode\n  2. Falls back to 7 days before episode date\n  3. Falls back to last completed episode date\n  4. Falls back to show created_at\n  - Also applies upper bound (episode date) to prevent future content\n  - Returns both `since_date` and `until_date` in response\n\n### Curate Page (`/show/[slug]/episode/[id]/curate`)\n- Shows \"Content window: Nov 26 → Dec 3, 2025\" in header\n- Content cards display matching category tags\n- Filtered to approved content within the date range that has overlapping tags",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "go",
+        "database",
+        "api",
+        "530news",
+        "episodes",
+        "content-window",
+        "aggregation",
+        "feature"
+      ],
+      "timestamp": "2025-12-03T18:46:26.482Z",
+      "context": "Content aggregation window feature for episode creation workflow",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-03T18:46:26.482Z",
+      "lastVerified": "2025-12-03T18:46:26.482Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-02T22:05:37.381Z"
+  "lastUpdated": "2025-12-03T19:00:05.518Z"
 }

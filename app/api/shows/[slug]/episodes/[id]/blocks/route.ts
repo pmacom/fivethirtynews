@@ -72,9 +72,9 @@ export async function GET(
             title,
             description,
             author_name,
-            author_avatar,
-            image_url,
-            video_url,
+            author_avatar_url,
+            thumbnail_url,
+            media_assets,
             tags,
             created_at
           )
