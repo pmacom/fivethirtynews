@@ -1,6 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { randomUUID } from 'crypto';
+import { appendFileSync } from 'fs';
+
+// File-based logging for production debugging (PM2 may not capture Next.js stdout)
+function debugLog(message: string, data?: unknown) {
+  const timestamp = new Date().toISOString();
+  const logLine = `[${timestamp}] ${message}${data ? ': ' + JSON.stringify(data) : ''}\n`;
+
+  // Always console.log
+  console.log('[Discord Auth]', message, data || '');
+
+  // Also write to file as backup
+  try {
+    appendFileSync('/tmp/discord-auth-debug.log', logLine);
+  } catch {
+    // Ignore file write errors
+  }
+}
 
 // Discord OAuth callback endpoint
 // GET /api/auth/discord/callback?code=...&state=...
@@ -268,10 +285,15 @@ function parseState(state: string | null): { isWebLogin: boolean; extensionId: s
 }
 
 export async function GET(request: NextRequest) {
+  debugLog('=== Discord OAuth Callback Started ===');
+  debugLog('Request URL', request.url);
+
   const code = request.nextUrl.searchParams.get('code');
   const state = request.nextUrl.searchParams.get('state');
   const error = request.nextUrl.searchParams.get('error');
   const { isWebLogin } = parseState(state);
+
+  debugLog('Params', { hasCode: !!code, hasState: !!state, hasError: !!error, isWebLogin });
 
   // If no code and no error, this is likely the hash redirect - return minimal response
   // The hash fragment is handled client-side and captured by launchWebAuthFlow
@@ -305,13 +327,19 @@ export async function GET(request: NextRequest) {
 
   try {
     // 1. Exchange code for tokens
+    debugLog('Step 1: Exchanging code for tokens...');
     const tokens = await exchangeCodeForTokens(code);
+    debugLog('Step 1 complete: Got tokens');
 
     // 2. Fetch Discord user info
+    debugLog('Step 2: Fetching Discord user...');
     const discordUser = await fetchDiscordUser(tokens.access_token);
+    debugLog('Step 2 complete: Got user', { id: discordUser.id, username: discordUser.username });
 
     // 3. Fetch guild member info (includes membership check and roles)
+    debugLog('Step 3: Fetching guild member...');
     const guildMember = await fetchGuildMember(tokens.access_token);
+    debugLog('Step 3 complete: Guild member', { found: !!guildMember, roles: guildMember?.roles?.length });
 
     if (!guildMember) {
       return new NextResponse(
@@ -329,9 +357,12 @@ export async function GET(request: NextRequest) {
     const isModerator = isAdmin || checkModeratorStatus(guildMember.roles);
 
     // 5. Create or update user in database
-    console.log('[Discord Auth] Starting database operation for user:', discordUser.id);
-    console.log('[Discord Auth] Supabase URL configured:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log('[Discord Auth] Supabase Key configured:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    debugLog('Starting database operation for user', discordUser.id);
+    debugLog('Supabase config', {
+      urlConfigured: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      keyConfigured: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      urlPrefix: process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 30) || 'NOT SET',
+    });
 
     const supabase = await createClient();
     const sessionToken = generateSessionToken();
@@ -359,14 +390,14 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (dbError) {
-      console.error('[Discord Auth] Database error:', JSON.stringify(dbError, null, 2));
-      console.error('[Discord Auth] Failed userData:', JSON.stringify(userData, null, 2));
+      debugLog('DATABASE ERROR', dbError);
+      debugLog('Failed userData', userData);
       return new NextResponse(createCallbackHtml(false, undefined, 'Failed to save user data'), {
         headers: { 'Content-Type': 'text/html' },
       });
     }
 
-    console.log('[Discord Auth] User saved successfully:', user?.id);
+    debugLog('User saved successfully', user?.id);
 
     // 6. Build the response payload
     const responsePayload = {
@@ -434,7 +465,7 @@ window.location.replace(window.location.pathname + '#' + '${encodedPayload}');
       { headers: { 'Content-Type': 'text/html' } }
     );
   } catch (err) {
-    console.error('OAuth callback error:', err);
+    debugLog('CAUGHT EXCEPTION', err instanceof Error ? { message: err.message, stack: err.stack } : err);
     return new NextResponse(
       createCallbackHtml(false, undefined, err instanceof Error ? err.message : 'Authentication failed'),
       { headers: { 'Content-Type': 'text/html' } }
