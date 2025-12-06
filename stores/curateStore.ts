@@ -57,12 +57,25 @@ export interface ContentWindow {
   until_date: string | null;
 }
 
+export interface EpisodeNavItem {
+  id: string;
+  title: string;
+  episode_number: number | null;
+  date: string | null;
+}
+
+export interface EpisodeNavigation {
+  prev: EpisodeNavItem | null;
+  next: EpisodeNavItem | null;
+}
+
 interface CurateStoreState {
   // Data
   show: Show | null;
   episode: Episode | null;
   columns: KanbanColumn[];
   contentWindow: ContentWindow | null;
+  navigation: EpisodeNavigation | null;
 
   // UI state
   isLoading: boolean;
@@ -75,6 +88,9 @@ interface CurateStoreState {
 interface CurateStoreActions {
   // Data fetching
   fetchCurateData: (showSlug: string, episodeId: string) => Promise<void>;
+
+  // Bulk actions
+  approveAllContent: (showSlug: string, episodeId: string) => Promise<{ approved_count: number; message: string } | null>;
 
   // Column actions
   addColumn: (showSlug: string, episodeId: string, title: string, tags?: string[]) => Promise<void>;
@@ -107,6 +123,7 @@ const initialState: CurateStoreState = {
   episode: null,
   columns: [],
   contentWindow: null,
+  navigation: null,
   isLoading: false,
   isSaving: false,
   error: null,
@@ -116,6 +133,35 @@ const initialState: CurateStoreState = {
 
 export const useCurateStore = create<CurateStore>((set, get) => ({
   ...initialState,
+
+  approveAllContent: async (showSlug: string, episodeId: string) => {
+    set({ isSaving: true, error: null });
+
+    try {
+      const res = await fetch(`/api/shows/${showSlug}/episodes/${episodeId}/approve-all`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to approve content');
+      }
+
+      // Refetch to update approval statuses in UI
+      await get().fetchCurateData(showSlug, episodeId);
+
+      set({ isSaving: false });
+      return data.data;
+    } catch (err) {
+      set({
+        error: err instanceof Error ? err.message : 'Unknown error',
+        isSaving: false,
+      });
+      return null;
+    }
+  },
 
   fetchCurateData: async (showSlug: string, episodeId: string) => {
     set({ isLoading: true, error: null });
@@ -143,6 +189,7 @@ export const useCurateStore = create<CurateStore>((set, get) => ({
         episode: data.data.episode,
         columns: data.data.columns,
         contentWindow: data.data.content_window,
+        navigation: data.data.navigation || null,
         isLoading: false,
       });
     } catch (err) {

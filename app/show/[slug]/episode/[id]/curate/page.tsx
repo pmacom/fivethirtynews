@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurateStore } from '@/stores/curateStore';
 import { KanbanBoard } from '@/components/curate';
+import { EpisodeNavigation } from '@/components/episode/EpisodeNavigation';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, RefreshCw, Check, AlertCircle, Play } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Check, AlertCircle, Play, CheckCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function EpisodeCuratePage() {
@@ -22,15 +23,20 @@ export default function EpisodeCuratePage() {
     show,
     episode,
     contentWindow,
+    navigation,
     isLoading,
     isSaving,
     error,
     includeUnapproved,
     fetchCurateData,
+    approveAllContent,
     setIncludeUnapproved,
     setError,
     reset,
   } = useCurateStore();
+
+  const [approveMessage, setApproveMessage] = useState<string | null>(null);
+  const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   // Fetch data on mount - reset first to clear stale data, then fetch fresh
   useEffect(() => {
@@ -54,6 +60,20 @@ export default function EpisodeCuratePage() {
 
   const handleRefresh = () => {
     fetchCurateData(slug, episodeId);
+  };
+
+  const handleApproveAll = async () => {
+    const result = await approveAllContent(slug, episodeId);
+    if (result) {
+      setApproveMessage(result.message);
+      setTimeout(() => setApproveMessage(null), 3000);
+    }
+  };
+
+  const handleSave = () => {
+    // Changes are saved automatically, just show confirmation
+    setSavedMessage('All changes saved!');
+    setTimeout(() => setSavedMessage(null), 2000);
   };
 
   const formatDate = (dateStr: string) => {
@@ -93,20 +113,28 @@ export default function EpisodeCuratePage() {
           </button>
 
           <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-xl font-bold">Curate Episode Content</h1>
-              <p className="text-muted-foreground text-sm">
-                {episode?.title || 'Episode'}{' '}
-                {episode?.date && `- ${formatDate(episode.date)}`}
-              </p>
-              {contentWindow && (
-                <p className="text-xs text-muted-foreground/70 mt-1">
-                  Content window: {formatDate(contentWindow.since_date)} →{' '}
-                  {contentWindow.until_date
-                    ? formatDate(contentWindow.until_date)
-                    : 'now'}
+            <div className="flex items-center gap-4">
+              <EpisodeNavigation
+                showSlug={slug}
+                navigation={navigation}
+                basePath="curate"
+              />
+              <div>
+                <h1 className="text-xl font-bold">Curate Episode Content</h1>
+                <p className="text-muted-foreground text-sm">
+                  {episode?.title || 'Episode'}{' '}
+                  {episode?.episode_number != null && `#${episode.episode_number} `}
+                  {episode?.date && `- ${formatDate(episode.date)}`}
                 </p>
-              )}
+                {contentWindow && (
+                  <p className="text-xs text-muted-foreground/70 mt-1">
+                    Content window: {formatDate(contentWindow.since_date)} →{' '}
+                    {contentWindow.until_date
+                      ? formatDate(contentWindow.until_date)
+                      : 'now'}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
@@ -137,6 +165,17 @@ export default function EpisodeCuratePage() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={handleApproveAll}
+                disabled={isSaving}
+                className="bg-amber-600/20 hover:bg-amber-600/30 border-amber-500/50 text-amber-300"
+              >
+                <CheckCheck className="w-4 h-4 mr-2" />
+                Approve All
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => router.push(`/show/${slug}/episode/${episodeId}/pillar`)}
                 className="bg-purple-600/20 hover:bg-purple-600/30 border-purple-500/50 text-purple-300"
               >
@@ -146,11 +185,11 @@ export default function EpisodeCuratePage() {
 
               <Button
                 size="sm"
-                onClick={() => router.push(`/show/${slug}`)}
+                onClick={handleSave}
                 className="bg-green-600 hover:bg-green-500"
               >
                 <Check className="w-4 h-4 mr-2" />
-                Done
+                Save
               </Button>
             </div>
           </div>
@@ -165,6 +204,38 @@ export default function EpisodeCuratePage() {
             <span className="text-sm">{error}</span>
             <button
               onClick={() => setError(null)}
+              className="ml-auto hover:opacity-70"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Approve Success Banner */}
+      {approveMessage && (
+        <div className="px-4 mt-4">
+          <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3 text-green-400">
+            <CheckCheck className="w-4 h-4 flex-shrink-0" />
+            <span className="text-sm">{approveMessage}</span>
+            <button
+              onClick={() => setApproveMessage(null)}
+              className="ml-auto hover:opacity-70"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Saved Banner */}
+      {savedMessage && (
+        <div className="px-4 mt-4">
+          <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3 text-green-400">
+            <Check className="w-4 h-4 flex-shrink-0" />
+            <span className="text-sm">{savedMessage}</span>
+            <button
+              onClick={() => setSavedMessage(null)}
               className="ml-auto hover:opacity-70"
             >
               &times;

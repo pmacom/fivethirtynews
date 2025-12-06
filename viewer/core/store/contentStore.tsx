@@ -209,6 +209,65 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
     const categoryTitles = processedData.map(block => block.title);
     const itemTitles = processedData.map(block => block.content_block_items.map(item => item.note));
 
+    // BATCH FETCH ALL TWEETS for episode content
+    const tweetIds = new Set<string>();
+    for (const block of processedData) {
+      for (const item of block.content_block_items) {
+        // Check both platform (new schema) and content_type (old schema) for compatibility
+        const isTwitter = (item?.content as any)?.platform === 'twitter' || item?.content?.content_type === 'twitter';
+        const tweetId = (item?.content as any)?.platform_content_id || item?.content?.content_id;
+        if (isTwitter && tweetId) {
+          tweetIds.add(tweetId);
+        }
+      }
+    }
+
+    if (tweetIds.size > 0) {
+      logger.log(`Batch fetching ${tweetIds.size} tweets for episode...`);
+      const tweetIdArray = Array.from(tweetIds);
+      const chunkSize = 100;
+      const allTweets: any[] = [];
+
+      for (let i = 0; i < tweetIdArray.length; i += chunkSize) {
+        const chunk = tweetIdArray.slice(i, i + chunkSize);
+        const { data: tweets, error: tweetsError } = await supabase
+          .from('tweets')
+          .select('*')
+          .in('id', chunk);
+
+        if (tweetsError) {
+          logger.error(`Error fetching tweet chunk:`, tweetsError);
+        } else if (tweets) {
+          allTweets.push(...tweets);
+        }
+      }
+
+      const tweetMap: {[key: string]: any} = {};
+      for (const tweet of allTweets) {
+        try {
+          tweetMap[tweet.id] = {
+            ...tweet,
+            data: typeof tweet.data === 'string' ? JSON.parse(tweet.data) : tweet.data
+          };
+        } catch (error) {
+          tweetMap[tweet.id] = {
+            id: tweet.id,
+            data: {
+              text: tweet.text || 'Tweet data unavailable',
+              user: {
+                name: tweet.screen_name || 'Unknown',
+                screen_name: tweet.screen_name || 'unknown',
+                profile_image_url_https: tweet.profile_image || ''
+              },
+              created_at: new Date().toISOString()
+            }
+          };
+        }
+      }
+      useTweetStore.setState({ tweets: tweetMap });
+      logger.log(`Loaded ${Object.keys(tweetMap).length} tweets into store for episode`);
+    }
+
     set({
       maxIndex,
       content: processedData,

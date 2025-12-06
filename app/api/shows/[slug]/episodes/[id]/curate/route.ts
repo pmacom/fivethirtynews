@@ -304,11 +304,12 @@ export async function GET(
     })));
 
     // Diagnostic: Check what content exists in the date range
+    // Use content_created_at (original posting time) not created_at (DB insertion time)
     const { data: diagnosticContent, count: totalCount } = await supabase
       .from('content')
-      .select('id, tags, approval_status, created_at', { count: 'exact' })
-      .gte('created_at', sinceDate)
-      .lte('created_at', untilDate || new Date().toISOString())
+      .select('id, tags, approval_status, content_created_at', { count: 'exact' })
+      .gte('content_created_at', sinceDate)
+      .lte('content_created_at', untilDate || new Date().toISOString())
       .limit(10);
 
     console.log('[Curate] Diagnostic - Content in date range:', {
@@ -319,7 +320,7 @@ export async function GET(
         id: c.id.substring(0, 8),
         tags: c.tags,
         status: c.approval_status,
-        created: c.created_at,
+        content_created_at: c.content_created_at,
       })) || [],
     });
 
@@ -404,6 +405,7 @@ export async function GET(
         // Combine all into one OR clause - content matches if ANY filter hits
         const allFilters = [...tagFilters, ...channelFilters, ...primaryChannelFilters].join(',');
 
+        // Query by content_created_at (original posting time) not created_at (DB insertion time)
         let contentQuery = supabase
           .from('content')
           .select(`
@@ -418,11 +420,12 @@ export async function GET(
             media_assets,
             tags,
             approval_status,
+            content_created_at,
             created_at
           `)
-          .gte('created_at', sinceDate)
+          .gte('content_created_at', sinceDate)
           .or(allFilters)
-          .order('created_at', { ascending: false })
+          .order('content_created_at', { ascending: false })
           .limit(50);
 
         // Apply approval filter
@@ -432,7 +435,7 @@ export async function GET(
 
         // Apply upper bound
         if (untilDate) {
-          contentQuery = contentQuery.lte('created_at', untilDate);
+          contentQuery = contentQuery.lte('content_created_at', untilDate);
         }
 
         const { data: contentItems, error: contentError } = await contentQuery;
@@ -479,7 +482,10 @@ export async function GET(
           if (a.is_selected && !b.is_selected) return -1;
           if (!a.is_selected && b.is_selected) return 1;
           if (a.is_selected && b.is_selected) return a.weight - b.weight;
-          return new Date(b.content.created_at).getTime() - new Date(a.content.created_at).getTime();
+          // Sort by content_created_at (original posting time)
+          const aDate = a.content.content_created_at || a.content.created_at;
+          const bDate = b.content.content_created_at || b.content.created_at;
+          return new Date(bDate).getTime() - new Date(aDate).getTime();
         });
 
         return {
@@ -493,6 +499,53 @@ export async function GET(
         };
       })
     );
+
+    // Fetch prev/next episodes for navigation
+    const currentEpisodeNumber = episode.episode_number;
+    const currentDate = episode.scheduled_at || episode.date;
+
+    let prevEpisode = null;
+    let nextEpisode = null;
+
+    if (currentEpisodeNumber != null) {
+      // Get previous episode (lower episode number)
+      const { data: prevData } = await supabase
+        .from('episodes')
+        .select('id, title, episode_number, date, scheduled_at')
+        .eq('show_id', show.id)
+        .lt('episode_number', currentEpisodeNumber)
+        .order('episode_number', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (prevData) {
+        prevEpisode = {
+          id: prevData.id,
+          title: prevData.title || `Episode ${prevData.episode_number}`,
+          episode_number: prevData.episode_number,
+          date: prevData.date,
+        };
+      }
+
+      // Get next episode (higher episode number)
+      const { data: nextData } = await supabase
+        .from('episodes')
+        .select('id, title, episode_number, date, scheduled_at')
+        .eq('show_id', show.id)
+        .gt('episode_number', currentEpisodeNumber)
+        .order('episode_number', { ascending: true })
+        .limit(1)
+        .single();
+
+      if (nextData) {
+        nextEpisode = {
+          id: nextData.id,
+          title: nextData.title || `Episode ${nextData.episode_number}`,
+          episode_number: nextData.episode_number,
+          date: nextData.date,
+        };
+      }
+    }
 
     return NextResponse.json(
       {
@@ -510,6 +563,10 @@ export async function GET(
             id: show.id,
             name: show.name,
             slug: show.slug,
+          },
+          navigation: {
+            prev: prevEpisode,
+            next: nextEpisode,
           },
           content_window: {
             since_date: sinceDate,

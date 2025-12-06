@@ -2648,7 +2648,83 @@
       "lastAccessed": "2025-12-03T21:50:19.010Z",
       "lastVerified": "2025-12-03T21:50:19.010Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765051372348_7n6ax0u5h",
+      "content": "530News Database Schema Analysis:\n\n## Core Tables\n\n### content table\nPrimary table for all content items (Twitter, Discord, videos, etc.)\nKey fields:\n- `id` (UUID) - Primary key\n- `platform` (TEXT) - Content type (twitter, discord, video, warpcast, etc.)\n- `url` (TEXT) - Source URL\n- `title`, `description` - Content text\n- `author_name`, `author_avatar_url` - Creator info\n- `thumbnail_url`, `media_assets` - Media content\n- `tags` (TEXT[]) - Array of tag slugs\n- `channels` (JSONB) - Array of channel slugs\n- `primary_channel` (TEXT) - Main channel slug\n- `approval_status` (TEXT) - pending, approved, rejected\n- `created_at` (TIMESTAMPTZ) - When record was created in DB\n- `content_created_at` (TIMESTAMPTZ) - Original posting time (IMPORTANT: This is the \"original posting time\" field)\n\n### episodes table\nKey fields:\n- `id`, `title`, `description`, `date`\n- `show_id` (UUID) - Links to shows table\n- `episode_number` (INTEGER)\n- `scheduled_at` (TIMESTAMPTZ) - When episode will air\n- `content_starts_at` (TIMESTAMPTZ) - Start of content aggregation window (defaults to 7 days before episode)\n- `status` (TEXT) - scheduled, live, completed, cancelled\n- `created_by` (UUID)\n\n### shows table\nKey fields:\n- `id`, `slug`, `name`, `description`, `image_url`\n- Schedule fields: `schedule_frequency`, `schedule_day_of_week`, `schedule_time`, `schedule_timezone`\n- `duration_minutes`\n- `status` - active, hiatus, archived\n\n### content_blocks table\nCategories/pillars within episodes\nKey fields:\n- `id`, `episode_id` (UUID)\n- `title`, `description`\n- `weight` (INTEGER) - Display order\n- `template_id` (UUID) - Links to show_category_templates\n- `tags` (TEXT[]) - Custom tags for querying content\n\n### content_block_items table\nJunction table linking content to blocks (selected items)\nKey fields:\n- `id`, `content_block_id` (UUID)\n- `news_id` (UUID) - References content.id\n- `note` (TEXT)\n- `weight` (INTEGER) - Display order within block\n\n## Show Templates System\n\n### show_category_templates table\nReusable category templates per show\nKey fields:\n- `id`, `show_id` (UUID)\n- `name`, `slug`, `description`, `icon`\n- `display_order`, `is_active`\n\n### show_category_template_tags table\nTags assigned to templates (soft reference to tags.slug)\nKey fields:\n- `template_id` (UUID)\n- `tag_slug` (TEXT)\n\n## Tags & Channels\n\n### tags table\nReusable tags for fine-grained categorization\nKey fields:\n- `slug`, `name`, `usage_count`\n\n### channels & channel_groups tables\nFlat channel organization (Discord-like)\n- Groups contain channels\n- Content can have multiple channels + primary_channel\n\n## Content Time Fields\n\nCRITICAL DISTINCTION:\n- `content.created_at` - When content was added to database\n- `content.content_created_at` - Original posting time from source platform (Twitter, Discord, etc.)\n- For querying \"content from last week\", use `content_created_at` NOT `created_at`\n\n## Content Window Logic\n\nEpisodes use `content_starts_at` to define aggregation window:\n- If set: use that date\n- If null: defaults to 7 days before episode.date or episode.scheduled_at\n- Upper bound: episode.scheduled_at for completed episodes, NOW() for draft episodes",
+      "type": "general",
+      "tags": [
+        "general",
+        "database",
+        "database-schema",
+        "530news",
+        "content-management",
+        "shows",
+        "episodes"
+      ],
+      "timestamp": "2025-12-06T20:02:52.348Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-06T20:02:52.348Z",
+      "lastVerified": "2025-12-06T20:02:52.348Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765051892426_rg04uadxl",
+      "content": "Created backfill-shows.ts script at scripts/backfill-shows.ts for creating historical episodes for the wormhole show based on content_created_at dates. Key features:\n- Uses content_created_at (original posting time) not created_at (DB insertion time)\n- Dry run mode by default (--execute to actually create)\n- --start-year option to skip old sparse content\n- --min-content N to filter weeks with fewer than N items\n- Creates episodes with all 7 category templates (preshow, main, thirddimension, ai, code, misc, metaverse)\n- Renumbers existing episodes when backfilling",
+      "type": "general",
+      "tags": [
+        "general",
+        "scripts",
+        "wormhole",
+        "shows",
+        "backfill",
+        "episodes"
+      ],
+      "timestamp": "2025-12-06T20:11:32.426Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-06T20:11:32.426Z",
+      "lastVerified": "2025-12-06T20:11:32.426Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765053066469_pwfhmbtj8",
+      "content": "FiveThirty Codebase Architecture for Search & Navigation:\n\n## API Pattern (Next.js App Router):\n- Route handlers in /app/api/[resource]/route.ts\n- Uses searchParams.get() for query params (e.g., limit, offset, platform, channel, since, include_unapproved)\n- Standard response: NextResponse.json({ success, data, pagination?, error? })\n- Authentication via cookies().get('530_session') or Authorization header\n- CORS headers for cross-origin requests\n- Supabase client pattern: createClient() from @/utils/supabase/server\n\n## State Management (Zustand):\n- Store pattern: create<Store>() with state + actions\n- Example: /stores/curateStore.ts uses useCurateStore hook\n- Optimistic updates for better UX\n- Includes loading, error, and data states\n- Reset function to clear state between navigations\n\n## Episode Navigation Potential:\n- Episodes table has: id, show_id, episode_number, date, scheduled_at, status\n- Episodes ordered by scheduled_at DESC, then date DESC\n- Each episode belongs to a show (via show_id FK)\n- Can query episodes by show_id with ordering\n\n## Search/Query Patterns:\n- Content API supports: platform, channel, group, since, limit, offset filters\n- Uses Postgres operators: .eq(), .gte(), .lte(), .or(), .cs.[] for JSONB arrays\n- Date filtering on content_created_at (original post time) vs created_at (DB insertion)\n- Approval status filtering (approved, pending, rejected)\n\n## Component Patterns:\n- Client components use 'use client' directive\n- useRouter, useParams from next/navigation for routing\n- useEffect for data fetching on mount\n- UI components from /components/ui (shadcn/ui based)\n- Reusable patterns: Loading states, error banners, cards, dialogs\n\n## Navigation Examples Found:\n- router.push(`/show/${slug}/episode/${episodeId}/curate`)\n- router.push(`/show/${slug}/episode/${episodeId}/edit`)\n- Back buttons with router.push(`/show/${slug}`)\n- Episodes clickable in show detail page\n",
+      "type": "code",
+      "tags": [
+        "code",
+        "api",
+        "authentication",
+        "fivethirty",
+        "architecture",
+        "api-patterns",
+        "navigation"
+      ],
+      "timestamp": "2025-12-06T20:31:06.469Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-06T20:31:06.469Z",
+      "lastVerified": "2025-12-06T20:31:06.469Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765053689769_qujs6r0gs",
+      "content": "Completed feature implementation for curate page:\n\n1. **Content Search API** - `/api/content/search/route.ts`\n   - Reusable search with params: q, tags, channels, platform, since, until, status, limit, offset, sort, order\n   - Uses `content_created_at` for date filtering\n\n2. **useContentSearch Hook** - `/hooks/use-content-search.ts`\n   - Debounced search, pagination, abort controller, filter management\n   - Returns: results, isLoading, error, filters, pagination\n   - Actions: search, debouncedSearch, loadMore, reset, updateFilters\n\n3. **Episode Navigation**\n   - Curate API returns prev/next episode data\n   - `EpisodeNavigation` component at `/components/episode/EpisodeNavigation.tsx`\n   - Added to curateStore: `EpisodeNavItem`, `EpisodeNavigation` types\n\n4. **Approve All**\n   - API: `/api/shows/[slug]/episodes/[id]/approve-all/route.ts`\n   - Store action: `approveAllContent()` in curateStore\n   - Bulk updates content approval_status to 'approved'\n\n5. **Curate Page Updated** - `/app/show/[slug]/episode/[id]/curate/page.tsx`\n   - Episode navigation arrows in header\n   - Approve All button (amber colored)\n   - Success message banner for approve results",
+      "type": "error",
+      "tags": [
+        "error",
+        "api",
+        "feature",
+        "curate",
+        "search",
+        "navigation",
+        "approval"
+      ],
+      "timestamp": "2025-12-06T20:41:29.769Z",
+      "context": "Feature implementation for wormhole show episode curation workflow",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-06T20:41:29.769Z",
+      "lastVerified": "2025-12-06T20:41:29.769Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-03T21:50:19.010Z"
+  "lastUpdated": "2025-12-06T20:41:29.769Z"
 }

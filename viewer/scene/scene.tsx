@@ -34,7 +34,7 @@ function Scene({ children }: SceneProps) {
 
         {children}
       </Canvas>
-      <Leva flat collapsed hidden={!showLeva} />
+      {showLeva && <Leva flat collapsed />}
     </div>
   )
 }
