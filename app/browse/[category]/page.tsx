@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import NewsCard from './components/NewsCard';
+import { SearchTrigger } from '@/components/search';
 
 interface ContentItem {
   id: string;
@@ -144,6 +145,13 @@ export default function BrowseCategoryPage() {
               {pagination.total} item{pagination.total !== 1 ? 's' : ''}
             </p>
           </div>
+          <SearchTrigger
+            variant="input"
+            className="w-64"
+            onSelectContent={(content) => {
+              window.open(content.url, '_blank');
+            }}
+          />
         </div>
       </header>
 

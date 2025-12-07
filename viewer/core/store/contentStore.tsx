@@ -7,6 +7,7 @@ import { WTF_CONFIG } from "../../config";
 import Viewer from "../../viewer";
 import logger from "../../utils/logger";
 import { VideoLoadingState } from '../video/VideoPreloadManager';
+import { trackRelationship } from '../../utils/trackRelationship';
 
 interface ContentStoreState {
   episodeId: string | null;
@@ -84,7 +85,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   },
 
   setNextColumn: () => {
-    const { activeCategoryIndex, categoryIds, itemIds } = get();
+    const { activeCategoryIndex, categoryIds, itemIds, activeItemId: previousItemId } = get();
     const nextCategoryIndex = (activeCategoryIndex + 1) % categoryIds.length;
     const nextCategoryId = categoryIds[nextCategoryIndex];
     const firstItemInNextCategory = itemIds[nextCategoryIndex][0];
@@ -96,10 +97,14 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
       activeItemIndex: 0,
       activeItemId: firstItemInNextCategory
     });
+    // Track navigation relationship
+    if (previousItemId && firstItemInNextCategory && previousItemId !== firstItemInNextCategory) {
+      trackRelationship(previousItemId, firstItemInNextCategory, 'navigation');
+    }
   },
 
   setPrevColumn: () => {
-    const { activeCategoryIndex, categoryIds, itemIds } = get();
+    const { activeCategoryIndex, categoryIds, itemIds, activeItemId: previousItemId } = get();
     const prevCategoryIndex = (activeCategoryIndex - 1 + categoryIds.length) % categoryIds.length;
     const prevCategoryId = categoryIds[prevCategoryIndex];
     const lastItemInPrevCategory = itemIds[prevCategoryIndex][itemIds[prevCategoryIndex].length - 1];
@@ -110,10 +115,14 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
       activeItemIndex: itemIds[prevCategoryIndex].length - 1,
       activeItemId: lastItemInPrevCategory
     });
+    // Track navigation relationship
+    if (previousItemId && lastItemInPrevCategory && previousItemId !== lastItemInPrevCategory) {
+      trackRelationship(previousItemId, lastItemInPrevCategory, 'navigation');
+    }
   },
 
   setNextItem: () => {
-    const { activeCategoryIndex, activeItemIndex, itemIds } = get();
+    const { activeCategoryIndex, activeItemIndex, itemIds, activeItemId: previousItemId } = get();
     const currentCategoryItems = itemIds[activeCategoryIndex];
 
     if (activeItemIndex < currentCategoryItems.length - 1) {
@@ -123,6 +132,10 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
         activeItemIndex: activeItemIndex + 1,
         activeItemId: nextItemId
       });
+      // Track navigation relationship
+      if (previousItemId && nextItemId && previousItemId !== nextItemId) {
+        trackRelationship(previousItemId, nextItemId, 'navigation');
+      }
     } else {
       // Move to the next category's first item
       get().setNextColumn();
@@ -130,7 +143,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   },
 
   setPrevItem: () => {
-    const { activeCategoryIndex, activeItemIndex, itemIds } = get();
+    const { activeCategoryIndex, activeItemIndex, itemIds, activeItemId: previousItemId } = get();
 
     if (activeItemIndex > 0) {
       const prevItemId = itemIds[activeCategoryIndex][activeItemIndex - 1];
@@ -139,6 +152,10 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
         activeItemIndex: activeItemIndex - 1,
         activeItemId: prevItemId
       });
+      // Track navigation relationship
+      if (previousItemId && prevItemId && previousItemId !== prevItemId) {
+        trackRelationship(previousItemId, prevItemId, 'navigation');
+      }
     } else {
       // Move to the previous category's last item
       get().setPrevColumn();

@@ -4,11 +4,14 @@ import React, { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { IoLayersOutline } from 'react-icons/io5'
 import { CiSettings } from 'react-icons/ci'
-import { LayoutGrid, Edit, Columns3, Cloud, Layers, GalleryHorizontal, ArrowLeft, ArrowRight, ChevronLeft } from 'lucide-react'
+import { LayoutGrid, Edit, Columns3, Cloud, Layers, GalleryHorizontal, ArrowLeft, ArrowRight, ChevronLeft, Search } from 'lucide-react'
 import { useStageSelectStore } from './stageselect/store'
 import useSettingStore from './settings/store'
 import { useViewModeStore, VIEW_MODE_OPTIONS, ViewMode } from '../core/store/viewModeStore'
 import { useContentStore } from '../core/store/contentStore'
+import { useFloatingContentStore } from '../core/store/floatingContentStore'
+import { trackSearchRelationship } from '../utils/trackRelationship'
+import SearchModal from '@/components/search/SearchModal'
 
 interface EpisodeNavigation {
   prev: { id: string; episode_number: number; title: string } | null
@@ -60,6 +63,7 @@ export const TopToolbar = ({
 }: TopToolbarProps) => {
   const router = useRouter()
   const [viewModeOpen, setViewModeOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
 
   // Store states
   const showStageSelect = useStageSelectStore(state => state.showStageSelect)
@@ -67,6 +71,8 @@ export const TopToolbar = ({
   const viewMode = useViewModeStore(state => state.viewMode)
   const setViewMode = useViewModeStore(state => state.setViewMode)
   const contentEpisodeId = useContentStore(state => state.episodeId)
+  const activeItemData = useContentStore(state => state.activeItemData)
+  const addFloatingItem = useFloatingContentStore(state => state.addFloatingItem)
 
   // Use provided episodeId or fall back to content store
   const activeEpisodeId = episodeId || contentEpisodeId
@@ -90,6 +96,41 @@ export const TopToolbar = ({
       router.push(`/show/${showSlug}/episode/${activeEpisodeId}/edit`)
     }
   }, [router, showSlug, activeEpisodeId])
+
+  // Handle adding content to the 3D scene from search
+  const handleAddToScene = useCallback((content: { id: string; title: string | null; description: string | null; url: string; thumbnail_url: string | null; platform: string }) => {
+    const currentId = activeItemData?.content?.content_id || activeItemData?.content?.id
+
+    // Add to floating items - coerce nullable fields to defaults for type compatibility
+    addFloatingItem({
+      id: content.id,
+      note: '',
+      weight: 0,
+      content_block_id: 'search',
+      news_id: content.id,
+      content: {
+        id: content.id,
+        content_id: content.id,
+        version: 1,
+        content_type: content.platform as any,
+        content_url: content.url,
+        content_created_at: new Date().toISOString(),
+        thumbnail_url: content.thumbnail_url || '',
+        submitted_by: '',
+        submitted_at: new Date().toISOString(),
+        category: '',
+        categories: [],
+        description: content.description || '',
+      }
+    }, currentId || undefined)
+
+    // Track relationship
+    if (currentId) {
+      trackSearchRelationship(currentId, content.id)
+    }
+
+    setSearchOpen(false)
+  }, [activeItemData, addFloatingItem])
 
   return (
     <div className="fixed top-0 right-0 z-[103] p-4">
@@ -184,6 +225,11 @@ export const TopToolbar = ({
           )}
         </div>
 
+        {/* Search Button */}
+        <ToolbarButton onClick={() => setSearchOpen(true)} title="Search (⌘K)">
+          <Search className="w-5 h-5" />
+        </ToolbarButton>
+
         {/* Curate Button - only show if we have episode context */}
         {showSlug && activeEpisodeId && (
           <ToolbarButton onClick={handleCurate} title="Curate">
@@ -216,6 +262,15 @@ export const TopToolbar = ({
           <CiSettings className="w-5 h-5" />
         </ToolbarButton>
       </div>
+
+      {/* Search Modal */}
+      <SearchModal
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        mode="3d-viewer"
+        currentContentId={activeItemData?.content?.content_id || activeItemData?.content?.id}
+        onAddToScene={handleAddToScene}
+      />
     </div>
   )
 }

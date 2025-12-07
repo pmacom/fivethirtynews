@@ -7,6 +7,7 @@ import BackgroundScene from './models/BackgroundScene'
 import AudioResponsiveSphere from './models/AudioResponsiveSphere'
 import Logo530 from './models/Logo530'
 import { LayoutSwitcher } from './layouts/LayoutSwitcher'
+import { FloatingContentOrbit } from './floating/FloatingContentOrbit'
 import Scene from './scene/scene'
 import TopToolbar from './ui/TopToolbar'
 import CloudControls from './ui/CloudControls'
@@ -137,6 +138,7 @@ const Viewer = ({
           {!showSplash && !showStageSelect && (
             <Suspense fallback={null}>
               <LayoutSwitcher />
+              <FloatingContentOrbit />
             </Suspense>
           )}
 
