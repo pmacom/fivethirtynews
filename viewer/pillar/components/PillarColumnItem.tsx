@@ -5,6 +5,7 @@ import TemplateSwitcher from "../templates/TemplateSwitcher"
 
 import { useContentStore } from '../../core/store/contentStore'
 import { isMobile, isTablet, isDesktop } from "react-device-detect"
+import { ThreeEvent } from '@react-three/fiber'
 
 interface PillarColumnItemProps {
   data: LiveViewContentBlockItems
@@ -14,6 +15,7 @@ interface PillarColumnItemProps {
 }
 export const PillarColumnItem = ({ data, categoryId, itemIndex, position }:PillarColumnItemProps) => {
   const activeItemId = useContentStore(state => state.activeItemId)
+  const setHoveredItem = useContentStore(state => state.setHoveredItem)
   const content_id = useMemo(() => data.content.content_id, [data])
   const contentType = useMemo(() => data.content?.content_type, [data])
   const groupRef = useRef<THREE.Group>(null)
@@ -42,11 +44,23 @@ export const PillarColumnItem = ({ data, categoryId, itemIndex, position }:Pilla
     return [0, 0, 0]; // No rotation
   }, []);
 
+  const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation()
+    setHoveredItem(data)
+  }
+
+  const handlePointerLeave = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation()
+    setHoveredItem(null)
+  }
+
   return (
     <group
       ref={groupRef}
       position={position}
       rotation={rotation as [number, number, number]}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
     >
       {content}
     </group>

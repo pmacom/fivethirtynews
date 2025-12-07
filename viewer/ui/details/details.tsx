@@ -11,7 +11,10 @@ import useSettingStore from '../settings/store';
 
 
 export const Details = () => {
-  const itemData = useContentStore(state => state.activeItemData)
+  const activeItemData = useContentStore(state => state.activeItemData)
+  const hoveredItemData = useContentStore(state => state.hoveredItemData)
+  // Show hovered item if present, otherwise show active item
+  const itemData = hoveredItemData || activeItemData
   const [opacity, setOpacity] = useState(1)
   const showSettings = useSettingStore(state => state.showSettings)
 

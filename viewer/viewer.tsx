@@ -6,14 +6,17 @@ import * as THREE from 'three'
 import BackgroundScene from './models/BackgroundScene'
 import AudioResponsiveSphere from './models/AudioResponsiveSphere'
 import Logo530 from './models/Logo530'
-import { Pillar } from './pillar/pillar'
+import { LayoutSwitcher } from './layouts/LayoutSwitcher'
 import Scene from './scene/scene'
+import TopToolbar from './ui/TopToolbar'
+import CloudControls from './ui/CloudControls'
+import RevealOnMovement from './ui/components/RevealOnMovement'
 import { UI } from './ui/ui'
 import Legend from './ui/legend/legend'
 import Details from './ui/details/details'
 import Settings from './ui/settings/settings'
 import SettingsOptions from './ui/settings/options'
-import StageSelect from './ui/stageselect/StageSelect'
+import { StageSelectOverlay } from './ui/stageselect/StageSelectOverlay'
 import SplashScreen from './ui/splash/SplashScreen'
 import Chyron from './ui/chyron/chyron'
 import ErrorBoundary from './ErrorBoundary'
@@ -21,6 +24,8 @@ import BehaviorDetection from './common/BehaviorDetection'
 import { TunnelThing } from './scene/components/TunnelThing'
 import { useStageSelectStore } from './ui/stageselect/store'
 import { useContentStore } from './core/store/contentStore'
+import { useViewModeStore } from './core/store/viewModeStore'
+import videoPreloadManager from './core/video/VideoPreloadManager'
 import './ui/splash/styles.css'
 
 export type ContentMode = 'latest' | 'this-week' | 'episode';
@@ -63,19 +68,55 @@ const ContentLoader = ({ mode, episodeId }: ContentLoaderProps) => {
   return null
 }
 
+interface EpisodeNavigation {
+  prev: { id: string; episode_number: number; title: string } | null;
+  next: { id: string; episode_number: number; title: string } | null;
+}
+
 interface ViewerProps {
   mode?: ContentMode;
   episodeId?: string;
+  showSlug?: string;
+  showName?: string;
+  episodeNumber?: number;
+  episodeTitle?: string;
+  navigation?: EpisodeNavigation;
   skipSplash?: boolean;
 }
 
-const Viewer = ({ mode = 'latest', episodeId, skipSplash = false }: ViewerProps) => {
+const Viewer = ({
+  mode = 'latest',
+  episodeId,
+  showSlug,
+  showName,
+  episodeNumber,
+  episodeTitle,
+  navigation,
+  skipSplash = false
+}: ViewerProps) => {
+  const viewMode = useViewModeStore(state => state.viewMode)
+
   // Skip splash screen when skipSplash prop is true (e.g., on /recent route)
   useEffect(() => {
     if (skipSplash) {
       useStageSelectStore.setState({ showSplash: false, showStageSelect: false })
     }
   }, [skipSplash])
+
+  // Initialize video preload manager only for pillar view mode
+  // Other view modes use thumbnails only for better performance
+  useEffect(() => {
+    if (viewMode === 'pillar') {
+      videoPreloadManager.initialize()
+    } else {
+      // Pause/cleanup video preloading for non-pillar views
+      videoPreloadManager.destroy()
+    }
+
+    return () => {
+      videoPreloadManager.destroy()
+    }
+  }, [viewMode])
   // Hide Pillar content when splash screen or stage select is showing
   const showSplash = useStageSelectStore(state => state.showSplash)
   const showStageSelect = useStageSelectStore(state => state.showStageSelect)
@@ -95,7 +136,7 @@ const Viewer = ({ mode = 'latest', episodeId, skipSplash = false }: ViewerProps)
           {/* <AudioResponsiveSphere /> */}
           {!showSplash && !showStageSelect && (
             <Suspense fallback={null}>
-              <Pillar />
+              <LayoutSwitcher />
             </Suspense>
           )}
 
@@ -107,9 +148,22 @@ const Viewer = ({ mode = 'latest', episodeId, skipSplash = false }: ViewerProps)
             <SettingsOptions />
           </Settings>
         </UI>
+        {/* Top Toolbar - episode nav, view modes, curate, edit, stage select, settings */}
+        <RevealOnMovement>
+          <TopToolbar
+            showSlug={showSlug}
+            episodeId={episodeId}
+            showName={showName}
+            episodeNumber={episodeNumber}
+            episodeTitle={episodeTitle}
+            navigation={navigation}
+          />
+        </RevealOnMovement>
+        {/* Cloud Controls - only shows in cloud view mode */}
+        <CloudControls />
         <Chyron />
-        {/* Stage Select and Splash are always visible, not affected by mouse movement */}
-        <StageSelect />
+        {/* Stage Select Overlay and Splash */}
+        <StageSelectOverlay />
         <SplashScreen />
       </BehaviorDetection>
     </ErrorBoundary>

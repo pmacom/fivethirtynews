@@ -25,6 +25,8 @@ interface ContentStoreState {
   videoSeekTime: number;
   videoDuration: number;
   activeItemData: LiveViewContentBlockItems | null;
+  hoveredItemData: LiveViewContentBlockItems | null;
+  setHoveredItem: (item: LiveViewContentBlockItems | null) => void;
   content: LiveViewContentBlock[];
   maxIndex: number | null;
   activeSlideIndex: number;
@@ -58,6 +60,8 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   activeItemIndex: 0,
   activeItemObject: null,
   activeItemData: null,
+  hoveredItemData: null,
+  setHoveredItem: (item) => set({ hoveredItemData: item }),
   isContentVideo: false,
   isVideoSeeking: false,
   videoSeekTime: 0,

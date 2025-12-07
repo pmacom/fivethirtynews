@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react'
-import { CiSettings } from "react-icons/ci";
 import { IoMdClose } from "react-icons/io";
 import { Label } from '@/components/ui/label';
 import useSettingStore from './store';
@@ -18,19 +17,11 @@ interface SettingsProps {
 export const Settings = ({ children }:SettingsProps) => {
   const showSettings = useSettingStore(state => state.showSettings)
 
-  const onClick = useCallback(() => {
-    useSettingStore.setState({ showSettings: !showSettings })
-  }, [showSettings])
-
   const setIsOpen = useCallback((isOpen: boolean) => useSettingStore.setState({ showSettings: isOpen }), [])
 
+  // Note: Settings button is now in TopToolbar, this component only handles the drawer
   return (
-    <div className="wtf--ui cursor-pointer z-[103]">
-
-      <div onClick={onClick} className="wtf--ui--container rounded fixed bottom-0 right-0'">
-        <CiSettings />
-      </div>
-  
+    <>
         <Drawer open={showSettings} defaultOpen onClose={() => setIsOpen(false)}>
           <DrawerContent className='dark'>
             <div className="flex flex-col text-slate-300">
@@ -53,8 +44,7 @@ export const Settings = ({ children }:SettingsProps) => {
             </div>
           </DrawerContent>
         </Drawer>
-
-    </div>
+    </>
   )
 }
 

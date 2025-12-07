@@ -398,9 +398,9 @@ export async function GET(
 
         // Query content matching tags OR channels within date range
         // Build filters for BOTH tags and channels (JSONB arrays) + primary_channel
-        const tagFilters = tagSlugs.map(tag => `tags.cs.["${tag}"]`);
-        const channelFilters = tagSlugs.map(slug => `channels.cs.["${slug}"]`);
-        const primaryChannelFilters = tagSlugs.map(slug => `primary_channel.eq.${slug}`);
+        const tagFilters = tagSlugs.map((tag: string) => `tags.cs.["${tag}"]`);
+        const channelFilters = tagSlugs.map((slug: string) => `channels.cs.["${slug}"]`);
+        const primaryChannelFilters = tagSlugs.map((slug: string) => `primary_channel.eq.${slug}`);
 
         // Combine all into one OR clause - content matches if ANY filter hits
         const allFilters = [...tagFilters, ...channelFilters, ...primaryChannelFilters].join(',');
