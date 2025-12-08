@@ -30,7 +30,7 @@ export function useContentNavigation({
     useContentStore.setState({
       activeCategoryId: item.categoryId,
       activeCategoryIndex: item.categoryIndex,
-      activeItemId: item.id,
+      activeItemId: item.contentId, // Use contentId for data lookups
       activeItemData: item.itemData,
       activeItemIndex: item.itemIndex,
     })

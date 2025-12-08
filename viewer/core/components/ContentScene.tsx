@@ -106,14 +106,14 @@ export function ContentScene({
   useEffect(() => {
     if (items.length > 0 && !hasInitializedRef.current) {
       const currentActiveId = useContentStore.getState().activeItemId
-      const hasValidActive = items.some(item => item.id === currentActiveId)
+      const hasValidActive = items.some(item => item.contentId === currentActiveId)
 
       if (!hasValidActive) {
         const firstItem = items[0]
         useContentStore.setState({
           activeCategoryId: firstItem.categoryId,
           activeCategoryIndex: firstItem.categoryIndex,
-          activeItemId: firstItem.id,
+          activeItemId: firstItem.contentId,
           activeItemData: firstItem.itemData,
           activeItemIndex: firstItem.itemIndex,
         })
@@ -128,23 +128,18 @@ export function ContentScene({
     useContentStore.getState().setHoveredItem(item?.itemData ?? null)
   }, [])
 
-  // Handle click - select item and focus camera
+  // Handle click - select item (camera focus handled by useLayoutAnimation onRest)
   const handleClick = useCallback((item: FlattenedItem) => {
-    // Update active item in store
+    // Update active item in store - use contentId for data lookups
     useContentStore.setState({
       activeCategoryId: item.categoryId,
       activeCategoryIndex: item.categoryIndex,
-      activeItemId: item.id,
+      activeItemId: item.contentId,
       activeItemData: item.itemData,
       activeItemIndex: item.itemIndex,
     })
-
-    // Wait for PlaneView to set activeItemObject, then focus camera
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        useSceneStore.getState().focusOnContent()
-      })
-    })
+    // Note: focusOnContent is called by useLayoutAnimation.onAnimationComplete
+    // to avoid duplicate calls that cause camera jumping
   }, [])
 
   // Compute item transforms

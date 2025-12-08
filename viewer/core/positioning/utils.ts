@@ -13,10 +13,14 @@ export function flattenContent(contents: LiveViewContentBlock[]): FlattenedItem[
 
   contents.forEach((category, categoryIndex) => {
     category.content_block_items?.forEach((item, itemIndex) => {
-      const id = item.content?.content_id || item.content?.id || `${category.id}-${itemIndex}`
+      // Use content_id for data lookup, but globalIndex for unique React key
+      const contentId = item.content?.content_id || item.content?.id || `${category.id}-${itemIndex}`
+      // Unique key includes category to handle same content in multiple categories
+      const uniqueKey = `${category.id}-${contentId}-${itemIndex}`
 
       items.push({
-        id,
+        id: uniqueKey,
+        contentId, // Store original content ID for data operations
         itemData: item,
         categoryId: category.id,
         categoryIndex,
@@ -32,10 +36,10 @@ export function flattenContent(contents: LiveViewContentBlock[]): FlattenedItem[
 }
 
 /**
- * Find the global index of an item by its ID
+ * Find the global index of an item by its content ID
  */
 export function findItemIndex(items: FlattenedItem[], itemId: string): number {
-  return items.findIndex(item => item.id === itemId)
+  return items.findIndex(item => item.contentId === itemId)
 }
 
 /**

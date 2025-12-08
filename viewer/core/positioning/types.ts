@@ -20,7 +20,8 @@ export interface GroupTransform {
 
 // Flattened item with all metadata needed for positioning
 export interface FlattenedItem {
-  id: string
+  id: string              // Unique key for React (category + contentId + index)
+  contentId: string       // Original content ID for data operations
   itemData: LiveViewContentBlockItems
   categoryId: string
   categoryIndex: number

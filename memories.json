@@ -3218,7 +3218,66 @@
       "lastAccessed": "2025-12-08T02:41:33.046Z",
       "lastVerified": "2025-12-08T02:41:33.046Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765213008918_shezrk5j0",
+      "content": "Fixed two issues causing camera jumping and duplicate key errors in 3D viewer:\n\n**Issue 1: Duplicate React Keys**\n- Same content appearing in multiple categories caused duplicate keys\n- Fix: Use unique key combining categoryId + contentId + itemIndex\n- Added `contentId` field to FlattenedItem for data operations\n- `id` field now uniquely identifies the React element\n\n**Issue 2: Double focusOnContent Calls**\n- Both handleClick and onAnimationComplete were calling focusOnContent\n- This caused camera to jump to correct item, then jump again\n- Fix: Removed focusOnContent from handleClick, rely only on onAnimationComplete\n\n**Files Modified:**\n- `viewer/core/positioning/types.ts` - Added contentId to FlattenedItem\n- `viewer/core/positioning/utils.ts` - Generate unique key, store contentId separately\n- `viewer/core/components/ContentScene.tsx` - Use contentId for store, removed duplicate focusOnContent\n- `viewer/core/hooks/useContentNavigation.ts` - Use contentId for store",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "react",
+        "viewer",
+        "bug-fix",
+        "camera",
+        "duplicate-keys",
+        "focusOnContent"
+      ],
+      "timestamp": "2025-12-08T16:56:48.918Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T16:56:48.918Z",
+      "lastVerified": "2025-12-08T16:56:48.918Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765213648443_xmqekuli1",
+      "content": "3D Viewer Content Addition Flow - Complete Architecture\n\n## 1. ENTRY POINT: Search Modal (SearchModal.tsx)\n- User opens search with TopToolbar search button\n- Searches for content from /api/content endpoint\n- When user clicks \"Add to Scene\" (3D mode), calls onAddToScene prop\n\n## 2. HANDLER: TopToolbar.handleAddToScene (TopToolbar.tsx, lines 101-134)\nInput: Search result { id, title, description, url, thumbnail_url, platform }\nAction:\n  - Creates FloatingItem via addFloatingItem()\n  - Coerces nullable fields to defaults for type compatibility\n  - Sets content_block_id: 'search' to mark as search-added item\n  - Tracks relationship via trackSearchRelationship()\n  - Closes search modal\n\n## 3. STORE: floatingContentStore.tsx (lines 41-96)\nKey methods:\n  - addFloatingItem(data, anchorId?): Prevents duplicates by content_id check\n  - Assigns unique id: `floating-${contentId}-${Date.now()}`\n  - Auto-assigns orbitIndex based on current count\n  - Sets anchorId to track which content spawned it\n  \nFloatingItem interface:\n  - id: unique floating instance ID\n  - data: LiveViewContentBlockItems (the actual content)\n  - anchorId: ID of content that triggered this\n  - addedAt: timestamp\n  - orbitIndex: position in orbit sequence\n\n## 4. RENDERING: FloatingContentOrbit.tsx\n- Gets activeItemObject from contentStore for 3D position tracking\n- Iterates floatingItems from store\n- Renders FloatingContentItem for each\n- If active item is floating, others orbit around it\n- Uses useFrame() to follow active item's world position\n\n## 5. ITEM RENDERING: FloatingContentItem.tsx (lines 26-123)\n- Uses @react-spring/three for smooth animations\n- Renders PillarColumnItem (same component as main layout!)\n- Entry animation: scales from 0 to 0.7-1.0, opacity 0 to 0.75-1.0\n- Orbit animation: getOrbitPosition() + getOrbitRotation() in useFrame\n- On click: Selects floating item, sets activeCategoryId: 'floating'\n- Hover triggers FloatingContentFeedback component\n\n## 6. FEEDBACK & VOTING: FloatingContentFeedback.tsx (lines 16-183)\n- Shows when hovering floating content (not active item)\n- Thumbs up/down buttons vote on pairing relevance\n- Calls POST /api/content/relationships/vote\n- On disagree: removes item from orbit after 500ms\n- Sends: contentId1, contentId2, vote ('agree'/'disagree')\n\n## 7. DATABASE: content_relationships & signals\nSchema:\n  - content_relationship_signals: append-only signal log\n  - content_relationships: aggregated pairs (normalized: id_1 < id_2)\n  - content_relationship_feedback: user votes on pairings\n  \nSignal types with weights:\n  - navigation: 0.3 (user browsed from A to B)\n  - search: 0.5 (user searched while viewing A, selected B)\n  - explicit: 1.0 (user manually linked A to B)\n\n## 8. API ENDPOINTS\nPOST /api/content/relationships:\n  - Records signals via trackRelationship()\n  - Body: { contentIdA, contentIdB, signalType, weight, context }\n\nPOST /api/content/relationships/vote:\n  - Records user votes on pairings\n  - Body: { contentId1, contentId2, vote, reason }\n  - Normalizes IDs (smaller first)\n  - Creates entry in content_relationship_feedback table\n  - Trigger updates community_score on content_relationships\n\n## 9. VIEW MODE INTEGRATION\nLayout Switcher (LayoutSwitcher.tsx):\n  - Switches between 4 layouts based on viewModeStore\n  - Pillar: PillarLayout (circular columns)\n  - Cloud: CloudLayout (scattered 3D)\n  - Stack: StackLayout (layered cards)\n  - Carousel: CarouselLayout (horizontal scroll)\n\nAll use ContentScene with different positioner:\n  - cloudPositioner: scatters items\n  - pillarPositioner: arranges in columns\n  - others: different algorithms\n\nFloatingContentOrbit renders same everywhere:\n  - Follows active item position\n  - Items orbit around it\n  - Uses same animation logic across modes\n\n## 10. KEY ARCHITECTURAL PATTERNS\n- Zustand stores for state (contentStore, floatingContentStore, viewModeStore)\n- Positioner pattern: different algorithms, same interface\n- React Spring for animations (smooth transitions)\n- Three.js useFrame() for orbit calculations\n- Fire-and-forget API calls (relationship tracking)\n- Append-only signal logging (audit trail)\n- Content deduplication (check if already floating)\n- Normalizing IDs for consistent lookups\n",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "react",
+        "spring",
+        "api",
+        "database",
+        "viewer",
+        "architecture",
+        "3d-scene",
+        "content-flow",
+        "floating-items",
+        "state-management"
+      ],
+      "timestamp": "2025-12-08T17:07:28.443Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T17:07:28.443Z",
+      "lastVerified": "2025-12-08T17:07:28.443Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765213995448_2ifqmvsjs",
+      "content": "Implemented per-view content placement system for the 3D viewer. When adding content from search:\n- Cloud view: Items added to \"Added\" category with cluster positioning near active item\n- Stack view: Items added to end of \"Added\" category\n- Carousel view: Items added to end of \"Added\" category  \n- Pillar view: Items added to \"Search Results\" column\n\nKey files:\n- viewer/core/content/placementStrategies.ts - Placement logic per view mode\n- viewer/core/store/contentStore.tsx - Added `addContent` action\n- viewer/ui/TopToolbar.tsx - Updated `handleAddToScene` to use new system\n\nReplaced floatingContentStore with direct content store integration.",
+      "type": "general",
+      "tags": [
+        "general",
+        "implementation",
+        "3d-viewer",
+        "content-placement",
+        "view-modes"
+      ],
+      "timestamp": "2025-12-08T17:13:15.448Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T17:13:15.448Z",
+      "lastVerified": "2025-12-08T17:13:15.448Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-08T02:41:33.046Z"
+  "lastUpdated": "2025-12-08T17:13:15.448Z"
 }

@@ -9,8 +9,8 @@ import { useStageSelectStore } from './stageselect/store'
 import useSettingStore from './settings/store'
 import { useViewModeStore, VIEW_MODE_OPTIONS, ViewMode } from '../core/store/viewModeStore'
 import { useContentStore } from '../core/store/contentStore'
-import { useFloatingContentStore } from '../core/store/floatingContentStore'
 import { trackSearchRelationship } from '../utils/trackRelationship'
+import { getPlacementForViewMode, createContentBlockItem } from '../core/content/placementStrategies'
 import SearchModal from '@/components/search/SearchModal'
 import { KeyboardShortcutsPopup } from './KeyboardShortcutsPopup'
 
@@ -73,7 +73,7 @@ export const TopToolbar = ({
   const setViewMode = useViewModeStore(state => state.setViewMode)
   const contentEpisodeId = useContentStore(state => state.episodeId)
   const activeItemData = useContentStore(state => state.activeItemData)
-  const addFloatingItem = useFloatingContentStore(state => state.addFloatingItem)
+  const addContent = useContentStore(state => state.addContent)
 
   // Use provided episodeId or fall back to content store
   const activeEpisodeId = episodeId || contentEpisodeId
@@ -102,28 +102,14 @@ export const TopToolbar = ({
   const handleAddToScene = useCallback((content: { id: string; title: string | null; description: string | null; url: string; thumbnail_url: string | null; platform: string }) => {
     const currentId = activeItemData?.content?.content_id || activeItemData?.content?.id
 
-    // Add to floating items - coerce nullable fields to defaults for type compatibility
-    addFloatingItem({
-      id: content.id,
-      note: '',
-      weight: 0,
-      content_block_id: 'search',
-      news_id: content.id,
-      content: {
-        id: content.id,
-        content_id: content.id,
-        version: 1,
-        content_type: content.platform as any,
-        content_url: content.url,
-        content_created_at: new Date().toISOString(),
-        thumbnail_url: content.thumbnail_url || '',
-        submitted_by: '',
-        submitted_at: new Date().toISOString(),
-        category: '',
-        categories: [],
-        description: content.description || '',
-      }
-    }, currentId || undefined)
+    // Get placement strategy for current view mode
+    const placement = getPlacementForViewMode(viewMode, 1)
+
+    // Create content block item
+    const newItem = createContentBlockItem(content)
+
+    // Add to content store with view-specific placement
+    addContent([newItem], placement)
 
     // Track relationship
     if (currentId) {
@@ -131,7 +117,7 @@ export const TopToolbar = ({
     }
 
     setSearchOpen(false)
-  }, [activeItemData, addFloatingItem])
+  }, [activeItemData, viewMode, addContent])
 
   return (
     <div className="fixed top-0 right-0 z-[103] p-4">

@@ -8,6 +8,7 @@ import Viewer from "../../viewer";
 import logger from "../../utils/logger";
 import { VideoLoadingState } from '../video/VideoPreloadManager';
 import { trackRelationship } from '../../utils/trackRelationship';
+import { PlacementResult } from '../content/placementStrategies';
 
 interface ContentStoreState {
   episodeId: string | null;
@@ -46,6 +47,7 @@ interface ContentStoreState {
   fetchLatestEpisode: () => Promise<void>;
   fetchThisWeekContent: () => Promise<void>;
   fetchRecentContent: () => Promise<void>;
+  addContent: (items: LiveViewContentBlockItems[], placement: PlacementResult) => void;
 }
 
 export const useContentStore = create<ContentStoreState>()((set, get) => ({
@@ -1056,6 +1058,62 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
     } catch (error) {
       logger.error('Error in fetchRecentContent:', error);
     }
+  },
+
+  addContent: (items: LiveViewContentBlockItems[], placement: PlacementResult) => {
+    const { content } = get()
+
+    // Find or create category
+    let categoryIndex = content.findIndex(c => c.id === placement.categoryId)
+    let newContent = [...content]
+
+    if (categoryIndex === -1) {
+      // Create new category
+      const newCategory: LiveViewContentBlock = {
+        id: placement.categoryId,
+        episode_id: 'added',
+        title: placement.categoryName,
+        description: '',
+        weight: newContent.length,
+        content_block_items: [],
+      }
+      newContent.push(newCategory)
+      categoryIndex = newContent.length - 1
+    }
+
+    // Add items to category
+    const category = { ...newContent[categoryIndex] }
+    const existingItems = [...(category.content_block_items || [])]
+
+    if (placement.insertIndex === -1) {
+      existingItems.push(...items)
+    } else {
+      existingItems.splice(placement.insertIndex, 0, ...items)
+    }
+
+    category.content_block_items = existingItems
+    newContent[categoryIndex] = category
+
+    // Update state and select first new item
+    const firstNewItem = items[0]
+    const firstNewItemId = firstNewItem?.content?.content_id || firstNewItem?.content?.id
+
+    // Rebuild id strings for navigation
+    const categoryIds = newContent.map(c => c.id)
+    const itemIds = newContent.map(c => c.content_block_items.map(item => item.content?.content_id || item.content?.id))
+
+    set({
+      content: newContent,
+      categoryIds,
+      itemIds,
+      activeCategoryId: placement.categoryId,
+      activeCategoryIndex: categoryIndex,
+      activeItemId: firstNewItemId || '',
+      activeItemData: firstNewItem,
+      activeItemIndex: existingItems.length - items.length, // First new item
+    })
+
+    logger.log(`Added ${items.length} item(s) to "${placement.categoryName}" category`)
   },
 }));
 
