@@ -7,6 +7,8 @@ import { GroupTransform, AnimationConfig, Position3D, Rotation3D } from '../posi
 interface UseLayoutAnimationProps {
   groupTransform: GroupTransform
   animationConfig: AnimationConfig
+  // When true, skip focusOnContent and only use fitToBox (avoids double camera animation)
+  cameraFitOnly?: boolean
 }
 
 interface UseLayoutAnimationResult {
@@ -27,6 +29,7 @@ interface UseLayoutAnimationResult {
 export function useLayoutAnimation({
   groupTransform,
   animationConfig,
+  cameraFitOnly = false,
 }: UseLayoutAnimationProps): UseLayoutAnimationResult {
   const isAnimatingRef = useRef(false)
 
@@ -44,11 +47,17 @@ export function useLayoutAnimation({
     // Double RAF ensures PlaneView has set activeItemObject and geometry is ready
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        // Use focusOnContent for smart camera positioning in front of the plane
-        useSceneStore.getState().focusOnContent()
+        if (cameraFitOnly) {
+          // For layouts like pillar that manage positioning via group transform,
+          // only use fitToBox to avoid double camera animation (zoom out/in effect)
+          useSceneStore.getState().fitToBox()
+        } else {
+          // Use focusOnContent for smart camera positioning in front of the plane
+          useSceneStore.getState().focusOnContent()
+        }
       })
     })
-  }, [])
+  }, [cameraFitOnly])
 
   // Build spring config
   const springConfig = animationConfig.duration

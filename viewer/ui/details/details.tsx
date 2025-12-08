@@ -1,22 +1,55 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useContentStore } from '../../core/store/contentStore'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion';
 import SourceIcon from './components/icons/SourceIcon';
 import CopyButton from './components/icons/CopyButton';
+import EditButton from './components/icons/EditButton';
+import EditTagsButton from './components/icons/EditTagsButton';
+import NotesButton from './components/icons/NotesButton';
+import { ActionButtonGroup } from './components/ActionButtonGroup';
 import { DetailNotes } from './components/DetailNotes';
 import VideoBar from './components/VideoBar';
 import { SubmitterInfo } from './components/SubmitterInfo';
 import useSettingStore from '../settings/store';
+import { useMobileLayout } from '../hooks/useMobileLayout';
+import { MobileDetails } from '../mobile/MobileDetails';
 
 
 export const Details = () => {
+  const { isMobile } = useMobileLayout()
   const activeItemData = useContentStore(state => state.activeItemData)
   const hoveredItemData = useContentStore(state => state.hoveredItemData)
-  // Show hovered item if present, otherwise show active item
-  const itemData = hoveredItemData || activeItemData
   const [opacity, setOpacity] = useState(1)
   const showSettings = useSettingStore(state => state.showSettings)
+  const videoSeekTime = useContentStore(state => state.videoSeekTime)
+  const isContentVideo = useContentStore(state => state.isContentVideo)
+
+  // Show hovered item if present, otherwise show active item
+  const itemData = hoveredItemData || activeItemData
+
+  // Mouse movement effect for desktop fade - must be before any conditional returns
+  useEffect(() => {
+    if (isMobile) return // Skip on mobile
+
+    let timer: NodeJS.Timeout
+    const handleMouseMove = () => {
+      setOpacity(1)
+      clearTimeout(timer)
+      timer = setTimeout(() => setOpacity(0), 2000)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [isMobile])
+
+  // Use mobile version on small screens
+  if (isMobile) {
+    return <MobileDetails />
+  }
 
   const wrapperClasses = cn({
     'fixed bottom-0 left-0 z-[102]': true,
@@ -40,27 +73,20 @@ export const Details = () => {
     'rounded-lg p-2': true,
   })
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout
-    const handleMouseMove = () => {
-      setOpacity(1)
-      clearTimeout(timer)
-      timer = setTimeout(() => setOpacity(0), 2000)
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('mousemove', handleMouseMove)
-    }
-  }, [])
-
-  const videoSeekTime = useContentStore(state => state.videoSeekTime)
-  const isContentVideo = useContentStore(state => state.isContentVideo)
-
   // Check if content is video type directly (more reliable than state)
   const hasVideo = itemData?.content?.content_type === 'video' ||
                    (itemData?.content?.content_type === 'twitter' && isContentVideo)
+
+  // Content data for edit buttons
+  const contentId = itemData?.content.id || itemData?.content.content_id || itemData?.id || ''
+  const contentData = itemData ? {
+    id: contentId,
+    content_url: itemData.content.content_url,
+    content_type: itemData.content.content_type,
+    description: itemData.content.description,
+    author_name: itemData.content.author_name,
+    author_username: itemData.content.author_username,
+  } : null
 
   return (
     <div className={wrapperClasses}>
@@ -72,7 +98,7 @@ export const Details = () => {
       )}
 
       <AnimatePresence>
-        { itemData ? (
+        {itemData ? (
           <motion.div
             key={itemData.id}
             initial={{ opacity: 0 }}
@@ -81,35 +107,47 @@ export const Details = () => {
             transition={{ duration: 1 }}
           >
             <div className={classes}>
+              {/* Button groups ABOVE the dark bar */}
+              <div className="w-full flex justify-between items-end px-2 pb-2">
+                {/* Left buttons: Copy, Source */}
+                <ActionButtonGroup position="left">
+                  <CopyButton url={itemData.content.content_url} />
+                  <SourceIcon
+                    type={itemData.content.content_type}
+                    url={itemData.content.content_url}
+                  />
+                </ActionButtonGroup>
 
+                {/* Right buttons: Edit Cat, Edit Tags, Notes */}
+                <ActionButtonGroup position="right">
+                  {contentData && (
+                    <>
+                      <EditButton contentId={contentId} contentData={contentData} />
+                      <EditTagsButton contentId={contentId} contentData={contentData} />
+                      <NotesButton contentId={contentId} contentData={contentData} />
+                    </>
+                  )}
+                </ActionButtonGroup>
+              </div>
+
+              {/* Dark bar with content info */}
               <div className={detailClasses}>
-                {/* Buttons on the left */}
-                <CopyButton
-                  url={itemData?.content.content_url}
-                />
-
-                <SourceIcon
-                  type={itemData?.content.content_type}
-                  url={itemData?.content.content_url}
-                />
-
-                {/* Main content info in center (grows) */}
+                {/* Main content info (author + text) */}
                 <DetailNotes data={itemData} />
 
                 {/* Submitter info on the right */}
                 <SubmitterInfo
-                  submittedBy={itemData?.content.submitted_by}
-                  submittedAt={itemData?.content.submitted_at}
-                  authorUsername={itemData?.content.author_username}
+                  submittedBy={itemData.content.submitted_by}
+                  submittedAt={itemData.content.submitted_at}
+                  authorUsername={itemData.content.author_username}
                 />
               </div>
-
             </div>
           </motion.div>
-        ):(
+        ) : (
           <></>
         )}
-    </AnimatePresence>
+      </AnimatePresence>
     </div>
   )
 }

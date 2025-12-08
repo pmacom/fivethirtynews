@@ -1,16 +1,18 @@
-/**
- * CopyButton - Copies content URL to clipboard
- * Shows visual feedback on successful copy
- */
+'use client'
 
 import React, { useState } from 'react'
-import { FaCopy, FaCheck } from 'react-icons/fa'
+import { Copy, Check } from 'lucide-react'
+import { ActionButton } from '../ActionButton'
 
 interface CopyButtonProps {
   url: string
 }
 
-export const CopyButton = ({ url }: CopyButtonProps) => {
+/**
+ * CopyButton - Copies content URL to clipboard
+ * Shows visual feedback on successful copy
+ */
+export function CopyButton({ url }: CopyButtonProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -24,19 +26,12 @@ export const CopyButton = ({ url }: CopyButtonProps) => {
   }
 
   return (
-    <span
+    <ActionButton
+      icon={copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+      label={copied ? 'Copied!' : 'Copy'}
       onClick={handleCopy}
-      className="m-2 inline-flex flex-col items-center justify-center opacity-50 cursor-pointer hover:opacity-100 transition-opacity"
-    >
-      <div className="text-xs pb-2 uppercase">
-        {copied ? 'Copied!' : 'Copy'}
-      </div>
-      <span className={`border-2 rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors ${
-        copied ? 'border-green-500 text-green-500' : ''
-      }`}>
-        {copied ? <FaCheck /> : <FaCopy />}
-      </span>
-    </span>
+      active={copied}
+    />
   )
 }
 

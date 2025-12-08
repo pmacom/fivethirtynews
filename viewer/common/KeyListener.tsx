@@ -20,6 +20,14 @@ export const KeyListener = ({ enabled = true, children, onKeyLeft, onKeyRight, o
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      // Don't capture keys when typing in input fields
+      const activeElement = document.activeElement;
+      const isTyping = activeElement?.tagName === 'INPUT' ||
+                       activeElement?.tagName === 'TEXTAREA' ||
+                       activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isTyping) return;
+
       // Ignore Shift + Command + C
       if (e.shiftKey && e.metaKey && e.key.toLowerCase() === 'c') {
         return;  // Allow default behavior for this key combination

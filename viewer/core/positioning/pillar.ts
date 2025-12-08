@@ -47,6 +47,13 @@ function getItemIndexInCategory(globalIndex: number, config: PositionerConfig): 
 export const pillarPositioner: Positioner = {
   name: 'pillar',
 
+  // Pillar manages its own camera positioning via group transform
+  // Skip focusOnContent to avoid double camera animation (zoom out/in effect)
+  cameraFitOnly: true,
+
+  // Grid navigation: up/down within column, left/right between categories
+  navigationMode: 'grid',
+
   getItemTransform(globalIndex: number, config: PositionerConfig): ItemTransform {
     const { canvasWidth, canvasHeight, categories } = config
     const numColumns = categories.length

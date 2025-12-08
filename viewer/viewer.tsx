@@ -12,6 +12,7 @@ import Scene from './scene/scene'
 import TopToolbar from './ui/TopToolbar'
 import CloudControls from './ui/CloudControls'
 import FloatingContentFeedback from './ui/FloatingContentFeedback'
+import NotesChat from './ui/notes/NotesChat'
 import RevealOnMovement from './ui/components/RevealOnMovement'
 import { UI } from './ui/ui'
 import Legend from './ui/legend/legend'
@@ -28,6 +29,7 @@ import { useStageSelectStore } from './ui/stageselect/store'
 import { useContentStore } from './core/store/contentStore'
 import { useViewModeStore } from './core/store/viewModeStore'
 import videoPreloadManager from './core/video/VideoPreloadManager'
+import { ContentEditOverlay } from '@/components/content-edit'
 import './ui/splash/styles.css'
 
 export type ContentMode = 'latest' | 'this-week' | 'episode';
@@ -166,10 +168,14 @@ const Viewer = ({
         <CloudControls />
         {/* Floating Content Feedback - thumbs on hover for suggested content */}
         <FloatingContentFeedback />
+        {/* Notes Chat - shows user notes for active content */}
+        <NotesChat />
         <Chyron />
         {/* Stage Select Overlay and Splash */}
         <StageSelectOverlay />
         <SplashScreen />
+        {/* Content Edit Modal - admin/mod only */}
+        <ContentEditOverlay />
       </BehaviorDetection>
     </ErrorBoundary>
   )

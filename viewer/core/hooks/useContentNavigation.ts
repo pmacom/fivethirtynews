@@ -55,6 +55,14 @@ export function useContentNavigation({
     if (!enabled || items.length === 0) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't capture keys when typing in input fields
+      const activeElement = document.activeElement;
+      const isTyping = activeElement?.tagName === 'INPUT' ||
+                       activeElement?.tagName === 'TEXTAREA' ||
+                       activeElement?.getAttribute('contenteditable') === 'true';
+
+      if (isTyping) return;
+
       switch (e.key) {
         case 'ArrowLeft':
         case 'ArrowUp':

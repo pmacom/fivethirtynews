@@ -8,6 +8,7 @@ import { useSceneStore } from '../../scene/store'
 import { useFlattenedContent, buildPositionerConfig } from '../hooks/useFlattenedContent'
 import { useLayoutAnimation } from '../hooks/useLayoutAnimation'
 import { useContentNavigation, useWheelNavigation } from '../hooks/useContentNavigation'
+import { usePillarNavigation } from '../hooks/usePillarNavigation'
 import { useCanvasResize } from '../hooks/useCanvasResize'
 import { ContentItem } from './ContentItem'
 import {
@@ -84,13 +85,26 @@ export function ContentScene({
   } = useLayoutAnimation({
     groupTransform,
     animationConfig: positioner.getAnimationConfig(),
+    cameraFitOnly: positioner.cameraFitOnly,
   })
 
-  // Setup navigation
+  // Determine navigation mode from positioner
+  const isGridNavigation = positioner.navigationMode === 'grid'
+
+  // Setup flat navigation (for non-grid layouts)
   useContentNavigation({
     items,
     activeGlobalIndex,
-    enabled: enableNavigation,
+    enabled: enableNavigation && !isGridNavigation,
+    onToggleFocus,
+    onEscape,
+  })
+
+  // Setup grid navigation (for pillar layout - swipe/arrow key support)
+  usePillarNavigation({
+    items,
+    activeGlobalIndex,
+    enabled: enableNavigation && isGridNavigation,
     onToggleFocus,
     onEscape,
   })

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 
 // Notes CRUD API
@@ -14,13 +15,17 @@ const corsHeaders = {
 
 // Helper to verify session and get user
 async function verifySession(request: NextRequest) {
+  // Check httpOnly cookie first (web app), then Authorization header (extension)
+  const cookieStore = await cookies();
+  const cookieToken = cookieStore.get('530_session')?.value;
   const authHeader = request.headers.get('Authorization');
+  const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.replace('Bearer ', '') : null;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const sessionToken = cookieToken || bearerToken;
+
+  if (!sessionToken) {
     return { user: null, error: 'Missing authorization' };
   }
-
-  const sessionToken = authHeader.replace('Bearer ', '');
 
   if (!sessionToken.startsWith('530_')) {
     return { user: null, error: 'Invalid token format' };
@@ -117,7 +122,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 }
 
-// POST - Create or update my note (upsert)
+// POST - Create a new note (chat-style, multiple notes per user allowed)
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: contentId } = await params;
 
@@ -162,52 +167,36 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ success: false, error: 'Content not found' }, { status: 404, headers: corsHeaders });
     }
 
-    // Check if user already has a note for this content
-    const { data: existingNote } = await supabase
+    // Always create a new note (chat-style)
+    const { data: newNote, error: insertError } = await supabase
       .from('content_notes')
-      .select('id')
-      .eq('content_id', contentId)
-      .eq('user_id', user.id)
+      .insert({
+        content_id: contentId,
+        user_id: user.id,
+        note_text: trimmedText,
+        author_name: user.display_name,
+      })
+      .select(`
+        id,
+        note_text,
+        author_name,
+        user_id,
+        created_at,
+        updated_at,
+        user:users (
+          id,
+          display_name,
+          discord_avatar
+        )
+      `)
       .single();
 
-    if (existingNote) {
-      // Update existing note
-      const { data: updatedNote, error: updateError } = await supabase
-        .from('content_notes')
-        .update({
-          note_text: trimmedText,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', existingNote.id)
-        .select()
-        .single();
-
-      if (updateError) {
-        console.error('Error updating note:', updateError);
-        return NextResponse.json({ success: false, error: 'Failed to update note' }, { status: 500, headers: corsHeaders });
-      }
-
-      return NextResponse.json({ success: true, data: updatedNote, action: 'updated' }, { headers: corsHeaders });
-    } else {
-      // Create new note
-      const { data: newNote, error: insertError } = await supabase
-        .from('content_notes')
-        .insert({
-          content_id: contentId,
-          user_id: user.id,
-          note_text: trimmedText,
-          author_name: user.display_name,
-        })
-        .select()
-        .single();
-
-      if (insertError) {
-        console.error('Error creating note:', insertError);
-        return NextResponse.json({ success: false, error: 'Failed to create note' }, { status: 500, headers: corsHeaders });
-      }
-
-      return NextResponse.json({ success: true, data: newNote, action: 'created' }, { headers: corsHeaders });
+    if (insertError) {
+      console.error('Error creating note:', insertError);
+      return NextResponse.json({ success: false, error: 'Failed to create note' }, { status: 500, headers: corsHeaders });
     }
+
+    return NextResponse.json({ success: true, data: newNote, action: 'created' }, { headers: corsHeaders });
   } catch (err) {
     console.error('POST note error:', err);
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500, headers: corsHeaders });

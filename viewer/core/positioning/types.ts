@@ -49,6 +49,9 @@ export interface AnimationConfig {
   friction?: number
 }
 
+// Navigation mode for different layouts
+export type NavigationMode = 'flat' | 'grid'
+
 // The main Positioner interface - pure functions for computing transforms
 export interface Positioner {
   name: string
@@ -64,6 +67,15 @@ export interface Positioner {
 
   // Optional: check if item should be visible (for culling/optimization)
   isItemVisible?(globalIndex: number, config: PositionerConfig): boolean
+
+  // Camera behavior flags
+  // When true, skip focusOnContent and only use fitToBox (avoids double camera animation)
+  cameraFitOnly?: boolean
+
+  // Navigation mode
+  // 'flat': Linear navigation through all items (default)
+  // 'grid': 2D navigation - up/down within category, left/right between categories
+  navigationMode?: NavigationMode
 }
 
 // Hover animation config for layouts that support it (like Stack)

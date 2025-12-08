@@ -3,14 +3,20 @@
 import { useViewModeStore } from '../core/store/viewModeStore'
 import { KEYBOARD_SHORTCUTS } from '../core/config/keyboardShortcuts'
 import { Kbd, KbdGroup } from '@/components/ui/kbd'
+import { useMobileLayout } from './hooks/useMobileLayout'
 
 /**
  * Keyboard shortcuts display - always visible when toolbar is visible
  * Shows current view mode's navigation and action shortcuts
+ * Hidden on mobile (no keyboard!)
  */
 export function KeyboardShortcutsPopup() {
   const viewMode = useViewModeStore(state => state.viewMode)
   const shortcuts = KEYBOARD_SHORTCUTS[viewMode]
+  const { isMobile } = useMobileLayout()
+
+  // Hide on mobile - no keyboard available
+  if (isMobile) return null
 
   return (
     <div className="fixed top-16 right-4 z-[102] min-w-[180px] rounded-lg bg-black/80 backdrop-blur-md border border-white/10 p-3 shadow-xl">

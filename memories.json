@@ -3295,7 +3295,163 @@
       "lastAccessed": "2025-12-08T17:32:12.794Z",
       "lastVerified": "2025-12-08T17:32:12.794Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765216041599_w113o5b7a",
+      "content": "Pillar View Navigation Refinement (completed):\n\n1. **Camera Animation Fix**: Added `cameraFitOnly` flag to Positioner interface\n   - `viewer/core/positioning/types.ts`: Added optional `cameraFitOnly?: boolean` to Positioner\n   - `viewer/core/positioning/pillar.ts`: Set `cameraFitOnly: true`\n   - `viewer/core/hooks/useLayoutAnimation.ts`: Modified to check flag - if true, uses only `fitToBox()` instead of `focusOnContent()` to avoid double camera animation (zoom out/in effect)\n   - `viewer/core/components/ContentScene.tsx`: Passes `cameraFitOnly` from positioner to hook\n\n2. **Per-View Orbit Controls**: Added per-view config system\n   - `viewer/core/store/viewModeStore.tsx`: Added `VIEW_MODE_CONFIG` with per-view settings (enableOrbitControls, enableWheelZoom, navigationMode)\n   - `viewer/scene/components/SceneCamera.tsx`: Uses per-view config - orbit controls only enabled if both global `isFreeLook` AND `viewConfig.enableOrbitControls` are true\n   - Pillar has `enableOrbitControls: false` by default (manages its own rotation)\n\nKey insight: The \"zoom out then zoom in\" effect was caused by `focusOnContent()` calling both `setLookAt()` AND `fitToBox()` with smooth animations, creating two sequential camera motions.",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "pillar",
+        "camera",
+        "navigation",
+        "viewer",
+        "architecture"
+      ],
+      "timestamp": "2025-12-08T17:47:21.599Z",
+      "context": "Pillar view navigation refinement implementation details",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T17:47:21.599Z",
+      "lastVerified": "2025-12-08T17:47:21.599Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765216455561_jl84f74pq",
+      "content": "Pillar View Mobile Swipe Navigation (completed):\n\n1. **New navigation utilities** in `viewer/core/positioning/utils.ts`:\n   - `getCategoryInfo()`: Get category count and items per category\n   - `navigateWithinCategory()`: Up/down movement within same column\n   - `navigateBetweenCategories()`: Left/right movement between categories (maintains item index position)\n\n2. **New hook** `viewer/core/hooks/usePillarNavigation.ts`:\n   - Grid-based keyboard navigation: Up/Down within column, Left/Right between categories\n   - Touch/swipe gesture support:\n     - Swipe up = go to previous item in column\n     - Swipe down = go to next item in column\n     - Swipe left = go to previous category\n     - Swipe right = go to next category\n   - Configurable swipe threshold (default 50px)\n\n3. **Positioner interface update** in `viewer/core/positioning/types.ts`:\n   - Added `NavigationMode = 'flat' | 'grid'` type\n   - Added `navigationMode?: NavigationMode` to Positioner interface\n\n4. **Pillar positioner** in `viewer/core/positioning/pillar.ts`:\n   - Set `navigationMode: 'grid'`\n\n5. **ContentScene integration** in `viewer/core/components/ContentScene.tsx`:\n   - Checks `positioner.navigationMode` to determine which hook to use\n   - Uses `usePillarNavigation` when mode is 'grid', `useContentNavigation` for 'flat'",
+      "type": "general",
+      "tags": [
+        "general",
+        "go",
+        "pillar",
+        "navigation",
+        "swipe",
+        "mobile",
+        "touch",
+        "viewer"
+      ],
+      "timestamp": "2025-12-08T17:54:15.561Z",
+      "context": "Mobile swipe gesture navigation for pillar view",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T17:54:15.561Z",
+      "lastVerified": "2025-12-08T17:54:15.561Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765218347870_uhofn965k",
+      "content": "Mobile UI Layout Optimization (completed):\n\n**New Files Created:**\n- `viewer/ui/hooks/useMobileLayout.ts` - Hook for mobile/orientation detection (breakpoint: 768px)\n- `viewer/ui/mobile/MobileSideControls.tsx` - Right-side stacked buttons (Search, Stage Select, Overflow menu)\n- `viewer/ui/mobile/MobileDetails.tsx` - Compact details panel with poster emphasis\n\n**Files Modified:**\n- `viewer/ui/TopToolbar.tsx` - Conditional mobile layout with simplified top bar (show name, episode #, nav arrows only)\n- `viewer/ui/KeyboardShortcutsPopup.tsx` - Hidden on mobile (no keyboard!)\n- `viewer/ui/details/details.tsx` - Uses MobileDetails on mobile\n- `viewer/ui/legend/styles.css` - Added mobile media queries for smaller indicators\n\n**Mobile Layout:**\n- Top: Simplified episode navigation (centered)\n- Right side: 3 stacked buttons - Search, Stage Select, Overflow (...)\n- Overflow menu contains: View Mode selector, Settings, Curate, Edit\n- Bottom: Reorganized details - Avatar + @username + time prominent, small Copy/Source icons, content text below\n- Legend: Smaller indicators via CSS media queries\n- Keyboard shortcuts: Hidden completely\n\n**Breakpoint:** 768px (MOBILE_BREAKPOINT)",
+      "type": "config",
+      "tags": [
+        "config",
+        "optimization",
+        "mobile",
+        "ui",
+        "layout",
+        "responsive",
+        "viewer"
+      ],
+      "timestamp": "2025-12-08T18:25:47.870Z",
+      "context": "Mobile UI optimization implementation details",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T18:25:47.870Z",
+      "lastVerified": "2025-12-08T18:25:47.870Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765220352243_1bl5txp6z",
+      "content": "Content Edit Modal Implementation (Dec 2025):\n\nCreated a full-screen modal for editing content in the 3D viewer with channel/tag/notes functionality.\n\nFiles created:\n- components/content-edit/contentEditStore.ts - Zustand store\n- components/content-edit/ContentEditOverlay.tsx - Main modal\n- components/content-edit/ChannelGroupsList.tsx - Left column channel groups\n- components/content-edit/ChannelPopover.tsx - Channel selection popover\n- components/content-edit/TagsTab.tsx - Tags tab with autocomplete\n- components/content-edit/NotesTab.tsx - Notes textarea (280 char limit)\n- components/content-edit/SelectedChannelsBar.tsx - Bottom chips bar\n- components/content-edit/index.ts - Barrel export\n- viewer/hooks/useCurrentUser.ts - Auth check hook (reads 530_user cookie)\n- viewer/ui/details/components/icons/EditButton.tsx - Desktop edit button\n\nFiles modified:\n- viewer/ui/details/details.tsx - Added EditButton import and usage\n- viewer/ui/mobile/MobileDetails.tsx - Added MobileEditButton\n- viewer/viewer.tsx - Added ContentEditOverlay render\n\nKey patterns:\n- Uses createPortal for modal rendering (z-[9999])\n- Two-column layout: channel groups left, tags/notes tabs right\n- Admin/mod only (checked via useCurrentUser hook)\n- ESC to close, backdrop click to close\n- Reuses existing APIs: /api/channels, /api/tags, /api/content/[id]/labels, /api/content/[id]/notes",
+      "type": "code",
+      "tags": [
+        "code",
+        "api",
+        "implementation",
+        "content-edit",
+        "modal",
+        "channels",
+        "tags",
+        "viewer"
+      ],
+      "timestamp": "2025-12-08T18:59:12.243Z",
+      "context": "Implementing extension-like channel/tag modal for 3D viewer site",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T18:59:12.243Z",
+      "lastVerified": "2025-12-08T18:59:12.243Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765221512141_lnodj9s74",
+      "content": "Fixed Content Edit Modal tags issue: The modal was fetching from `/api/content/[id]/labels` (content_label_assignments junction table) but actual tags are stored in `content.tags` TEXT[] array column. Created new `/api/content/[id]/route.ts` with GET (returns content with tags) and PATCH (updates tags array, requires admin/mod). Updated `loadExistingData` to fetch from new endpoint and `save` to use PATCH instead of individual label add/remove calls.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "fix",
+        "content-edit-modal",
+        "tags"
+      ],
+      "timestamp": "2025-12-08T19:18:32.141Z",
+      "context": "Content Edit Modal implementation - showing existing tags",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T19:18:32.141Z",
+      "lastVerified": "2025-12-08T19:18:32.141Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765222331729_olzfik0i4",
+      "content": "Fixed Content Edit Modal to load and save channels: Content categorization uses `primary_channel` and `channels[]` fields (not just `tags[]`). Updated `loadExistingData` to populate `selectedChannels` and `primaryChannel` from API response. Updated PATCH handler to accept `channels` and `primaryChannel`. Updated `save()` to send channels in same PATCH request as tags. Added `existingChannels` and `existingPrimaryChannel` state for change detection.",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "api",
+        "fix",
+        "content-edit-modal",
+        "channels"
+      ],
+      "timestamp": "2025-12-08T19:32:11.729Z",
+      "context": "Content Edit Modal - loading and saving channels along with tags",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T19:32:11.729Z",
+      "lastVerified": "2025-12-08T19:32:11.729Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765224928788_gz7p37qcp",
+      "content": "NOTES SYSTEM EXPLORATION COMPLETE - Chat View Feasibility Analysis\n\n## 1. NOTES API STRUCTURE\nFile: /Users/patrickmacom/MainQuests/530News/fivethirty/app/api/content/[id]/notes/route.ts\n\nGET /api/content/[id]/notes:\n- Returns ALL notes for a content item (not just current user's)\n- Returns notes with user relationship via foreign key select:\n  - id, note_text, author_name, user_id, created_at, updated_at\n  - NESTED: user (id, display_name, discord_avatar)\n- Also returns \"my_note\" property identifying current user's note\n- Notes are ordered by created_at DESC (newest first)\n- Response format: { success, data: notes[], count, my_note }\n- Auth required (session_token or Bearer token)\n\nPOST /api/content/[id]/notes:\n- Create or update ONLY the current user's note\n- Validates: non-empty, max 280 char limit\n- Updates both note_text and updated_at timestamp\n- Returns { success, data: note, action: 'created'|'updated' }\n\nDELETE /api/content/[id]/notes:\n- Deletes only current user's note for that content\n- No cascading issues (one-note-per-user constraint)\n\n## 2. NOTES DATABASE SCHEMA\nFile: /Users/patrickmacom/MainQuests/530News/fivethirty/supabase/migrations/20251128000000_add_auth_and_notes.sql\n\ncontent_notes table:\n- id (UUID, PK)\n- content_id (UUID, FK -> content.id, ON DELETE CASCADE)\n- user_id (UUID, FK -> users.id, ON DELETE CASCADE)\n- note_text (TEXT, NOT NULL, CHECK <= 280 chars)\n- author_name (TEXT, NOT NULL) - snapshot of display_name at creation\n- created_at (TIMESTAMPTZ, DEFAULT NOW())\n- updated_at (TIMESTAMPTZ, DEFAULT NOW())\n- UNIQUE(content_id, user_id) - enforces one note per user per content\n\nIndexes:\n- idx_content_notes_content_id (for filtering by content)\n- idx_content_notes_user_id (for filtering by user)\n- idx_content_notes_created_at DESC (for sorting)\n\nTriggers:\n- content_notes_updated_at_trigger (auto-updates updated_at on changes)\n\n## 3. USERS TABLE DATA AVAILABLE\nFile: /Users/patrickmacom/MainQuests/530News/fivethirty/supabase/migrations/20251128000000_add_auth_and_notes.sql\n\nusers table fields:\n- id (UUID)\n- discord_id (TEXT, UNIQUE)\n- discord_username (TEXT)\n- discord_avatar (TEXT) - URL for avatar display\n- display_name (TEXT) - friendly name for UI\n- is_guild_member (BOOLEAN)\n- is_moderator (BOOLEAN)\n- discord_roles (TEXT[])\n- session_token, session_expires_at\n- created_at, updated_at\n\nFor chat view: discord_avatar + display_name are perfect for user identification\n\n## 4. CURRENT NOTES UI\nFile: /Users/patrickmacom/MainQuests/530News/fivethirty/components/content-edit/NotesTab.tsx\n\nCurrent implementation:\n- Simple textarea for editing current user's note only\n- 280 character limit with visual feedback\n- Shows remaining chars in bottom-right\n- Styling: dark theme (zinc-800/700), green accent\n- Part of ContentEditOverlay modal (alongside Tags tab)\n- No display of other users' notes\n\nStructure pattern from NotesTab:\n- Uses contentEditStore (Zustand) for state\n- noteText, setNoteText actions\n- Simple textarea + labels\n- Character limit enforcement\n- Help text explaining the feature\n\n## 5. DETAILS PANEL STRUCTURE\nFile: /Users/patrickmacom/MainQuests/530News/fivethirty/viewer/ui/details/details.tsx\n\nCurrent bottom panel (Details component):\n- Fixed position bottom-0 left-0 w-screen\n- Contains: CopyButton, SourceIcon, EditButton, DetailNotes, SubmitterInfo\n- DetailNotes shows: author avatar, author name, date, description/note text\n- Uses motion/framer-motion for animations\n- Currently only 1-2 lines of note text displayed (line-clamp-2)\n- Mobile version exists (MobileDetails)\n\nStructure opportunities:\n- Could expand DetailNotes to show multiple notes in chat format\n- OR create new ChatNotes sub-component to replace DetailNotes\n- OR add a toggle button to expand chat view\n- Bottom panel auto-hides with mouse inactivity (2 sec timeout)\n\n## 6. CONTENT EDIT MODAL STRUCTURE\nFile: /Users/patrickmacom/MainQuests/530News/fivethirty/components/content-edit/ContentEditOverlay.tsx\n\nModal anatomy:\n- Header with title and close button\n- Left sidebar: ChannelGroupsList (scrollable)\n- Right panel: Tab bar (Tags | Notes) + Tab content (scrollable)\n- Selected channels bar\n- Footer: Cancel/Done buttons, error display\n\nCurrent NotesTab integration:\n- Already has dedicated tab in edit modal\n- Could be enhanced to show other users' notes below edit area\n\n## KEY INSIGHTS FOR CHAT VIEW\n\n1. API is READY for multi-user chat:\n   - GET returns ALL notes with user data already joined\n   - Includes timestamps and user display info\n   - Ordered chronologically (DESC)\n\n2. Data model supports chat perfectly:\n   - One note per user per content (prevents spam)\n   - Timestamps on every note\n   - User references with avatar URL\n   - Designed for this exact use case!\n\n3. Three integration points identified:\n   A) Expand NotesTab in ContentEditOverlay:\n      - Show other users' notes below textarea\n      - Fetch and display in chat format\n   \n   B) Add ChatNotes component to Details panel:\n      - Replace or extend current DetailNotes\n      - Show scrollable list of all notes\n      - Keep edit ability\n   \n   C) Create floating chat panel:\n      - Like FloatingContentFeedback component\n      - Opens from Details or EditButton\n      - Similar z-index layering (103-104)\n\n4. UX considerations:\n   - 280 char limit matches original note design (good for brevity)\n   - Discord avatar URLs available for profile pics\n   - Timestamps allow chronological view\n   - Edit/delete only own notes (user_id check server-side)",
+      "type": "config",
+      "tags": [
+        "config",
+        "api",
+        "database",
+        "notes-system",
+        "api-analysis",
+        "database-schema",
+        "chat-view-planning"
+      ],
+      "timestamp": "2025-12-08T20:15:28.788Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T20:15:28.788Z",
+      "lastVerified": "2025-12-08T20:15:28.788Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765225808948_63arr4gjy",
+      "content": "Implemented NotesChat feature for viewer:\n- Created `viewer/ui/notes/notesStore.ts` - Zustand store with fetchNotes, toggleExpanded, clearNotes\n- Created `viewer/ui/notes/NotesChat.tsx` - Floating chat panel showing all user notes for active content with Discord avatars, relative timestamps, chronological order (oldest first for chat flow)\n- Created `viewer/ui/notes/index.ts` - Barrel export\n- Added NotesChat to `viewer/viewer.tsx` alongside FloatingContentFeedback\n\nThe component:\n- Watches activeItemData from contentStore\n- Fetches notes via GET /api/content/[id]/notes (requires auth, returns all notes with user data)\n- Shows collapsible panel with note count badge\n- Auto-scrolls to bottom when expanded\n- Positioned bottom-right at z-[103], w-80\n\nAlso fixed pre-existing bug: `app/api/content/relationships/vote/route.ts` had wrong import `@/lib/supabase/server` - changed to `@/utils/supabase/server`",
+      "type": "code",
+      "tags": [
+        "code",
+        "api",
+        "feature",
+        "viewer",
+        "notes",
+        "chat",
+        "zustand",
+        "completed"
+      ],
+      "timestamp": "2025-12-08T20:30:08.948Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T20:30:08.948Z",
+      "lastVerified": "2025-12-08T20:30:08.948Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-08T17:32:12.794Z"
+  "lastUpdated": "2025-12-08T20:30:08.948Z"
 }

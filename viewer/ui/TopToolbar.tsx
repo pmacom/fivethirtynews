@@ -13,6 +13,8 @@ import { trackSearchRelationship } from '../utils/trackRelationship'
 import { getPlacementForViewMode, createContentBlockItem } from '../core/content/placementStrategies'
 import { useSearchOverlayStore, SearchContentItem } from '@/components/search/searchOverlayStore'
 import { KeyboardShortcutsPopup } from './KeyboardShortcutsPopup'
+import { useMobileLayout } from './hooks/useMobileLayout'
+import { MobileSideControls } from './mobile/MobileSideControls'
 
 interface EpisodeNavigation {
   prev: { id: string; episode_number: number; title: string } | null
@@ -64,6 +66,7 @@ export const TopToolbar = ({
 }: TopToolbarProps) => {
   const router = useRouter()
   const [viewModeOpen, setViewModeOpen] = useState(false)
+  const { isMobile } = useMobileLayout()
 
   // Store states
   const showStageSelect = useStageSelectStore(state => state.showStageSelect)
@@ -124,6 +127,59 @@ export const TopToolbar = ({
     openSearchOverlay('3d-viewer', handleSearchConfirm)
   }, [openSearchOverlay, handleSearchConfirm])
 
+  // Mobile layout: simplified top bar + side controls
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile Top Bar - Episode navigation only */}
+        <div className="fixed top-0 left-0 right-0 z-[103] p-3">
+          <div className="flex items-center justify-center gap-2">
+            {showSlug && showName && episodeNumber && (
+              <>
+                {/* Back to show */}
+                <div
+                  onClick={() => router.push(`/show/${showSlug}`)}
+                  className="wtf--ui--container rounded cursor-pointer transition-all duration-200 active:scale-95 flex items-center gap-1 px-2 py-1"
+                  title={`Back to ${showName}`}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span className="text-xs font-medium">{showName}</span>
+                </div>
+
+                {/* Episode number */}
+                <div className="text-white/80 px-2">
+                  <span className="font-bold text-sm">#{episodeNumber}</span>
+                </div>
+
+                {/* Prev/Next navigation */}
+                {navigation && (
+                  <div className="flex items-center gap-1">
+                    <div
+                      onClick={() => navigation.prev && router.push(`/show/${showSlug}/${navigation.prev.episode_number}`)}
+                      className={`wtf--ui--container rounded cursor-pointer transition-all duration-200 active:scale-95 ${!navigation.prev ? 'opacity-30' : ''}`}
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                    </div>
+                    <div
+                      onClick={() => navigation.next && router.push(`/show/${showSlug}/${navigation.next.episode_number}`)}
+                      className={`wtf--ui--container rounded cursor-pointer transition-all duration-200 active:scale-95 ${!navigation.next ? 'opacity-30' : ''}`}
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Side Controls */}
+        <MobileSideControls showSlug={showSlug} episodeId={activeEpisodeId ?? undefined} />
+      </>
+    )
+  }
+
+  // Desktop layout: full toolbar
   return (
     <div className="fixed top-0 right-0 z-[103] p-4">
       <div className="flex items-center gap-2">
@@ -255,7 +311,7 @@ export const TopToolbar = ({
         </ToolbarButton>
       </div>
 
-      {/* Keyboard Shortcuts - always visible with toolbar */}
+      {/* Keyboard Shortcuts - desktop only */}
       <KeyboardShortcutsPopup />
     </div>
   )
