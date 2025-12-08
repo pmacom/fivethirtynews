@@ -3277,7 +3277,25 @@
       "lastAccessed": "2025-12-08T17:13:15.448Z",
       "lastVerified": "2025-12-08T17:13:15.448Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765215132794_pln9uqljq",
+      "content": "Implemented full-screen SearchOverlay with multi-select support:\n\nKey files created/modified:\n- components/search/searchOverlayStore.ts - Zustand store for overlay state (isOpen, selectedItems, mode, onConfirm)\n- components/search/SearchOverlay.tsx - Full-screen overlay with blur backdrop, multi-select in 3d-viewer/curate modes\n- viewer/ui/TopToolbar.tsx - Updated to use searchOverlayStore.open() instead of SearchModal\n- app/layout.tsx - Mounted SearchOverlay at app level\n\nFeatures:\n- Global ⌘K shortcut to open/close\n- Full-screen blur backdrop (bg-black/60 backdrop-blur-md)\n- Multi-select in 3d-viewer and curate modes\n- Single-click open in browse mode\n- Selection bar at bottom with count and \"Add to Scene\" button\n- Uses portal to render at body level (z-[9999])",
+      "type": "general",
+      "tags": [
+        "general",
+        "implementation",
+        "search",
+        "overlay",
+        "multi-select",
+        "3d-viewer"
+      ],
+      "timestamp": "2025-12-08T17:32:12.794Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T17:32:12.794Z",
+      "lastVerified": "2025-12-08T17:32:12.794Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-08T17:13:15.448Z"
+  "lastUpdated": "2025-12-08T17:32:12.794Z"
 }

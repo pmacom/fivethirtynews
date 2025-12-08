@@ -11,7 +11,7 @@ import { useViewModeStore, VIEW_MODE_OPTIONS, ViewMode } from '../core/store/vie
 import { useContentStore } from '../core/store/contentStore'
 import { trackSearchRelationship } from '../utils/trackRelationship'
 import { getPlacementForViewMode, createContentBlockItem } from '../core/content/placementStrategies'
-import SearchModal from '@/components/search/SearchModal'
+import { useSearchOverlayStore, SearchContentItem } from '@/components/search/searchOverlayStore'
 import { KeyboardShortcutsPopup } from './KeyboardShortcutsPopup'
 
 interface EpisodeNavigation {
@@ -64,7 +64,6 @@ export const TopToolbar = ({
 }: TopToolbarProps) => {
   const router = useRouter()
   const [viewModeOpen, setViewModeOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
 
   // Store states
   const showStageSelect = useStageSelectStore(state => state.showStageSelect)
@@ -74,6 +73,7 @@ export const TopToolbar = ({
   const contentEpisodeId = useContentStore(state => state.episodeId)
   const activeItemData = useContentStore(state => state.activeItemData)
   const addContent = useContentStore(state => state.addContent)
+  const openSearchOverlay = useSearchOverlayStore(state => state.open)
 
   // Use provided episodeId or fall back to content store
   const activeEpisodeId = episodeId || contentEpisodeId
@@ -98,26 +98,31 @@ export const TopToolbar = ({
     }
   }, [router, showSlug, activeEpisodeId])
 
-  // Handle adding content to the 3D scene from search
-  const handleAddToScene = useCallback((content: { id: string; title: string | null; description: string | null; url: string; thumbnail_url: string | null; platform: string }) => {
+  // Handle adding multiple content items to the 3D scene from search
+  const handleSearchConfirm = useCallback((items: SearchContentItem[]) => {
+    if (items.length === 0) return
+
     const currentId = activeItemData?.content?.content_id || activeItemData?.content?.id
 
     // Get placement strategy for current view mode
-    const placement = getPlacementForViewMode(viewMode, 1)
+    const placement = getPlacementForViewMode(viewMode, items.length)
 
-    // Create content block item
-    const newItem = createContentBlockItem(content)
+    // Create content block items for all selected items
+    const newItems = items.map(item => createContentBlockItem(item))
 
-    // Add to content store with view-specific placement
-    addContent([newItem], placement)
+    // Add all items to content store with view-specific placement
+    addContent(newItems, placement)
 
-    // Track relationship
+    // Track relationships for all items
     if (currentId) {
-      trackSearchRelationship(currentId, content.id)
+      items.forEach(item => trackSearchRelationship(currentId, item.id))
     }
-
-    setSearchOpen(false)
   }, [activeItemData, viewMode, addContent])
+
+  // Open search overlay in 3D viewer mode
+  const handleOpenSearch = useCallback(() => {
+    openSearchOverlay('3d-viewer', handleSearchConfirm)
+  }, [openSearchOverlay, handleSearchConfirm])
 
   return (
     <div className="fixed top-0 right-0 z-[103] p-4">
@@ -213,7 +218,7 @@ export const TopToolbar = ({
         </div>
 
         {/* Search Button */}
-        <ToolbarButton onClick={() => setSearchOpen(true)} title="Search (⌘K)">
+        <ToolbarButton onClick={handleOpenSearch} title="Search (⌘K)">
           <Search className="w-5 h-5" />
         </ToolbarButton>
 
@@ -252,15 +257,6 @@ export const TopToolbar = ({
 
       {/* Keyboard Shortcuts - always visible with toolbar */}
       <KeyboardShortcutsPopup />
-
-      {/* Search Modal */}
-      <SearchModal
-        isOpen={searchOpen}
-        onClose={() => setSearchOpen(false)}
-        mode="3d-viewer"
-        currentContentId={activeItemData?.content?.content_id || activeItemData?.content?.id}
-        onAddToScene={handleAddToScene}
-      />
     </div>
   )
 }
