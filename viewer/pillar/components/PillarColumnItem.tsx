@@ -16,8 +16,13 @@ interface PillarColumnItemProps {
 export const PillarColumnItem = ({ data, categoryId, itemIndex, position }:PillarColumnItemProps) => {
   const activeItemId = useContentStore(state => state.activeItemId)
   const setHoveredItem = useContentStore(state => state.setHoveredItem)
-  const content_id = useMemo(() => data.content.content_id, [data])
+  const content_id = useMemo(() => data.content?.content_id, [data])
   const contentType = useMemo(() => data.content?.content_type, [data])
+
+  // Skip rendering if content is null (orphaned content_block_item)
+  if (!data.content) {
+    return null
+  }
   const groupRef = useRef<THREE.Group>(null)
 
   const content = useMemo(() => (

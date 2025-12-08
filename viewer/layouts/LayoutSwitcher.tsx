@@ -2,9 +2,9 @@
 
 import React, { Suspense } from 'react'
 import { useViewModeStore } from '../core/store/viewModeStore'
-import { Pillar } from '../pillar/pillar'
 
-// Lazy load alternative layouts
+// Lazy load all layouts for consistent behavior
+const PillarLayout = React.lazy(() => import('./PillarLayout'))
 const CloudLayout = React.lazy(() => import('./CloudLayout'))
 const StackLayout = React.lazy(() => import('./StackLayout'))
 const CarouselLayout = React.lazy(() => import('./CarouselLayout'))
@@ -33,7 +33,11 @@ export const LayoutSwitcher = () => {
       )
     case 'pillar':
     default:
-      return <Pillar />
+      return (
+        <Suspense fallback={null}>
+          <PillarLayout />
+        </Suspense>
+      )
   }
 }
 

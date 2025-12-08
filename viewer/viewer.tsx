@@ -11,6 +11,7 @@ import { FloatingContentOrbit } from './floating/FloatingContentOrbit'
 import Scene from './scene/scene'
 import TopToolbar from './ui/TopToolbar'
 import CloudControls from './ui/CloudControls'
+import FloatingContentFeedback from './ui/FloatingContentFeedback'
 import RevealOnMovement from './ui/components/RevealOnMovement'
 import { UI } from './ui/ui'
 import Legend from './ui/legend/legend'
@@ -163,6 +164,8 @@ const Viewer = ({
         </RevealOnMovement>
         {/* Cloud Controls - only shows in cloud view mode */}
         <CloudControls />
+        {/* Floating Content Feedback - thumbs on hover for suggested content */}
+        <FloatingContentFeedback />
         <Chyron />
         {/* Stage Select Overlay and Splash */}
         <StageSelectOverlay />

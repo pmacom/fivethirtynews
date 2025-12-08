@@ -550,49 +550,20 @@ async function main() {
   console.log('CREATING EPISODES');
   console.log('='.repeat(70));
 
-  // We need to renumber all episodes. The strategy:
-  // 1. Historical episodes get numbers starting from 1 in chronological order
-  // 2. We'll need to update existing episodes to have higher numbers
-
-  // First, let's figure out the total count
+  // Keep existing episodes as-is, number new episodes starting from max + 1
   const totalEpisodes = weeksToCreate.length + existingEpisodes.size;
   console.log(`Total episodes after backfill: ${totalEpisodes}`);
+  console.log(`Keeping ${existingEpisodes.size} existing episodes unchanged`);
   console.log('');
 
-  // Update existing episodes to have higher numbers
-  console.log('Updating existing episode numbers...');
-  const offset = weeksToCreate.length;
-
-  // Get existing episodes sorted by date
-  const existingList = [...existingEpisodes.values()].sort(
-    (a, b) => new Date(a.date || a.scheduled_at).getTime() - new Date(b.date || b.scheduled_at).getTime()
-  );
-
-  for (let i = 0; i < existingList.length; i++) {
-    const ep = existingList[i];
-    const newNumber = offset + i + 1;
-    const newTitle = `wormhole #${newNumber}`;
-
-    const { error } = await supabase
-      .from('episodes')
-      .update({ episode_number: newNumber, title: newTitle })
-      .eq('id', ep.id);
-
-    if (error) {
-      console.error(`Failed to update episode ${ep.id}:`, error);
-    } else {
-      console.log(`  Updated ${ep.title} -> ${newTitle}`);
-    }
-  }
-  console.log('');
-
-  // Create new historical episodes
+  // Create new historical episodes with numbers starting from maxEpisodeNumber + 1
   console.log('Creating historical episodes...');
   let created = 0;
+  let nextEpisodeNumber = maxEpisodeNumber + 1;
 
   for (let i = 0; i < weeksToCreate.length; i++) {
     const week = weeksToCreate[i];
-    const episodeNumber = i + 1;
+    const episodeNumber = nextEpisodeNumber + i;
 
     try {
       const episodeId = await createEpisode(
@@ -614,7 +585,7 @@ async function main() {
   console.log('EXECUTION COMPLETE');
   console.log('='.repeat(70));
   console.log(`Episodes created: ${created}`);
-  console.log(`Episodes updated: ${existingList.length}`);
+  console.log(`Existing episodes kept unchanged: ${existingEpisodes.size}`);
 }
 
 main().catch(console.error);

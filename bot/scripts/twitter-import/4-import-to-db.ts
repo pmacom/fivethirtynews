@@ -85,150 +85,62 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 console.log('✅ Connected to Supabase')
 console.log(`   URL: ${supabaseUrl}\n`)
 
-// Prepare data for insertion
+// Prepare data for insertion - matches actual content table schema
 interface ContentRecord {
-  id: string
-  platform: string
-  platform_content_id: string
-  url: string
-  content: string
+  content_type: string
+  content_url: string
+  content_id: string
+  content_created_at: string | null
   description: string
   thumbnail_url: string | null
+  submitted_by: string
+  submitted_at: string
   tags: string[]
-  metadata: any
-  media_assets: any[] | null
-  user_id: string
-  author_id: string | null
-  author_username: string | null
-  author_name: string | null
-}
-
-interface CreatorRecord {
-  id: string
   platform: string
-  username: string
-  display_name: string | null
-  metadata: any
+  channels: string[]
+  primary_channel: string | null
+  approval_status: string
 }
 
-// Prepare creators map to batch upsert
-const creatorsMap = new Map<string, CreatorRecord>()
+// No longer using creators table - username stored in submitted_by
 
 const records: ContentRecord[] = likesData.likes.map(like => {
   const mediaInfo = manifest[like.tweetId]
 
-  // Build media_assets array from all files
-  let mediaAssets: any[] | null = null
+  // Get thumbnail from manifest if available
   let thumbnailUrl: string | null = null
-
   if (mediaInfo && mediaInfo.files && mediaInfo.files.length > 0) {
-    // Use first file as thumbnail
     thumbnailUrl = mediaInfo.files[0].url
-
-    // Build media_assets array with all files
-    mediaAssets = mediaInfo.files.map(file => {
-      const isVideo = ['mp4', 'mov', 'webm', 'avi'].includes(file.extension.toLowerCase())
-      return {
-        type: isVideo ? 'video' : 'image',
-        url: file.url,
-        index: file.index,
-        extension: file.extension,
-        duration: isVideo ? null : undefined // Videos can have duration added later
-      }
-    })
   }
 
   // Handle missing fullText
   const fullText = like.fullText || ''
 
-  // Extract author username from URL
-  const username = extractUsernameFromUrl(like.expandedUrl)
-  const authorId = username ? `twitter:${username}` : null
-
-  // Add to creators map if we have a username
-  if (username && !creatorsMap.has(authorId!)) {
-    creatorsMap.set(authorId!, {
-      id: authorId!,
-      platform: 'twitter',
-      username: username,
-      display_name: null, // Will be enriched later via API
-      metadata: {
-        source: 'twitter_export_url',
-        imported_at: new Date().toISOString()
-      }
-    })
-  }
+  // Extract author username from URL for submitted_by field
+  const username = extractUsernameFromUrl(like.expandedUrl) || 'twitter-import'
 
   return {
-    id: `twitter:${like.tweetId}`,
-    platform: 'twitter',
-    platform_content_id: like.tweetId,
-    url: like.expandedUrl,
-    content: fullText,
-    description: fullText.substring(0, 500), // Truncate for description
+    content_type: 'twitter',
+    content_url: like.expandedUrl,
+    content_id: like.tweetId,
+    content_created_at: null, // Will be enriched from tweet data later
+    description: fullText.substring(0, 500),
     thumbnail_url: thumbnailUrl,
+    submitted_by: username,
+    submitted_at: new Date().toISOString(),
     tags: ['liked-tweets'],
-    metadata: {
-      source: 'twitter_export',
-      original_url: like.expandedUrl,
-      has_media: !!mediaInfo,
-      media_count: mediaInfo?.files?.length || 0
-    },
-    media_assets: mediaAssets,
-    user_id: 'twitter-import',
-    author_id: authorId,
-    author_username: username,
-    author_name: username // Use username as display name for now
+    platform: 'twitter',
+    channels: [], // Will be assigned via migrate-content.ts
+    primary_channel: null,
+    approval_status: 'approved'
   }
 })
 
 console.log(`📦 Prepared ${records.length} records for import`)
 console.log(`📊 Records with media: ${records.filter(r => r.thumbnail_url).length}`)
 console.log(`📊 Records without media: ${records.filter(r => !r.thumbnail_url).length}`)
-console.log(`👤 Unique creators found: ${creatorsMap.size}`)
-
-const multiMediaRecords = records.filter(r => r.media_assets && r.media_assets.length > 1)
-if (multiMediaRecords.length > 0) {
-  console.log(`📸 Records with multiple media files: ${multiMediaRecords.length}`)
-  const maxFiles = Math.max(...multiMediaRecords.map(r => r.media_assets?.length || 0))
-  console.log(`📸 Max files in single tweet: ${maxFiles}`)
-}
-
 console.log(`⚙️  Batch size: ${BATCH_SIZE} records`)
 console.log(`⏱️  Delay between batches: ${DELAY_MS}ms\n`)
-
-// First, upsert all creators
-console.log('👥 Upserting creators to database...')
-const creatorsArray = Array.from(creatorsMap.values())
-const creatorBatches = batchArray(creatorsArray, BATCH_SIZE)
-
-for (let i = 0; i < creatorBatches.length; i++) {
-  const batch = creatorBatches[i]
-  console.log(`   Batch ${i + 1}/${creatorBatches.length} (${batch.length} creators)`)
-
-  try {
-    const { error } = await supabase
-      .from('creators')
-      .upsert(batch, {
-        onConflict: 'platform,username',
-        ignoreDuplicates: false
-      })
-
-    if (error) {
-      console.warn(`   ⚠️  Creator batch warning: ${error.message}`)
-    } else {
-      console.log(`   ✅ Upserted ${batch.length} creators`)
-    }
-  } catch (error: any) {
-    console.error(`   ❌ Creator batch failed: ${error.message}`)
-  }
-
-  if (i < creatorBatches.length - 1) {
-    await delay(DELAY_MS)
-  }
-}
-
-console.log(`✅ Creators upserted: ${creatorsMap.size}\n`)
 
 // Batch the records
 const batches = batchArray(records, BATCH_SIZE)
@@ -250,7 +162,7 @@ for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
     const { data, error } = await supabase
       .from('content')
       .upsert(batch, {
-        onConflict: 'platform,platform_content_id',
+        onConflict: 'content_id',
         ignoreDuplicates: false
       })
 
@@ -276,7 +188,7 @@ for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
         const { error: individualError } = await supabase
           .from('content')
           .upsert([record], {
-            onConflict: 'platform,platform_content_id',
+            onConflict: 'content_id',
             ignoreDuplicates: true
           })
 
@@ -285,14 +197,14 @@ for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
             skippedCount++
           } else {
             errorCount++
-            errors.push({ tweetId: record.platform_content_id, error: individualError.message })
+            errors.push({ tweetId: record.content_id, error: individualError.message })
           }
         } else {
           insertedCount++
         }
       } catch (individualError: any) {
         errorCount++
-        errors.push({ tweetId: record.platform_content_id, error: individualError.message })
+        errors.push({ tweetId: record.content_id, error: individualError.message })
       }
     }
   }
@@ -344,7 +256,7 @@ console.log('\n🔍 Verifying import...')
 const { count, error: countError } = await supabase
   .from('content')
   .select('*', { count: 'exact', head: true })
-  .eq('platform', 'twitter')
+  .eq('content_type', 'twitter')
   .contains('tags', ['liked-tweets'])
 
 if (countError) {

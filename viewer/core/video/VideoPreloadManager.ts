@@ -204,7 +204,7 @@ class VideoPreloadManager {
    * Get video URL for a content item (supports video and twitter content types)
    */
   private getVideoUrlForItem(item: LiveViewContentBlockItems | null): string | null {
-    if (!item) return null;
+    if (!item || !item.content) return null;
 
     // Direct video content
     if (item.content.content_type === 'video') {

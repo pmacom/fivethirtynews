@@ -1,13 +1,8 @@
+import { Position3D, Rotation3D } from './types'
+
 /**
- * @deprecated This file is superseded by viewer/core/positioning/orbit.ts
- * Kept for reference during migration testing.
- *
- * Orbit positioning utilities for floating content items.
- * Items orbit around the currently active content in 3D space.
+ * Orbit configuration for floating content items
  */
-
-export type Position3D = [number, number, number]
-
 export interface OrbitConfig {
   /** Distance from center (default: 2.5) */
   radius: number
@@ -32,12 +27,6 @@ const DEFAULT_CONFIG: OrbitConfig = {
 /**
  * Calculate the orbit position for an item at a given time.
  * Items are evenly distributed around a circle and rotate over time.
- *
- * @param index - Index of this item in the orbit (0, 1, 2, ...)
- * @param total - Total number of items in orbit
- * @param time - Current time in seconds (for animation)
- * @param config - Optional orbit configuration
- * @returns [x, y, z] position relative to center
  */
 export function getOrbitPosition(
   index: number,
@@ -50,7 +39,7 @@ export function getOrbitPosition(
   // Base angle: evenly distribute items around the circle
   const baseAngle = (index / Math.max(total, 1)) * Math.PI * 2
 
-  // Current angle: rotate over time (all items rotate together)
+  // Current angle: rotate over time
   const currentAngle = baseAngle + time * speed
 
   // Horizontal position on the orbit circle
@@ -67,14 +56,18 @@ export function getOrbitPosition(
 }
 
 /**
- * Calculate the entry animation position.
+ * Calculate look-at rotation for a floating item.
+ * Items should face toward the center.
+ */
+export function getOrbitRotation(position: Position3D): Rotation3D {
+  const [x, , z] = position
+  const angle = Math.atan2(z, x)
+  return [0, -angle + Math.PI, 0]
+}
+
+/**
+ * Calculate entry animation position.
  * Items start from outside the orbit and animate in.
- *
- * @param index - Index of this item
- * @param total - Total number of items
- * @param progress - Animation progress (0 = start, 1 = end)
- * @param config - Optional orbit configuration
- * @returns [x, y, z] position during entry animation
  */
 export function getEntryPosition(
   index: number,
@@ -84,13 +77,12 @@ export function getEntryPosition(
 ): Position3D {
   const { radius } = { ...DEFAULT_CONFIG, ...config }
 
-  // Target position (where we're animating TO)
+  // Target position
   const targetPos = getOrbitPosition(index, total, 0, config)
 
   // Start position: further out and above
   const entryRadius = radius * 2.5
   const entryHeight = 1.5
-
   const baseAngle = (index / Math.max(total, 1)) * Math.PI * 2
 
   const startPos: Position3D = [
@@ -99,10 +91,9 @@ export function getEntryPosition(
     Math.sin(baseAngle) * entryRadius,
   ]
 
-  // Ease-out cubic for smooth deceleration
+  // Ease-out cubic
   const eased = 1 - Math.pow(1 - progress, 3)
 
-  // Lerp from start to target
   return [
     startPos[0] + (targetPos[0] - startPos[0]) * eased,
     startPos[1] + (targetPos[1] - startPos[1]) * eased,
@@ -111,44 +102,14 @@ export function getEntryPosition(
 }
 
 /**
- * Calculate look-at rotation for a floating item.
- * Items should face toward the center (or slightly toward camera).
- *
- * @param position - Current position of the item
- * @returns [rotationX, rotationY, rotationZ] in radians
- */
-export function getOrbitRotation(position: Position3D): Position3D {
-  const [x, , z] = position
-
-  // Rotate to face center (opposite of position angle)
-  const angle = Math.atan2(z, x)
-
-  // Add slight tilt back toward camera
-  return [0, -angle + Math.PI, 0]
-}
-
-/**
  * Get orbit configuration scaled by number of items.
- * More items = larger orbit radius.
- *
- * @param itemCount - Number of items in orbit
- * @returns Scaled orbit configuration
+ * More items = larger orbit radius, slower rotation.
  */
 export function getScaledConfig(itemCount: number): Partial<OrbitConfig> {
-  // Scale radius based on item count to prevent overlap
   const baseRadius = 2.5
   const radiusPerItem = 0.3
   const radius = baseRadius + Math.max(0, itemCount - 3) * radiusPerItem
-
-  // Slow down rotation with more items
   const speed = Math.max(0.1, 0.25 - itemCount * 0.02)
 
   return { radius, speed }
-}
-
-export default {
-  getOrbitPosition,
-  getEntryPosition,
-  getOrbitRotation,
-  getScaledConfig,
 }

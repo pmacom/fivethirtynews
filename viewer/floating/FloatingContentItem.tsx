@@ -8,7 +8,7 @@ import PillarColumnItem from '../pillar/components/PillarColumnItem'
 import { LiveViewContentBlockItems } from '../core/content/types'
 import { useContentStore } from '../core/store/contentStore'
 import { useFloatingContentStore } from '../core/store/floatingContentStore'
-import { getOrbitPosition, getOrbitRotation, getScaledConfig, Position3D } from './orbitPositioner'
+import { getOrbitPosition, getOrbitRotation, getScaledConfig } from '../core/positioning/orbit'
 
 interface FloatingContentItemProps {
   /** The floating item data */

@@ -100,7 +100,7 @@ async function main() {
     const { data: pageRecords, error: pageError } = await supabase
       .from('content')
       .select('id, platform_content_id, content_id, url, title')
-      .eq('content_type', 'twitter')
+      .eq('platform', 'twitter')
       .order('created_at', { ascending: false })
       .range(page * pageSize, (page + 1) * pageSize - 1);
 

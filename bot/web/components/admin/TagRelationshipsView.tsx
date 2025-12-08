@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { TagRelationshipVoter } from '@/components/tags/TagRelationshipVoter'
+import { ThumbsUp, ThumbsDown } from 'lucide-react'
 
 interface Tag {
   id: string
@@ -25,6 +27,11 @@ interface TagRelationship {
   created_at: string
   tag1: Tag
   tag2: Tag
+  // New feedback fields
+  status?: 'suggested' | 'active' | 'deprecated' | 'rejected'
+  agree_count?: number
+  disagree_count?: number
+  community_score?: number | null
 }
 
 interface Props {
@@ -46,6 +53,7 @@ export default function TagRelationshipsView({ tags, relationships, onRefresh }:
   const [selectedRelationship, setSelectedRelationship] = useState<TagRelationship | null>(null)
   const [filterType, setFilterType] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [userVotes, setUserVotes] = useState<Record<string, 'agree' | 'disagree' | null>>({})
 
   const [formData, setFormData] = useState({
     tag_id_1: '',
@@ -53,6 +61,27 @@ export default function TagRelationshipsView({ tags, relationships, onRefresh }:
     relationship_type: 'related' as TagRelationship['relationship_type'],
     strength: 0.7
   })
+
+  // Handle voting on a relationship
+  const handleVote = useCallback(async (relationshipId: string, vote: 'agree' | 'disagree') => {
+    try {
+      const res = await fetch('/api/tags/relationships/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ relationshipId, vote }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setUserVotes(prev => ({ ...prev, [relationshipId]: vote }))
+        // Refresh to get updated counts
+        onRefresh()
+      } else {
+        console.error('Vote failed:', data.error)
+      }
+    } catch (error) {
+      console.error('Error voting:', error)
+    }
+  }, [onRefresh])
 
   const filteredRelationships = relationships.filter(rel => {
     const matchesType = filterType === 'all' || rel.relationship_type === filterType
@@ -287,8 +316,51 @@ export default function TagRelationshipsView({ tags, relationships, onRefresh }:
                   </div>
                 </div>
 
+                {/* Community Feedback */}
+                <div className="flex items-center gap-3 px-3 border-l border-border">
+                  <div className="flex items-center gap-1 text-sm">
+                    <ThumbsUp className={`h-4 w-4 ${userVotes[rel.id] === 'agree' ? 'text-green-500 fill-green-500' : 'text-muted-foreground'}`} />
+                    <span className="text-green-600 font-medium">{rel.agree_count || 0}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm">
+                    <ThumbsDown className={`h-4 w-4 ${userVotes[rel.id] === 'disagree' ? 'text-red-500 fill-red-500' : 'text-muted-foreground'}`} />
+                    <span className="text-red-600 font-medium">{rel.disagree_count || 0}</span>
+                  </div>
+                  {rel.community_score !== null && rel.community_score !== undefined && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${
+                      rel.community_score > 0.2 ? 'bg-green-100 text-green-700' :
+                      rel.community_score < -0.2 ? 'bg-red-100 text-red-700' :
+                      'bg-gray-100 text-gray-600'
+                    }`}>
+                      {rel.community_score > 0 ? '+' : ''}{(rel.community_score * 100).toFixed(0)}%
+                    </span>
+                  )}
+                </div>
+
                 {/* Actions */}
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleVote(rel.id, 'agree')}
+                    className={`px-2 py-1.5 text-sm rounded-lg transition-colors font-medium ${
+                      userVotes[rel.id] === 'agree'
+                        ? 'bg-green-100 text-green-700'
+                        : 'text-green-600 hover:bg-green-50'
+                    }`}
+                    title="Agree with this relationship"
+                  >
+                    <ThumbsUp className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleVote(rel.id, 'disagree')}
+                    className={`px-2 py-1.5 text-sm rounded-lg transition-colors font-medium ${
+                      userVotes[rel.id] === 'disagree'
+                        ? 'bg-red-100 text-red-700'
+                        : 'text-red-600 hover:bg-red-50'
+                    }`}
+                    title="Disagree with this relationship"
+                  >
+                    <ThumbsDown className="h-4 w-4" />
+                  </button>
                   <button
                     onClick={() => openEditForm(rel)}
                     className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"

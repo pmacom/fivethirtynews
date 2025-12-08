@@ -15,7 +15,6 @@ const publicRoutes = [
 
 // API routes that require authentication (add more as needed)
 const protectedApiRoutes = [
-  '/api/posts',
   '/api/channels',
   '/api/admin',
 ];
@@ -24,6 +23,7 @@ const protectedApiRoutes = [
 const publicGetApiRoutes = [
   '/api/settings',
   '/api/content',  // Browse content publicly, but auth required to submit
+  '/api/posts',    // Check posts publicly, auth required to create
   '/api/labels',   // List labels publicly, creating requires moderator
   '/api/tags',     // List tags publicly for autocomplete
   '/api/shows',    // Browse shows publicly, auth required to modify

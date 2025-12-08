@@ -12,6 +12,7 @@ import { useContentStore } from '../core/store/contentStore'
 import { useFloatingContentStore } from '../core/store/floatingContentStore'
 import { trackSearchRelationship } from '../utils/trackRelationship'
 import SearchModal from '@/components/search/SearchModal'
+import { KeyboardShortcutsPopup } from './KeyboardShortcutsPopup'
 
 interface EpisodeNavigation {
   prev: { id: string; episode_number: number; title: string } | null
@@ -262,6 +263,9 @@ export const TopToolbar = ({
           <CiSettings className="w-5 h-5" />
         </ToolbarButton>
       </div>
+
+      {/* Keyboard Shortcuts - always visible with toolbar */}
+      <KeyboardShortcutsPopup />
 
       {/* Search Modal */}
       <SearchModal

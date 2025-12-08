@@ -1,3 +1,8 @@
+/**
+ * @deprecated This file is superseded by viewer/layouts/PillarLayout.tsx
+ * which uses the unified ContentScene system.
+ * Kept for reference during migration testing.
+ */
 "use client"
 
 import React, { useEffect, useMemo, useRef } from 'react'

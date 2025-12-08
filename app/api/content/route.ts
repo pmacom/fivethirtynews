@@ -286,9 +286,6 @@ export async function POST(request: NextRequest) {
         primary_channel: hasChannels ? (primaryChannel || channels[0] || null) : null,
         title: title || null,
         description: finalDescription,
-        content_type: platform, // Map to existing column
-        content_url: url, // Map to existing column
-        content_id: platformContentId, // Map to existing column
         submitted_by: submitterUsername || 'extension',
         author_name: author || null,
         author_username: authorUsername || null,

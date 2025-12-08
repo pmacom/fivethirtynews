@@ -24,9 +24,9 @@ export async function GET(request: NextRequest) {
         id,
         platform,
         platform_content_id,
-        content_url,
+        url,
         title,
-        content_text,
+        description,
         author_name,
         primary_channel,
         created_at
