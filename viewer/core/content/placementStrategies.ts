@@ -6,6 +6,22 @@ const ADDED_CATEGORY_ID = 'added-content'
 const ADDED_CATEGORY_NAME = 'Added'
 const SEARCH_RESULTS_NAME = 'Search Results'
 
+/**
+ * Map platform values from search API to expected content_type values
+ * The TemplateSwitcher expects specific content_type values like 'video', 'twitter', etc.
+ * but search API returns platform names like 'youtube', 'x', etc.
+ */
+function mapPlatformToContentType(platform: string): string {
+  const platformMap: Record<string, string> = {
+    'youtube': 'video',
+    'vimeo': 'video',
+    'twitter': 'twitter',
+    'x': 'twitter',
+    'tiktok': 'video',
+  }
+  return platformMap[platform.toLowerCase()] || platform
+}
+
 export interface PlacementResult {
   // The category to add to (create if doesn't exist)
   categoryId: string
@@ -105,6 +121,7 @@ export function getPlacementForViewMode(
 export function createContentBlockItem(
   content: {
     id: string
+    platform_content_id?: string | null  // Twitter ID, YouTube ID, etc.
     title: string | null
     description: string | null
     url: string
@@ -113,6 +130,15 @@ export function createContentBlockItem(
   },
   customPosition?: Position3D
 ): LiveViewContentBlockItems {
+  const contentType = mapPlatformToContentType(content.platform)
+
+  // For Twitter content, use platform_content_id for content_id so tweet lookup works
+  // The Tweet template uses content_id to look up tweet data from useTweetStore
+  const isTwitter = contentType === 'twitter'
+  const contentId = isTwitter && content.platform_content_id
+    ? content.platform_content_id
+    : content.id
+
   return {
     id: content.id,
     note: '',
@@ -121,9 +147,9 @@ export function createContentBlockItem(
     news_id: content.id,
     content: {
       id: content.id,
-      content_id: content.id,
+      content_id: contentId,
       version: 1,
-      content_type: content.platform as any,
+      content_type: contentType as any,
       content_url: content.url,
       content_created_at: new Date().toISOString(),
       thumbnail_url: content.thumbnail_url || '',
@@ -132,6 +158,8 @@ export function createContentBlockItem(
       category: '',
       categories: [],
       description: content.description || '',
+      // Include platform_content_id for batch tweet fetching
+      ...(content.platform_content_id ? { platform_content_id: content.platform_content_id } : {}),
     },
     // Store custom position if provided (for cloud clustering)
     ...(customPosition ? { customPosition } : {}),

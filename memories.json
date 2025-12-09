@@ -3541,7 +3541,63 @@
       "lastAccessed": "2025-12-09T04:27:52.583Z",
       "lastVerified": "2025-12-09T04:27:52.583Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765259117182_t73vf1q0w",
+      "content": "VIEWER CODEBASE SEARCH RESULTS VS REGULAR CONTENT LOADING\n\n## Key Architecture\n\n1. **Search Results Flow**:\n   - Search overlay (searchOverlayStore) collects selected items\n   - User confirms selection via handleSearchConfirm in TopToolbar\n   - Creates new LiveViewContentBlockItems via createContentBlockItem()\n   - Added to contentStore via addContent() method\n\n2. **Floating Content System**:\n   - Search results are added as FLOATING items that orbit active content\n   - Managed by useFloatingContentStore (floatingContentStore.tsx)\n   - Floating items have `content_block_id: 'floating'` or 'search'\n   - Each floating item tracks anchorId (search context anchor)\n\n3. **Regular vs Search Content**:\n   - Regular: Loaded from episode/category structure via contentStore\n   - Search: Dynamically added via search overlay, treated as floating content\n   - Search results orbit around active item in 3D space\n   - User can vote on relevance (feedback buttons appear on hover)\n\n4. **Video-Specific Handling**:\n   - VideoPreloadManager handles preloading for adjacent slides\n   - YouTube videos detected and prevented from direct embedding (CORS)\n   - YouTube videos use thumbnail + click-to-open strategy\n   - Other video URLs preloaded into video element pool (max 3 concurrent)\n   - Mobile/cellular network detection reduces preload pool size\n\n5. **Navigation Integration**:\n   - useUnifiedNavigation hook enables seamless arrow-key nav across floating + regular content\n   - Floating items integrated into the navigation sequence\n   - Relationship tracking for search-based navigation\n   - FloatingContentItem handles click-to-select logic\n\n6. **Content Loading Differences**:\n   - Regular content: Loaded with full episode structure, batch fetched tweets\n   - Search content: Created on-demand, no batch prefetch needed\n   - Video preloading only applies to main content items, not floating items\n   - Floating items render via PillarColumnItem + TemplateSwitcher\n\nTags: viewer-architecture, search-integration, floating-content, video-handling",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "viewer-architecture",
+        "search-integration",
+        "floating-content",
+        "video-handling"
+      ],
+      "timestamp": "2025-12-09T05:45:17.182Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-09T05:45:17.182Z",
+      "lastVerified": "2025-12-09T05:45:17.182Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765259696491_2ufxzdsrx",
+      "content": "PlaneView/SafePlaneView Video Playback Investigation - Key Findings\n\nVIDEO PLAYBACK TRIGGER MECHANISM:\n1. Condition: lingeringActive && videoUrl (lines 218 in PlaneView.tsx)\n   - lingeringActive = component is active (with 1s delay when becoming inactive)\n   - videoUrl = must be explicitly passed as a prop\n\n2. Props Required for Video to Play:\n   - url: thumbnail image URL (always required)\n   - active: boolean flag (must be true for the slide to be active)\n   - videoUrl: optional string with the video URL\n   - itemId: optional string (used for video preloading management)\n\nVIDEO TEXTURE REPLACEMENT (Shader-based):\n- Uses FadeShaderMaterial with 3 uniforms:\n  - thumbnailTexture: the original image texture\n  - videoTexture: the THREE.VideoTexture from HTML video element\n  - blendFactor: animates from 0 (100% thumbnail) to 1 (100% video)\n- Fade duration: 300ms for preloaded videos, 1000ms for new videos (line 348)\n- Shader blend: mix(thumbnailColor, videoColor, blendFactor) in fragment shader\n\nSTATE CHANGES WHEN VIDEO ITEM BECOMES ACTIVE:\n1. contentStore.isContentVideo = true (line 265)\n2. contentStore.videoDuration = video.duration (line 313)\n3. contentStore.activeItemObject = screenRef.current (for 3D bounds)\n4. blendFactor animates from 0 to 1 (fade in)\n5. videoTexture is created and assigned to shader material\n\nCRITICAL ISSUE - SEARCH RESULTS DON'T GET VIDEO URLS:\nIn placementStrategies.ts lines 105-139, createContentBlockItem() transforms search content:\n- Sets content_type = content.platform (e.g., 'video', 'twitter')\n- Sets content_url = content.url\n- BUT search content from /api/content endpoint may not have content_url set!\n\nThe Video.tsx template (line 18) reads: videoUrl = item.content?.content_url\n- If content_url is undefined, videoUrl prop becomes undefined\n- This breaks the video trigger condition: lingeringActive && videoUrl\n\nSEARCH RESULT CONTENT TYPE ROUTING:\nTemplateSwitcher.tsx routes based on contentType:\n- 'video' → TemplateVideo (expects content_url for videoUrl prop)\n- 'twitter' → TemplateTweet\n- 'image' → TemplateImage\n- 'website' → TemplateWebsite\n- others → TemplateDefault (no video support)\n\nVIDEO PRELOADING:\nVideoPreloadManager only checks:\n1. item.content.content_type === 'video' → uses content_url directly\n2. item.content.content_type === 'twitter' → extracts video from tweet data via extractVideoUrls()\n\nIt does NOT handle other content types that might have videos embedded!",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "api",
+        "video-playback",
+        "investigation",
+        "search-results",
+        "planeview"
+      ],
+      "timestamp": "2025-12-09T05:54:56.491Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-09T05:54:56.491Z",
+      "lastVerified": "2025-12-09T05:54:56.491Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765260378903_ukz6xkg3e",
+      "content": "Video playback fix for search results - Three root causes fixed:\n\n1. Platform-to-ContentType Mapping (placementStrategies.ts:14-23):\n   - Search API returns platform='youtube' but TemplateSwitcher expects content_type='video'\n   - Added mapPlatformToContentType() function that maps:\n     - 'youtube' → 'video'\n     - 'vimeo' → 'video'\n     - 'tiktok' → 'video'\n     - 'twitter'/'x' → 'twitter'\n\n2. Content ID Mismatch (placementStrategies.ts:135-140):\n   - Tweet template uses content_id to lookup tweets in useTweetStore\n   - Tweets are stored by their Twitter ID (platform_content_id), not content table UUID\n   - Fixed: For Twitter content, set content_id = platform_content_id so lookup works\n\n3. Twitter Video Data Fetching (TopToolbar.tsx:106-158):\n   - Twitter videos need tweet data in useTweetStore for extractVideoUrls() to work\n   - Added fetchTweetDataForSearchItems() that fetches tweet records from DB\n   - Uses platform_content_id (Twitter ID) to fetch from tweets table\n   - Called before adding content so video URLs can be extracted\n\n4. SearchContentItem Interface (searchOverlayStore.ts):\n   - Added platform_content_id field to interface\n\nFiles modified:\n- viewer/core/content/placementStrategies.ts\n- viewer/ui/TopToolbar.tsx\n- components/search/searchOverlayStore.ts",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "video",
+        "search",
+        "fix",
+        "twitter",
+        "youtube",
+        "content-type"
+      ],
+      "timestamp": "2025-12-09T06:06:18.903Z",
+      "context": "Fix for video not playing when content added from search results",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-09T06:06:18.903Z",
+      "lastVerified": "2025-12-09T06:06:18.903Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-09T04:27:52.583Z"
+  "lastUpdated": "2025-12-09T06:21:50.304Z"
 }

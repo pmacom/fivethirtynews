@@ -8,7 +8,8 @@ import { LayoutGrid, Edit, Columns3, Cloud, Layers, GalleryHorizontal, ArrowLeft
 import { useStageSelectStore } from './stageselect/store'
 import useSettingStore from './settings/store'
 import { useViewModeStore, VIEW_MODE_OPTIONS, ViewMode } from '../core/store/viewModeStore'
-import { useContentStore } from '../core/store/contentStore'
+import { useContentStore, useTweetStore } from '../core/store/contentStore'
+import { supabase } from "@/utils/supabase/client"
 import { trackSearchRelationship } from '../utils/trackRelationship'
 import { getPlacementForViewMode, createContentBlockItem } from '../core/content/placementStrategies'
 import { useSearchOverlayStore, SearchContentItem } from '@/components/search/searchOverlayStore'
@@ -102,9 +103,66 @@ export const TopToolbar = ({
     }
   }, [router, showSlug, activeEpisodeId])
 
+  // Fetch tweet data for Twitter search items so video can be extracted
+  const fetchTweetDataForSearchItems = useCallback(async (items: SearchContentItem[]) => {
+    // Filter Twitter items that have platform_content_id (the actual Twitter ID)
+    const twitterItems = items.filter(i =>
+      (i.platform === 'twitter' || i.platform === 'x') && i.platform_content_id
+    )
+    if (twitterItems.length === 0) return
+
+    // Use platform_content_id (Twitter ID) to fetch from tweets table
+    const tweetIds = twitterItems.map(i => i.platform_content_id!).filter(Boolean)
+    if (tweetIds.length === 0) return
+
+    const { data: tweets, error } = await supabase
+      .from('tweets')
+      .select('*')
+      .in('id', tweetIds)
+
+    if (error) {
+      console.error('Error fetching tweet data for search results:', error)
+      return
+    }
+
+    if (!tweets || tweets.length === 0) return
+
+    // Parse and add to tweet store
+    const tweetMap: Record<string, any> = {}
+    for (const tweet of tweets) {
+      try {
+        tweetMap[tweet.id] = {
+          ...tweet,
+          data: typeof tweet.data === 'string' ? JSON.parse(tweet.data) : tweet.data
+        }
+      } catch {
+        // Store minimal fallback data
+        tweetMap[tweet.id] = {
+          id: tweet.id,
+          data: {
+            text: tweet.text || '',
+            user: {
+              name: tweet.screen_name || 'Unknown',
+              screen_name: tweet.screen_name || 'unknown',
+              profile_image_url_https: tweet.profile_image || ''
+            },
+            created_at: new Date().toISOString()
+          }
+        }
+      }
+    }
+
+    // Merge with existing tweets
+    const existingTweets = useTweetStore.getState().tweets
+    useTweetStore.setState({ tweets: { ...existingTweets, ...tweetMap } })
+  }, [])
+
   // Handle adding multiple content items to the 3D scene from search
-  const handleSearchConfirm = useCallback((items: SearchContentItem[]) => {
+  const handleSearchConfirm = useCallback(async (items: SearchContentItem[]) => {
     if (items.length === 0) return
+
+    // Fetch tweet data first so video URLs can be extracted
+    await fetchTweetDataForSearchItems(items)
 
     const currentId = activeItemData?.content?.content_id || activeItemData?.content?.id
 
@@ -121,7 +179,7 @@ export const TopToolbar = ({
     if (currentId) {
       items.forEach(item => trackSearchRelationship(currentId, item.id))
     }
-  }, [activeItemData, viewMode, addContent])
+  }, [activeItemData, viewMode, addContent, fetchTweetDataForSearchItems])
 
   // Open search overlay in 3D viewer mode
   const handleOpenSearch = useCallback(() => {

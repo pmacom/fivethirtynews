@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 export interface SearchContentItem {
   id: string
+  platform_content_id?: string | null  // Twitter ID, YouTube ID, etc.
   title: string | null
   description: string | null
   url: string
