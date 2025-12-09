@@ -19,6 +19,7 @@ import Details from './ui/details/details'
 import Settings from './ui/settings/settings'
 import SettingsOptions from './ui/settings/options'
 import { StageSelectOverlay } from './ui/stageselect/StageSelectOverlay'
+import { SectionExitOverlay } from './ui/sectionexit'
 import SplashScreen from './ui/splash/SplashScreen'
 import Chyron from './ui/chyron/chyron'
 import ErrorBoundary from './ErrorBoundary'
@@ -170,6 +171,7 @@ const Viewer = ({
         <Chyron />
         {/* Stage Select Overlay and Splash */}
         <StageSelectOverlay />
+        <SectionExitOverlay />
         <SplashScreen />
         {/* Content Edit Modal - admin/mod only */}
         <ContentEditOverlay />

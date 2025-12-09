@@ -102,7 +102,7 @@ export function getCategoryInfo(items: FlattenedItem[]): {
 
 /**
  * Navigate within the same category (vertical movement in pillar)
- * Returns the new item or null if no movement possible
+ * Returns the new item or null if at edge (signals modal should appear)
  */
 export function navigateWithinCategory(
   items: FlattenedItem[],
@@ -116,13 +116,17 @@ export function navigateWithinCategory(
 
   let newIndex: number
   if (direction === 'up') {
-    // Wrap to bottom of column
-    newIndex = currentIndexInCategory === 0
-      ? categoryItems.length - 1
-      : currentIndexInCategory - 1
+    // At top of column (highest index = highest Y position) - return null to signal edge reached
+    if (currentIndexInCategory === categoryItems.length - 1) {
+      return null
+    }
+    newIndex = currentIndexInCategory + 1
   } else {
-    // Wrap to top of column
-    newIndex = (currentIndexInCategory + 1) % categoryItems.length
+    // At bottom of column (index 0 = lowest Y position) - return null to signal edge reached
+    if (currentIndexInCategory === 0) {
+      return null
+    }
+    newIndex = currentIndexInCategory - 1
   }
 
   return categoryItems[newIndex] || null
@@ -130,7 +134,7 @@ export function navigateWithinCategory(
 
 /**
  * Navigate between categories (horizontal movement in pillar)
- * Tries to maintain the same item index within the new category
+ * Always goes to the first item of the new category
  */
 export function navigateBetweenCategories(
   items: FlattenedItem[],
@@ -155,7 +159,6 @@ export function navigateBetweenCategories(
   const newCategoryItems = items.filter(i => i.categoryIndex === newCategoryIndex)
   if (newCategoryItems.length === 0) return null
 
-  // Try to go to same item index, or last item if new category is shorter
-  const targetIndex = Math.min(currentItem.itemIndex, newCategoryItems.length - 1)
-  return newCategoryItems[targetIndex] || newCategoryItems[0] || null
+  // Always go to first item of the new category
+  return newCategoryItems[0] || null
 }

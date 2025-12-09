@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useSectionExitStore } from '../ui/sectionexit/store'
 
 interface SwipeDetectorProps {
   onSwipeUp?: () => void
@@ -40,6 +41,9 @@ const SwipeDetector: React.FC<SwipeDetectorProps> = ({
 
   const onTouchEnd = () => {
     if (!enabled || touchStartX === null || touchStartY === null || touchEndX === null || touchEndY === null) return
+
+    // Don't process swipes when section exit modal is open
+    if (useSectionExitStore.getState().isVisible) return
 
     const distanceX = touchStartX - touchEndX
     const distanceY = touchStartY - touchEndY

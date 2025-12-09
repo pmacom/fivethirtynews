@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 // import { EpisodeViewStore } from '../stores/EpisodeViewStore';
 import { create } from "zustand";
 import useSettingStore from '../ui/settings/store';
+import { useSectionExitStore } from '../ui/sectionexit/store';
 
 interface KeyListenerProps {
   enabled?: boolean;
@@ -20,6 +21,9 @@ export const KeyListener = ({ enabled = true, children, onKeyLeft, onKeyRight, o
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      // Don't capture keys when section exit modal is open
+      if (useSectionExitStore.getState().isVisible) return;
+
       // Don't capture keys when typing in input fields
       const activeElement = document.activeElement;
       const isTyping = activeElement?.tagName === 'INPUT' ||

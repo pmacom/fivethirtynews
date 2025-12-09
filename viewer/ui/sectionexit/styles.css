@@ -1,0 +1,219 @@
+/* Section Exit Modal Styles */
+
+.section-exit-container {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: section-exit-enter 0.4s ease-out;
+}
+
+.section-exit-container.section-exit-closing {
+  animation: section-exit-exit 0.5s ease-in forwards;
+}
+
+.section-exit-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 201;
+}
+
+.section-exit-content {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 202;
+  padding: 2rem;
+}
+
+/* Category selection buttons */
+.section-exit-buttons {
+  display: flex;
+  gap: 3rem;
+  margin-top: 3rem;
+}
+
+.section-exit-button {
+  position: relative;
+  width: 280px;
+  height: 180px;
+  background: linear-gradient(135deg, rgba(30, 30, 40, 0.9), rgba(20, 20, 30, 0.95));
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  transform: skewX(-5deg);
+}
+
+.section-exit-button:hover,
+.section-exit-button.selected {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(30, 30, 40, 0.95));
+  transform: skewX(-5deg) scale(1.05);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+}
+
+.section-exit-button .button-content {
+  transform: skewX(5deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-exit-button .arrow {
+  font-size: 2.5rem;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.3s ease;
+}
+
+.section-exit-button:hover .arrow,
+.section-exit-button.selected .arrow {
+  color: #f59e0b;
+}
+
+.section-exit-button .direction {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+}
+
+.section-exit-button .category-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Header text */
+.section-exit-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.section-exit-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.section-exit-subtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+/* Current section indicator */
+.section-exit-current {
+  margin-bottom: 2rem;
+  padding: 0.75rem 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.section-exit-current-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.25rem;
+}
+
+.section-exit-current-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #f59e0b;
+}
+
+/* Hint text */
+.section-exit-hint {
+  margin-top: 2rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.4);
+  display: flex;
+  gap: 2rem;
+}
+
+.section-exit-hint kbd {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: monospace;
+  margin: 0 0.25rem;
+}
+
+/* Animations */
+@keyframes section-exit-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes section-exit-exit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+}
+
+/* Grid background effect */
+.section-exit-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+}
+
+/* Scanlines effect */
+.section-exit-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  opacity: 0.3;
+}

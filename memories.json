@@ -3523,7 +3523,25 @@
       "lastAccessed": "2025-12-09T03:52:48.043Z",
       "lastVerified": "2025-12-09T03:52:48.043Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765254472583_wv60mkqgs",
+      "content": "Pillar Navigation Redesign + Section Exit Modal Implementation:\n\nFiles created:\n- viewer/ui/sectionexit/store.ts - Zustand store for modal state (isVisible, categories, selection)\n- viewer/ui/sectionexit/SectionExitOverlay.tsx - Fullscreen modal with two category buttons\n- viewer/ui/sectionexit/styles.css - Arcade-style modal styling with animations\n- viewer/ui/sectionexit/index.ts - Exports\n\nFiles modified:\n- viewer/core/positioning/utils.ts\n  - navigateWithinCategory() returns null at top/bottom instead of wrapping\n  - navigateBetweenCategories() always goes to first item (targetIndex = 0)\n- viewer/core/hooks/usePillarNavigation.ts\n  - Added showSectionExitModal() helper\n  - goUp/goDown show modal when navigateWithinCategory returns null\n  - Imports useSectionExitStore\n- viewer/viewer.tsx - Added SectionExitOverlay to render tree\n\nNavigation behavior:\n- Up at top: Shows section exit modal\n- Down at bottom: Shows section exit modal\n- Left/Right: Go to first item of adjacent column (still wraps at edges)\n\nModal features:\n- Two big buttons for left/right category selection\n- Keyboard: Left/Right arrows select, Enter confirms, Escape closes\n- Shows current category name\n- Customizable header text: \"Now leaving section, any final comments?\"",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "go",
+        "pillar-navigation",
+        "section-exit-modal",
+        "feature",
+        "viewer"
+      ],
+      "timestamp": "2025-12-09T04:27:52.583Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-09T04:27:52.583Z",
+      "lastVerified": "2025-12-09T04:27:52.583Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-09T04:09:02.036Z"
+  "lastUpdated": "2025-12-09T04:27:52.583Z"
 }

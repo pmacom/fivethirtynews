@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react'
 import { useContentStore } from '../store/contentStore'
+import { useSectionExitStore } from '../../ui/sectionexit/store'
 import { FlattenedItem } from '../positioning/types'
 import {
   navigateWithinCategory,
@@ -49,27 +50,72 @@ export function usePillarNavigation({
     })
   }, [])
 
+  // Show section exit modal with adjacent category options
+  const showSectionExitModal = useCallback(() => {
+    if (!currentItem) return
+
+    // Get category titles from content store
+    const categoryTitles = useContentStore.getState().categoryTitles
+
+    // Calculate left and right category indices (with wrapping)
+    const leftIndex = currentItem.categoryIndex === 0
+      ? categoryCount - 1
+      : currentItem.categoryIndex - 1
+    const rightIndex = (currentItem.categoryIndex + 1) % categoryCount
+
+    useSectionExitStore.getState().show({
+      currentCategoryIndex: currentItem.categoryIndex,
+      currentCategoryTitle: categoryTitles[currentItem.categoryIndex] || `Category ${currentItem.categoryIndex + 1}`,
+      leftCategory: {
+        index: leftIndex,
+        title: categoryTitles[leftIndex] || `Category ${leftIndex + 1}`,
+      },
+      rightCategory: {
+        index: rightIndex,
+        title: categoryTitles[rightIndex] || `Category ${rightIndex + 1}`,
+      },
+    })
+  }, [currentItem, categoryCount])
+
   // Vertical navigation (within column)
   const goUp = useCallback(() => {
+    // Don't navigate if modal is open
+    if (useSectionExitStore.getState().isVisible) return
     if (!currentItem) return
     const newItem = navigateWithinCategory(items, currentItem, 'up')
-    navigateToItem(newItem)
-  }, [items, currentItem, navigateToItem])
+    if (newItem === null) {
+      // At top of column - show section exit modal
+      showSectionExitModal()
+    } else {
+      navigateToItem(newItem)
+    }
+  }, [items, currentItem, navigateToItem, showSectionExitModal])
 
   const goDown = useCallback(() => {
+    // Don't navigate if modal is open
+    if (useSectionExitStore.getState().isVisible) return
     if (!currentItem) return
     const newItem = navigateWithinCategory(items, currentItem, 'down')
-    navigateToItem(newItem)
-  }, [items, currentItem, navigateToItem])
+    if (newItem === null) {
+      // At bottom of column - show section exit modal
+      showSectionExitModal()
+    } else {
+      navigateToItem(newItem)
+    }
+  }, [items, currentItem, navigateToItem, showSectionExitModal])
 
   // Horizontal navigation (between categories)
   const goLeft = useCallback(() => {
+    // Don't navigate if modal is open
+    if (useSectionExitStore.getState().isVisible) return
     if (!currentItem) return
     const newItem = navigateBetweenCategories(items, currentItem, 'left', categoryCount)
     navigateToItem(newItem)
   }, [items, currentItem, categoryCount, navigateToItem])
 
   const goRight = useCallback(() => {
+    // Don't navigate if modal is open
+    if (useSectionExitStore.getState().isVisible) return
     if (!currentItem) return
     const newItem = navigateBetweenCategories(items, currentItem, 'right', categoryCount)
     navigateToItem(newItem)
@@ -80,6 +126,9 @@ export function usePillarNavigation({
     if (!enabled || items.length === 0) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't capture keys when section exit modal is open
+      if (useSectionExitStore.getState().isVisible) return;
+
       // Don't capture keys when typing in input fields
       const activeElement = document.activeElement;
       const isTyping = activeElement?.tagName === 'INPUT' ||
@@ -149,6 +198,13 @@ export function usePillarNavigation({
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (!touchStartRef.current) return
+
+      // Don't process swipes when section exit modal is open
+      if (useSectionExitStore.getState().isVisible) {
+        touchStartRef.current = null
+        isSwipingRef.current = false
+        return
+      }
 
       const touch = e.changedTouches[0]
       const deltaX = touch.clientX - touchStartRef.current.x
