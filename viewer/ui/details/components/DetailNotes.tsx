@@ -1,6 +1,7 @@
 import { LiveViewContentBlockItems } from '@/viewer/core/content/types'
-import React from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { useTweetStore } from '@/viewer/core/store/contentStore'
+import { ChevronDown } from 'lucide-react'
 
 interface DetailNotesProps {
   data: LiveViewContentBlockItems
@@ -9,6 +10,8 @@ interface DetailNotesProps {
 export const DetailNotes = ({ data }: DetailNotesProps) => {
   const { content, note } = data
   const getTweet = useTweetStore(state => state.getTweet)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [hasOverflow, setHasOverflow] = useState(false)
 
   // For Twitter content, get tweet data as fallback for missing fields
   const tweetData = content.content_type === 'twitter' && content.content_id
@@ -23,6 +26,13 @@ export const DetailNotes = ({ data }: DetailNotesProps) => {
 
   // Show note if available, otherwise show description, then tweet text
   const displayText = note || content.description || tweetData?.text
+
+  // Detect if content overflows
+  useEffect(() => {
+    if (contentRef.current) {
+      setHasOverflow(contentRef.current.scrollHeight > contentRef.current.clientHeight)
+    }
+  }, [displayText])
 
   return (
     <div className="grow flex items-center gap-3 min-w-0">
@@ -58,12 +68,30 @@ export const DetailNotes = ({ data }: DetailNotesProps) => {
         </div>
       )}
 
-      {/* Right: Content text - takes remaining space */}
+      {/* Right: Content text - 4 lines, scrollable on hover */}
       {displayText && (
-        <div className="flex-1 min-w-0 border-l border-white/20 pl-3">
-          <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">
-            {displayText}
-          </p>
+        <div className="group flex-1 min-w-0 border-l border-white/20 pl-3 relative">
+          {/* Scrollable content area */}
+          <div
+            ref={contentRef}
+            className="max-h-[96px] overflow-hidden hover:overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent"
+          >
+            <p className="text-sm text-slate-300 leading-relaxed text-left pr-4">
+              {displayText}
+            </p>
+          </div>
+
+          {/* Fade gradient at bottom (hides when hovering to scroll) */}
+          {hasOverflow && (
+            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-black/80 to-transparent pointer-events-none group-hover:opacity-0 transition-opacity" />
+          )}
+
+          {/* Scroll indicator (visible when content overflows) */}
+          {hasOverflow && (
+            <div className="absolute bottom-1 right-1 text-white/40 group-hover:opacity-0 transition-opacity">
+              <ChevronDown className="w-4 h-4 animate-bounce" />
+            </div>
+          )}
         </div>
       )}
     </div>

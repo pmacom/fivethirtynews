@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { X } from 'lucide-react'
 import { useContentStore } from '../../core/store/contentStore'
 import { useStageSelectStore } from './store'
 import './styles.css'
@@ -162,6 +163,17 @@ export function StageSelectOverlay() {
 
       {/* Main Content */}
       <div className="stage-select-content">
+        {/* Close Button */}
+        <button
+          onClick={() => useStageSelectStore.setState({ showStageSelect: false })}
+          className="absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center
+                     text-white/50 hover:text-white border-2 border-white/20 hover:border-white/50
+                     rounded transition-all hover:scale-110"
+          title="Close (Esc)"
+        >
+          <X className="w-6 h-6" />
+        </button>
+
         {/* Background Effects */}
         <div className="absolute inset-0 grid-bg opacity-30" />
         <div className="absolute inset-0 scanlines z-50 opacity-20 pointer-events-none" />

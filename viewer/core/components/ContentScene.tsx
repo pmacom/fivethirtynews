@@ -5,6 +5,7 @@ import { animated } from '@react-spring/three'
 
 import { useContentStore } from '../store/contentStore'
 import { useSceneStore } from '../../scene/store'
+import { useBrowseModeStore } from '../store/browseModeStore'
 import { useFlattenedContent, buildPositionerConfig } from '../hooks/useFlattenedContent'
 import { useLayoutAnimation } from '../hooks/useLayoutAnimation'
 import { useContentNavigation, useWheelNavigation } from '../hooks/useContentNavigation'
@@ -144,6 +145,11 @@ export function ContentScene({
 
   // Handle click - select item (camera focus handled by useLayoutAnimation onRest)
   const handleClick = useCallback((item: FlattenedItem) => {
+    // Exit browse mode if active (don't restore camera - animate to new content instead)
+    if (useBrowseModeStore.getState().isActive) {
+      useBrowseModeStore.setState({ isActive: false })
+    }
+
     // Update active item in store - use contentId for data lookups
     useContentStore.setState({
       activeCategoryId: item.categoryId,

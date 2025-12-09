@@ -3451,7 +3451,79 @@
       "lastAccessed": "2025-12-08T20:30:08.948Z",
       "lastVerified": "2025-12-08T20:30:08.948Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765236103327_9ygbs0kv3",
+      "content": "Fixed overlay UI issues:\n1. VideoBar visibility - changed from conditional render to CSS opacity transition (transition-opacity duration-500) to prevent blinking during content transitions when isContentVideo/videoDuration states reset\n2. Content text area - increased max-h to 96px (4 lines), added gradient fade at bottom (from-black/80), added bouncing ChevronDown scroll indicator when hasOverflow, both hide on group-hover for scrolling",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "viewer",
+        "overlay",
+        "videobar",
+        "detailnotes",
+        "ui-fix"
+      ],
+      "timestamp": "2025-12-08T23:21:43.327Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T23:21:43.327Z",
+      "lastVerified": "2025-12-08T23:21:43.327Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765236399775_jpc214d64",
+      "content": "Fixed video playback bugs:\n1. VideoBar.tsx - cleanup now resets isVideoSeeking to false on unmount. Previously if user hovered VideoBar and it unmounted, isVideoSeeking stayed true forever and video stayed paused.\n2. PlaneView.tsx - removed unconditional `if(!videoUrl) setState({ isContentVideo: false })` at line 216 which caused flickering. Now only cleanup and else block handle state resets.\n3. PlaneView.tsx else block - now resets both videoDuration and isContentVideo together for consistency.",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "viewer",
+        "video",
+        "bugfix",
+        "videobar",
+        "planeview"
+      ],
+      "timestamp": "2025-12-08T23:26:39.775Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T23:26:39.775Z",
+      "lastVerified": "2025-12-08T23:26:39.775Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765236917430_xhw7pwj5w",
+      "content": "Fixed VideoBar race condition in PlaneView.tsx: The cleanup and else block were unconditionally resetting isContentVideo and videoDuration, which caused race conditions when navigating between slides. The old slide's cleanup would run AFTER the new slide set its state, overwriting it. Fix: Now checks if `activeItemObject === screenRef.current` before resetting global video state - only resets if this slide is still the active one.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "viewer",
+        "video",
+        "bugfix",
+        "race-condition",
+        "planeview"
+      ],
+      "timestamp": "2025-12-08T23:35:17.430Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-08T23:35:17.430Z",
+      "lastVerified": "2025-12-08T23:35:17.430Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765252368043_sy7vz8fub",
+      "content": "Browse Mode Feature Implementation Complete:\n\nFiles created:\n- viewer/core/store/browseModeStore.ts - Zustand store with isActive, controlType, savedCameraState\n- viewer/scene/components/WASDControls.tsx - WASD camera controls (W/S forward/back, A/D strafe, Q/E up/down, R/F yaw)\n\nFiles modified:\n- viewer/core/store/viewModeStore.tsx - Added browseControlType to ViewModeConfig (all views default to 'orbit')\n- viewer/scene/components/SceneCamera.tsx - Tab/Esc handlers, camera save/restore, conditional WASD/orbit controls\n- viewer/scene/scene.tsx - Orange ring-4 ring-inset ring-orange-500 outline when browse mode active\n- viewer/core/components/ContentScene.tsx - Exit browse mode on content click (without restoring camera)\n- viewer/core/config/keyboardShortcuts.ts - Added BROWSE_MODE_SHORTCUTS and GLOBAL_SHORTCUTS exports\n\nKey behaviors:\n- Tab toggles browse mode on/off in any view\n- Esc exits browse mode and restores camera\n- Clicking content exits browse mode and animates to new content (no restore)\n- Orange outline visible when browse mode active\n- Control types: 'orbit' (default), 'wasd', 'static' - configurable per view",
+      "type": "config",
+      "tags": [
+        "config",
+        "browse-mode",
+        "feature",
+        "camera-controls",
+        "viewer",
+        "implementation"
+      ],
+      "timestamp": "2025-12-09T03:52:48.043Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-09T03:52:48.043Z",
+      "lastVerified": "2025-12-09T03:52:48.043Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-08T20:30:08.948Z"
+  "lastUpdated": "2025-12-09T03:52:48.043Z"
 }

@@ -63,12 +63,14 @@ export const VideoBar = () => {
       }, 2000)
     }
 
-    // Cleanup timeout on unmount
+    // Cleanup timeout on unmount - MUST reset isVideoSeeking to prevent frozen video
     return () => {
       if (resumeTimeoutRef.current) {
         clearTimeout(resumeTimeoutRef.current)
         resumeTimeoutRef.current = null
       }
+      // Always reset seeking state on unmount to ensure video can resume
+      useContentStore.setState({ isVideoSeeking: false })
     }
   }, [isHovered])
 

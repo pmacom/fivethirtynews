@@ -12,7 +12,6 @@ import Scene from './scene/scene'
 import TopToolbar from './ui/TopToolbar'
 import CloudControls from './ui/CloudControls'
 import FloatingContentFeedback from './ui/FloatingContentFeedback'
-import NotesChat from './ui/notes/NotesChat'
 import RevealOnMovement from './ui/components/RevealOnMovement'
 import { UI } from './ui/ui'
 import Legend from './ui/legend/legend'
@@ -168,8 +167,6 @@ const Viewer = ({
         <CloudControls />
         {/* Floating Content Feedback - thumbs on hover for suggested content */}
         <FloatingContentFeedback />
-        {/* Notes Chat - shows user notes for active content */}
-        <NotesChat />
         <Chyron />
         {/* Stage Select Overlay and Splash */}
         <StageSelectOverlay />

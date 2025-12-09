@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { BrowseControlType } from './browseModeStore'
 
 export type ViewMode = 'pillar' | 'cloud' | 'stack' | 'carousel'
 
@@ -7,6 +8,7 @@ export interface ViewModeConfig {
   enableOrbitControls: boolean  // Allow mouse/touch orbit rotation
   enableWheelZoom: boolean      // Allow wheel-based zoom toggle
   navigationMode: 'flat' | 'grid'  // flat = linear navigation, grid = 2D column/row
+  browseControlType: BrowseControlType  // Control type when in browse mode
 }
 
 // Configuration for each view mode
@@ -15,21 +17,25 @@ export const VIEW_MODE_CONFIG: Record<ViewMode, ViewModeConfig> = {
     enableOrbitControls: false,  // Pillar manages its own rotation
     enableWheelZoom: false,
     navigationMode: 'grid',
+    browseControlType: 'orbit',
   },
   cloud: {
     enableOrbitControls: false,
     enableWheelZoom: true,
     navigationMode: 'flat',
+    browseControlType: 'orbit',
   },
   stack: {
     enableOrbitControls: false,
     enableWheelZoom: true,
     navigationMode: 'flat',
+    browseControlType: 'orbit',
   },
   carousel: {
     enableOrbitControls: false,
     enableWheelZoom: false,
     navigationMode: 'flat',
+    browseControlType: 'orbit',
   },
 }
 

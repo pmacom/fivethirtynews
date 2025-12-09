@@ -7,13 +7,14 @@ import CopyButton from './components/icons/CopyButton';
 import EditButton from './components/icons/EditButton';
 import EditTagsButton from './components/icons/EditTagsButton';
 import NotesButton from './components/icons/NotesButton';
-import { ActionButtonGroup } from './components/ActionButtonGroup';
 import { DetailNotes } from './components/DetailNotes';
+import { InlineNotesPanel } from './components/InlineNotesPanel';
 import VideoBar from './components/VideoBar';
 import { SubmitterInfo } from './components/SubmitterInfo';
 import useSettingStore from '../settings/store';
 import { useMobileLayout } from '../hooks/useMobileLayout';
 import { MobileDetails } from '../mobile/MobileDetails';
+import { useNotesStore } from '../notes/notesStore';
 
 
 export const Details = () => {
@@ -21,12 +22,27 @@ export const Details = () => {
   const activeItemData = useContentStore(state => state.activeItemData)
   const hoveredItemData = useContentStore(state => state.hoveredItemData)
   const [opacity, setOpacity] = useState(1)
+  const [notesPanelOpen, setNotesPanelOpen] = useState(false)
   const showSettings = useSettingStore(state => state.showSettings)
-  const videoSeekTime = useContentStore(state => state.videoSeekTime)
   const isContentVideo = useContentStore(state => state.isContentVideo)
+  const videoDuration = useContentStore(state => state.videoDuration)
+  const { notes, fetchNotes, clearNotes } = useNotesStore()
 
   // Show hovered item if present, otherwise show active item
   const itemData = hoveredItemData || activeItemData
+  const hasNotes = notes.length > 0
+
+  // Fetch notes when content changes, close panel on content change
+  useEffect(() => {
+    const currentContentId = itemData?.content?.id || itemData?.content?.content_id
+    if (currentContentId) {
+      fetchNotes(currentContentId)
+    } else {
+      clearNotes()
+    }
+    // Close notes panel when content changes
+    setNotesPanelOpen(false)
+  }, [itemData?.content?.id, itemData?.content?.content_id, fetchNotes, clearNotes])
 
   // Mouse movement effect for desktop fade - must be before any conditional returns
   useEffect(() => {
@@ -57,25 +73,28 @@ export const Details = () => {
 
   const classes = cn({
     'fivethirty-details': true,
-    'fixed bottom-0 left-0 w-screen bg-black/50 text-white': true,
+    'fixed bottom-0 left-0 w-screen text-white': true,
     'transition-all duration-500': true,
-    'p-0 pl-0 pr-0': !itemData,
-    'p-2 pl-4 pr-4 pb-[3.5rem]': !!itemData,
-    'flex flex-col items-center': true,
+    'p-0': !itemData,
+    'px-4 pb-[3.5rem]': !!itemData,
+    'flex flex-col': true,
     'hidden': showSettings,
-    'backdrop-blur-md': true,
   })
 
   const detailClasses = cn({
-    'wtf-details-info' : true,
-    'flex flex-row w-full items-center gap-2' : true,
-    'bg-black bg-opacity-40' : true,
-    'rounded-lg p-2': true,
+    'wtf-details-info': true,
+    'flex flex-row w-full items-center gap-3': true,
+    'bg-black/60 backdrop-blur-md': true,
+    'rounded-lg p-3': true,
   })
 
-  // Check if content is video type directly (more reliable than state)
+  // Check if content has video - use multiple signals for reliability
+  // 1. content_type is 'video' (YouTube)
+  // 2. isContentVideo flag is set (video texture loaded)
+  // 3. videoDuration > 0 (video is playing with known duration)
   const hasVideo = itemData?.content?.content_type === 'video' ||
-                   (itemData?.content?.content_type === 'twitter' && isContentVideo)
+                   isContentVideo ||
+                   videoDuration > 0
 
   // Content data for edit buttons
   const contentId = itemData?.content.id || itemData?.content.content_id || itemData?.id || ''
@@ -90,12 +109,17 @@ export const Details = () => {
 
   return (
     <div className={wrapperClasses}>
-      {/* Video progress bar - always visible when video is active */}
-      {itemData && hasVideo && (
-        <div className="fixed bottom-0 left-0 w-screen z-[103] px-4 pb-2 bg-gradient-to-t from-black/60 to-transparent">
-          <VideoBar />
-        </div>
-      )}
+      {/* Video progress bar - CSS opacity for smooth transitions */}
+      <div
+        className={cn(
+          "fixed bottom-0 left-0 w-screen z-[103] px-4 pb-2",
+          "bg-gradient-to-t from-black/60 to-transparent",
+          "transition-opacity duration-500",
+          hasVideo && itemData ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+      >
+        <VideoBar />
+      </div>
 
       <AnimatePresence>
         {itemData ? (
@@ -107,41 +131,52 @@ export const Details = () => {
             transition={{ duration: 1 }}
           >
             <div className={classes}>
-              {/* Button groups ABOVE the dark bar */}
-              <div className="w-full flex justify-between items-end px-2 pb-2">
-                {/* Left buttons: Copy, Source */}
-                <ActionButtonGroup position="left">
-                  <CopyButton url={itemData.content.content_url} />
+              {/* Main bar with all content */}
+              <div className={detailClasses}>
+                {/* Column 1: Left icons (vertical, space between) */}
+                <div className="flex flex-col justify-between shrink-0 self-stretch py-1">
                   <SourceIcon
                     type={itemData.content.content_type}
                     url={itemData.content.content_url}
                   />
-                </ActionButtonGroup>
+                  <CopyButton url={itemData.content.content_url} />
+                </div>
 
-                {/* Right buttons: Edit Cat, Edit Tags, Notes */}
-                <ActionButtonGroup position="right">
-                  {contentData && (
-                    <>
-                      <EditButton contentId={contentId} contentData={contentData} />
-                      <EditTagsButton contentId={contentId} contentData={contentData} />
-                      <NotesButton contentId={contentId} contentData={contentData} />
-                    </>
-                  )}
-                </ActionButtonGroup>
-              </div>
-
-              {/* Dark bar with content info */}
-              <div className={detailClasses}>
-                {/* Main content info (author + text) */}
+                {/* Column 2+3: Author info + Content text (grows) */}
                 <DetailNotes data={itemData} />
 
-                {/* Submitter info on the right */}
-                <SubmitterInfo
-                  submittedBy={itemData.content.submitted_by}
-                  submittedAt={itemData.content.submitted_at}
-                  authorUsername={itemData.content.author_username}
-                />
+                {/* Column 4: Right section (vertical - buttons top, submitter bottom) */}
+                <div className="flex flex-col items-end justify-between shrink-0 self-stretch">
+                  {/* Edit buttons row */}
+                  {contentData && (
+                    <div className="flex items-center gap-1">
+                      <EditButton contentId={contentId} contentData={contentData} />
+                      <EditTagsButton contentId={contentId} contentData={contentData} />
+                      <NotesButton
+                        onToggle={() => setNotesPanelOpen(!notesPanelOpen)}
+                        hasNotes={hasNotes}
+                      />
+                    </div>
+                  )}
+
+                  {/* Submitter info */}
+                  <SubmitterInfo
+                    submittedBy={itemData.content.submitted_by}
+                    submittedAt={itemData.content.submitted_at}
+                    authorUsername={itemData.content.author_username}
+                  />
+                </div>
               </div>
+
+              {/* Inline Notes Panel (fixed position, outside bar) */}
+              <AnimatePresence>
+                {notesPanelOpen && contentId && (
+                  <InlineNotesPanel
+                    contentId={contentId}
+                    onClose={() => setNotesPanelOpen(false)}
+                  />
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         ) : (

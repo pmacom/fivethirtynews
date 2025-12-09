@@ -15,6 +15,7 @@ export interface ActionButtonProps {
 /**
  * ActionButton - Reusable icon button for overlay actions
  * Used for Copy, Source, Edit, Notes, etc.
+ * Label shows as tooltip on hover
  */
 export function ActionButton({
   icon,
@@ -28,16 +29,14 @@ export function ActionButton({
     <button
       onClick={onClick}
       disabled={disabled}
+      title={label}
       className={cn(
-        'inline-flex flex-col items-center justify-center cursor-pointer transition-all',
-        'opacity-60 hover:opacity-100',
+        'group relative inline-flex items-center justify-center cursor-pointer transition-all',
+        'opacity-70 hover:opacity-100',
         disabled && 'opacity-30 cursor-not-allowed',
         className
       )}
     >
-      <span className="text-[10px] pb-1 uppercase tracking-wide text-white/80">
-        {label}
-      </span>
       <span
         className={cn(
           'border-2 rounded-full p-1.5 w-9 h-9 flex items-center justify-center transition-colors',

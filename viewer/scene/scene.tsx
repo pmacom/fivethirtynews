@@ -7,6 +7,7 @@ import { SceneCamera } from './components/SceneCamera'
 import { PerspectiveCamera, ScreenSpace } from '@react-three/drei'
 import SceneListeners from './components/SceneListeners'
 import useSettingStore from '../ui/settings/store'
+import { useBrowseModeStore } from '../core/store/browseModeStore'
 import { Leva } from 'leva'
 import SceneEffects from './components/SceneEffects'
 import { TunnelThing } from './components/TunnelThing'
@@ -18,9 +19,10 @@ interface SceneProps {
 
 function Scene({ children }: SceneProps) {
   const showLeva = useSettingStore(state => state.showLeva)
+  const isBrowseMode = useBrowseModeStore(state => state.isActive)
 
   return (
-    <div className="w-screen h-screen bg-slate-900">
+    <div className={`w-screen h-screen bg-slate-900 ${isBrowseMode ? 'ring-4 ring-inset ring-orange-500' : ''}`}>
       <Canvas gl={{ localClippingEnabled: true }}>
         <PerspectiveCamera position={[0, 0, 0]} />
 

@@ -213,7 +213,8 @@ export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick, is
       willSetIsContentVideo: !!(lingeringActive && videoUrl)
     });
 
-    if(!videoUrl) useContentStore.setState({ isContentVideo: false })
+    // Note: Don't set isContentVideo: false here unconditionally -
+    // the cleanup handles resetting state when appropriate
     if (lingeringActive && videoUrl) {
       // Check if video is preloaded
       const preloadedVideo = itemId ? videoPreloadManager.getVideoForItem(itemId) : null;
@@ -370,14 +371,23 @@ export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick, is
         setVideoRef(null); // Clear the video ref
         setIsVideoLoading(false); // Reset loading state
         setVideoLoadingProgress(0); // Reset progress
-        useContentStore.setState({ videoDuration: 0 }); // Reset duration
-        useContentStore.setState({ isContentVideo: false }); // Reset video flag
+
+        // Only reset global video state if this slide is still the active one
+        // This prevents race conditions where old slide cleanup overwrites new slide's state
+        const currentActiveObject = useContentStore.getState().activeItemObject;
+        if (currentActiveObject === screenRef.current) {
+          useContentStore.setState({ videoDuration: 0, isContentVideo: false });
+        }
         // Note: Don't dispose video element - VideoPreloadManager handles that
       }
     } else {
       setBlendFactor(0) // Reset blend factor
       setVideoTexture(null) // Reset video texture
-      useContentStore.setState({ videoDuration: 0 }); // Reset duration when not active
+      // Only reset global video state if this slide is still the active one
+      const currentActiveObject = useContentStore.getState().activeItemObject;
+      if (currentActiveObject === screenRef.current) {
+        useContentStore.setState({ videoDuration: 0, isContentVideo: false });
+      }
     }
   }, [lingeringActive, videoUrl, itemId]);
 

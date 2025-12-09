@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { IoLayersOutline } from 'react-icons/io5'
 import { CiSettings } from 'react-icons/ci'
-import { LayoutGrid, Edit, Columns3, Cloud, Layers, GalleryHorizontal, ArrowLeft, ArrowRight, ChevronLeft, Search } from 'lucide-react'
+import { LayoutGrid, Edit, Columns3, Cloud, Layers, GalleryHorizontal, ArrowLeft, ArrowRight, ChevronLeft, Search, HelpCircle } from 'lucide-react'
 import { useStageSelectStore } from './stageselect/store'
 import useSettingStore from './settings/store'
 import { useViewModeStore, VIEW_MODE_OPTIONS, ViewMode } from '../core/store/viewModeStore'
@@ -66,6 +66,7 @@ export const TopToolbar = ({
 }: TopToolbarProps) => {
   const router = useRouter()
   const [viewModeOpen, setViewModeOpen] = useState(false)
+  const [showShortcuts, setShowShortcuts] = useState(false)
   const { isMobile } = useMobileLayout()
 
   // Store states
@@ -309,10 +310,22 @@ export const TopToolbar = ({
         >
           <CiSettings className="w-5 h-5" />
         </ToolbarButton>
-      </div>
 
-      {/* Keyboard Shortcuts - desktop only */}
-      <KeyboardShortcutsPopup />
+        {/* Keyboard Shortcuts Help Button */}
+        <div
+          className="relative"
+          onMouseEnter={() => setShowShortcuts(true)}
+          onMouseLeave={() => setShowShortcuts(false)}
+        >
+          <div
+            className="wtf--ui--container rounded cursor-pointer transition-all duration-200 hover:scale-110"
+            title="Keyboard Shortcuts"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </div>
+          <KeyboardShortcutsPopup visible={showShortcuts} />
+        </div>
+      </div>
     </div>
   )
 }
