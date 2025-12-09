@@ -11,6 +11,7 @@ import { WASDControls } from './WASDControls'
 
 export const SceneCamera = () => {
   const camRef = useRef<CameraControls | null>(null)
+  const prevViewModeRef = useRef<string | null>(null)
   const { camera } = useThree()
   const freelook = useSettingStore(state => state.isFreeLook)
   const viewMode = useViewModeStore(state => state.viewMode)
@@ -64,6 +65,21 @@ export const SceneCamera = () => {
       true // smooth transition
     )
   }, [savedCameraState])
+
+  // Auto-enter browse mode when switching to cloud view
+  useEffect(() => {
+    // Skip on initial mount (prevViewModeRef is null)
+    if (prevViewModeRef.current !== null && viewMode === 'cloud' && prevViewModeRef.current !== 'cloud') {
+      const { isActive, enterBrowseMode } = useBrowseModeStore.getState()
+      if (!isActive) {
+        const cameraState = saveCameraState()
+        if (cameraState) {
+          enterBrowseMode(VIEW_MODE_CONFIG.cloud.browseControlType, cameraState)
+        }
+      }
+    }
+    prevViewModeRef.current = viewMode
+  }, [viewMode, saveCameraState])
 
   // Handle Tab key to toggle browse mode
   useEffect(() => {

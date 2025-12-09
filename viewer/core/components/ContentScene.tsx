@@ -144,9 +144,28 @@ export function ContentScene({
   }, [])
 
   // Handle click - select item (camera focus handled by useLayoutAnimation onRest)
-  const handleClick = useCallback((item: FlattenedItem) => {
-    // Exit browse mode if active (don't restore camera - animate to new content instead)
-    if (useBrowseModeStore.getState().isActive) {
+  const handleClick = useCallback(async (item: FlattenedItem) => {
+    const browseState = useBrowseModeStore.getState()
+
+    // If in browse mode with grid navigation (pillar), restore camera first
+    // This prevents fitToBox from calculating from corrupted browse position
+    if (browseState.isActive && positioner.navigationMode === 'grid') {
+      const { savedCameraState } = browseState
+      const camera = useSceneStore.getState().camera
+
+      if (savedCameraState && camera) {
+        const { position, target } = savedCameraState
+        // Restore camera to saved position before pillar rotation begins
+        await camera.setLookAt(
+          position[0], position[1], position[2],
+          target[0], target[1], target[2],
+          true // smooth transition
+        )
+      }
+    }
+
+    // Exit browse mode if active
+    if (browseState.isActive) {
       useBrowseModeStore.setState({ isActive: false })
     }
 
@@ -160,7 +179,7 @@ export function ContentScene({
     })
     // Note: focusOnContent is called by useLayoutAnimation.onAnimationComplete
     // to avoid duplicate calls that cause camera jumping
-  }, [])
+  }, [positioner.navigationMode])
 
   // Compute item transforms
   const itemTransforms = useMemo(() =>
