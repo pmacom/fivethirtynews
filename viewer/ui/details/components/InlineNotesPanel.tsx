@@ -5,12 +5,14 @@ import { motion } from 'framer-motion'
 import { X, Send, Loader2 } from 'lucide-react'
 import { useCurrentUser } from '../../../hooks/useCurrentUser'
 import { useNotesStore, Note } from '../../notes/notesStore'
+import { useUIStore } from '../../store'
 
 const MAX_NOTE_LENGTH = 280
 
 interface InlineNotesPanelProps {
   contentId: string
   onClose: () => void
+  onInputFocusChange?: (isFocused: boolean) => void
 }
 
 /**
@@ -80,9 +82,10 @@ function ChatMessage({ note }: { note: Note }) {
   )
 }
 
-export function InlineNotesPanel({ contentId, onClose }: InlineNotesPanelProps) {
+export function InlineNotesPanel({ contentId, onClose, onInputFocusChange }: InlineNotesPanelProps) {
   const { canEdit } = useCurrentUser()
   const { notes, loading, fetchNotes } = useNotesStore()
+  const setPreventFade = useUIStore(state => state.setPreventFade)
   const [noteText, setNoteText] = useState('')
   const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -203,6 +206,14 @@ export function InlineNotesPanel({ contentId, onClose }: InlineNotesPanelProps) 
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
                 onKeyDown={handleKeyDown}
+                onFocus={() => {
+                  onInputFocusChange?.(true)
+                  setPreventFade(true)  // Block global UI fade while typing
+                }}
+                onBlur={() => {
+                  onInputFocusChange?.(false)
+                  setPreventFade(false)  // Resume normal fade behavior
+                }}
                 placeholder="Add a note..."
                 rows={1}
                 disabled={sending}

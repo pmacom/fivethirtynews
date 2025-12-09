@@ -152,6 +152,9 @@ type MenuState = 'initial' | 'menu' | 'transitioning'
 
 interface MenuItem {
   label: string
+  icon: string
+  description: string
+  color: string
   action: () => void
 }
 
@@ -167,17 +170,46 @@ export const SplashScreen = () => {
   const menuItems: MenuItem[] = useMemo(() => {
     const items: MenuItem[] = [
       {
-        label: 'THIS WEEK',
+        label: 'RECENT',
+        icon: '📡',
+        description: 'LATEST CONTENT',
+        color: 'text-cyan-400',
         action: () => {
           setMenuState('transitioning')
           setTimeout(() => {
-            // Navigate to the /recent route for independent recent content view
             router.push('/recent')
           }, 800)
         }
       },
       {
+        label: 'SHOWS',
+        icon: '📺',
+        description: 'BROADCAST SCHEDULE',
+        color: 'text-purple-400',
+        action: () => {
+          setMenuState('transitioning')
+          setTimeout(() => {
+            router.push('/shows')
+          }, 800)
+        }
+      },
+      {
+        label: 'CHARACTERS',
+        icon: '👥',
+        description: 'CAST & CREW',
+        color: 'text-emerald-400',
+        action: () => {
+          setMenuState('transitioning')
+          setTimeout(() => {
+            router.push('/browse/characters')
+          }, 800)
+        }
+      },
+      {
         label: 'STAGE SELECT',
+        icon: '🎮',
+        description: 'CHOOSE YOUR ZONE',
+        color: 'text-yellow-400',
         action: () => {
           setMenuState('transitioning')
           setTimeout(() => {
@@ -190,6 +222,9 @@ export const SplashScreen = () => {
       },
       {
         label: 'OPTIONS',
+        icon: '⚙️',
+        description: 'SETTINGS & CONFIG',
+        color: 'text-gray-400',
         action: () => {
           // TODO: Open settings
           console.log('OPTIONS selected')
@@ -197,23 +232,13 @@ export const SplashScreen = () => {
       }
     ]
 
-    // Add MODERATE option for moderators and admins (hierarchical)
-    if (user?.is_moderator) {
+    // Add BACKSTAGE option for moderators and admins (consolidated)
+    if (user?.is_moderator || user?.is_admin) {
       items.push({
-        label: 'MODERATE',
-        action: () => {
-          setMenuState('transitioning')
-          setTimeout(() => {
-            router.push('/moderate')
-          }, 800)
-        }
-      })
-    }
-
-    // Add ADMIN option for admins only
-    if (user?.is_admin) {
-      items.push({
-        label: 'ADMIN',
+        label: 'BACKSTAGE',
+        icon: '🎬',
+        description: 'ADMIN & MODERATION',
+        color: 'text-red-400',
         action: () => {
           setMenuState('transitioning')
           setTimeout(() => {
@@ -226,6 +251,9 @@ export const SplashScreen = () => {
     // Credits always last
     items.push({
       label: 'CREDITS',
+      icon: '🏆',
+      description: 'THE TEAM',
+      color: 'text-amber-400',
       action: () => {
         // TODO: Show credits screen
         console.log('CREDITS selected')
@@ -255,12 +283,19 @@ export const SplashScreen = () => {
         }
       }
 
-      // Menu navigation
+      // Menu navigation (grid layout: 2 columns)
       if (menuState === 'menu') {
+        const cols = 2 // Grid columns
         if (e.key === 'ArrowUp') {
           e.preventDefault()
-          setSelectedIndex((prev) => (prev - 1 + menuItems.length) % menuItems.length)
+          setSelectedIndex((prev) => (prev - cols + menuItems.length) % menuItems.length)
         } else if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          setSelectedIndex((prev) => (prev + cols) % menuItems.length)
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault()
+          setSelectedIndex((prev) => (prev - 1 + menuItems.length) % menuItems.length)
+        } else if (e.key === 'ArrowRight') {
           e.preventDefault()
           setSelectedIndex((prev) => (prev + 1) % menuItems.length)
         } else if (e.key === 'Enter' || e.key === ' ') {
@@ -413,64 +448,168 @@ export const SplashScreen = () => {
             </>
           )}
 
-          {/* Menu State - Main Menu */}
+          {/* Menu State - Main Menu (Stage Select Style) */}
           {menuState === 'menu' && (
-            <div className="flex flex-col gap-6 min-w-[400px]">
-              {menuItems.map((item, index) => (
-                <button
-                  key={item.label}
-                  onClick={item.action}
-                  onMouseEnter={() => setSelectedIndex(index)}
-                  className={`
-                    relative group text-center py-4 px-8
-                    text-2xl md:text-3xl font-bold tracking-widest uppercase
-                    transition-all duration-200
-                    ${selectedIndex === index
-                      ? 'scale-110 text-arcade-yellow drop-shadow-[0_0_15px_rgba(255,215,0,1)]'
-                      : 'text-white/70 hover:text-white/90'
-                    }
-                  `}
-                >
-                  {/* Selection Indicator */}
-                  {selectedIndex === index && (
-                    <>
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 text-arcade-yellow animate-pulse">
-                        ▶
-                      </div>
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 text-arcade-yellow animate-pulse">
-                        ◀
-                      </div>
-                      {/* Glow effect */}
-                      <div className="absolute inset-0 bg-arcade-yellow/20 blur-xl" />
-                    </>
-                  )}
+            <div className="fixed inset-0 z-20 flex flex-col pointer-events-auto">
+              {/* Background Effects */}
+              <div className="absolute inset-0 grid-bg opacity-30" />
 
-                  {/* Text with border effect */}
-                  <span className="relative" style={{
-                    textShadow: selectedIndex === index
-                      ? '2px 2px 0 rgba(184,134,11,0.5), -2px -2px 0 rgba(184,134,11,0.5)'
-                      : 'none'
-                  }}>
-                    {item.label}
-                  </span>
-                </button>
-              ))}
+              {/* Header */}
+              <header className="flex justify-between items-start p-4 md:p-8 shrink-0">
+                <div className="space-y-1">
+                  <h2 className="text-arcade-cyan text-sm md:text-base tracking-[0.5em] animate-pulse font-orbitron">
+                    INSERT COIN
+                  </h2>
+                  <h1 className="text-3xl md:text-6xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)] font-orbitron">
+                    MAIN MENU
+                  </h1>
+                </div>
+                <div className="hidden md:block text-right font-share-tech text-arcade-yellow">
+                  <div className="text-xl md:text-2xl">CREDITS: 02</div>
+                  <div className="text-sm opacity-70">ID: 530-SOC</div>
+                </div>
+              </header>
 
-              {/* Instructions */}
-              <div className="text-center mt-8 space-y-1">
-                <p className="text-white/40 font-share-tech text-xs tracking-[0.3em] uppercase">
-                  ↑↓ Navigate • Enter Select • Esc Back
-                </p>
+              {/* Main Content Area */}
+              <div className="flex-1 flex flex-col md:flex-row gap-4 md:gap-8 px-4 md:px-8 pb-4 min-h-0 overflow-hidden">
+                {/* Left: Menu Grid */}
+                <div className="w-full md:w-1/2 lg:w-2/5 flex flex-col min-h-0">
+                  <div className="grid grid-cols-2 gap-3 md:gap-4 overflow-y-auto pr-2 content-start">
+                    {menuItems.map((item, index) => {
+                      const isSelected = selectedIndex === index
+                      return (
+                        <button
+                          key={item.label}
+                          onClick={item.action}
+                          onMouseEnter={() => setSelectedIndex(index)}
+                          className={`
+                            relative group aspect-[4/3] w-full border-2 transform transition-all duration-100 skew-x-[-10deg]
+                            ${isSelected
+                              ? 'border-arcade-yellow bg-arcade-yellow/10 scale-105 z-10'
+                              : 'border-white/20 bg-black/50 hover:border-white/50'
+                            }
+                          `}
+                          style={{
+                            boxShadow: isSelected ? '0 0 20px rgba(255, 215, 0, 0.4)' : 'none'
+                          }}
+                        >
+                          <div className="absolute inset-0 flex items-center justify-center skew-x-[10deg]">
+                            <span className={`
+                              text-3xl md:text-4xl lg:text-5xl transition-all duration-300
+                              ${isSelected ? 'scale-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]' : 'opacity-50 grayscale'}
+                            `}>
+                              {item.icon}
+                            </span>
+                          </div>
+
+                          {/* Corner accents */}
+                          <div className="absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 border-current opacity-50" />
+                          <div className="absolute bottom-1 right-1 w-2 h-2 border-b-2 border-r-2 border-current opacity-50" />
+
+                          {/* Selection label */}
+                          {isSelected && (
+                            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-arcade-yellow text-black text-xs font-bold px-2 py-0.5 skew-x-[10deg] whitespace-nowrap font-orbitron z-10">
+                              P1
+                            </div>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Right: Preview Card */}
+                <div className="w-full md:w-1/2 lg:w-3/5 h-48 md:h-full relative">
+                  <div className="w-full h-full border-4 border-white/20 bg-black/80 relative overflow-hidden">
+                    {/* Preview Background */}
+                    <div className="absolute inset-0 bg-gray-900">
+                      <div className={`
+                        w-full h-full opacity-50 bg-gradient-to-br transition-all duration-500
+                        ${menuItems[selectedIndex]?.color.replace('text-', 'from-')} to-black
+                      `} />
+                      <div className="absolute inset-0 grid-bg opacity-20" />
+                    </div>
+
+                    {/* Gradient overlay at bottom */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
+
+                    {/* Level Info Overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-20 space-y-3 md:space-y-4">
+                      <div className="flex items-end justify-between border-b-2 border-white/20 pb-3 md:pb-4">
+                        <div>
+                          <h2 className={`
+                            text-3xl md:text-5xl lg:text-6xl font-black uppercase italic tracking-tighter font-orbitron
+                            ${menuItems[selectedIndex]?.color}
+                          `}
+                          style={{ textShadow: '0 0 30px currentColor' }}
+                          >
+                            {menuItems[selectedIndex]?.label}
+                          </h2>
+                          <p className="text-white/70 font-share-tech text-sm md:text-lg tracking-widest">
+                            {menuItems[selectedIndex]?.description}
+                          </p>
+                        </div>
+                        <div className="text-4xl md:text-6xl opacity-20 font-black font-orbitron hidden sm:block">
+                          0{selectedIndex + 1}
+                        </div>
+                      </div>
+
+                      {/* Stats Grid */}
+                      <div className="grid grid-cols-3 gap-2 md:gap-4 font-share-tech text-xs md:text-sm">
+                        <div>
+                          <div className="text-white/40 uppercase text-[10px] md:text-xs">Type</div>
+                          <div className="flex gap-1 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <div key={i} className={`
+                                h-1.5 md:h-2 flex-1 skew-x-[-20deg]
+                                ${i < 3 ? 'bg-arcade-yellow' : 'bg-white/10'}
+                              `} />
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-white/40 uppercase text-[10px] md:text-xs">Content</div>
+                          <div className="flex gap-1 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <div key={i} className={`
+                                h-1.5 md:h-2 flex-1 skew-x-[-20deg]
+                                ${i < 4 ? 'bg-arcade-cyan' : 'bg-white/10'}
+                              `} />
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-white/40 uppercase text-[10px] md:text-xs">Access</div>
+                          <div className="text-arcade-red font-bold tracking-widest text-sm md:text-base">
+                            ALL
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Decorative Elements */}
+                    <div className="absolute top-4 right-4 flex flex-col gap-1 items-end">
+                      <div className="w-12 md:w-16 h-1 bg-white/50" />
+                      <div className="w-6 md:w-8 h-1 bg-white/30" />
+                      <div className="w-3 md:w-4 h-1 bg-white/10" />
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              {/* Footer */}
+              <footer className="shrink-0 p-4 md:p-8 text-center space-y-2">
+                <div className="inline-block bg-arcade-red/20 border border-arcade-red/50 px-6 md:px-8 py-2 skew-x-[-20deg]">
+                  <p className="text-arcade-red font-bold animate-pulse skew-x-[20deg] tracking-widest font-orbitron text-sm md:text-base">
+                    PRESS START TO SELECT
+                  </p>
+                </div>
+                <p className="text-white/40 font-share-tech text-[10px] md:text-xs tracking-[0.2em] md:tracking-[0.3em] uppercase">
+                  ←→↑↓ Navigate • Enter Select • Esc Back
+                </p>
+              </footer>
             </div>
           )}
-        </div>
-
-        {/* Footer */}
-        <div className="w-full text-center">
-          <p className="text-white/30 font-share-tech text-xs tracking-widest uppercase">
-            © 2025 530 Society • All Rights Reserved • Capcom / Sega Tribute
-          </p>
         </div>
       </div>
 

@@ -35,7 +35,12 @@ const UIListener = ({ children }:UIListenerProps) => {
     const handleMouseMove = () => {
       useUIStore.setState({ isHovered: true })
       clearTimeout(timer)
-      timer = setTimeout(() => useUIStore.setState({ isHovered: false }), 2000)
+      timer = setTimeout(() => {
+        // Only fade if preventFade is not set (e.g., input not focused)
+        if (!useUIStore.getState().preventFade) {
+          useUIStore.setState({ isHovered: false })
+        }
+      }, 2000)
     }
 
     window.addEventListener('mousemove', handleMouseMove)

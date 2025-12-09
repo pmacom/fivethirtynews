@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useContentStore } from '../../core/store/contentStore'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,6 +23,7 @@ export const Details = () => {
   const hoveredItemData = useContentStore(state => state.hoveredItemData)
   const [opacity, setOpacity] = useState(1)
   const [notesPanelOpen, setNotesPanelOpen] = useState(false)
+  const [isNoteInputFocused, setIsNoteInputFocused] = useState(false)
   const showSettings = useSettingStore(state => state.showSettings)
   const isContentVideo = useContentStore(state => state.isContentVideo)
   const videoDuration = useContentStore(state => state.videoDuration)
@@ -44,23 +45,48 @@ export const Details = () => {
     setNotesPanelOpen(false)
   }, [itemData?.content?.id, itemData?.content?.content_id, fetchNotes, clearNotes])
 
+  // Use ref for timer so we can clear it from multiple effects
+  const fadeTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Clear fade timer and keep UI visible when note input is focused
+  useEffect(() => {
+    if (isNoteInputFocused) {
+      // Clear any pending fade timer
+      if (fadeTimerRef.current) {
+        clearTimeout(fadeTimerRef.current)
+        fadeTimerRef.current = null
+      }
+      // Ensure UI is visible while typing
+      setOpacity(1)
+    }
+  }, [isNoteInputFocused])
+
   // Mouse movement effect for desktop fade - must be before any conditional returns
+  // Skip fade when note input is focused so user can type without UI disappearing
   useEffect(() => {
     if (isMobile) return // Skip on mobile
 
-    let timer: NodeJS.Timeout
     const handleMouseMove = () => {
       setOpacity(1)
-      clearTimeout(timer)
-      timer = setTimeout(() => setOpacity(0), 2000)
+      // Clear any existing timer
+      if (fadeTimerRef.current) {
+        clearTimeout(fadeTimerRef.current)
+        fadeTimerRef.current = null
+      }
+      // Don't start fade timer while note input is focused
+      if (!isNoteInputFocused) {
+        fadeTimerRef.current = setTimeout(() => setOpacity(0), 2000)
+      }
     }
 
     window.addEventListener('mousemove', handleMouseMove)
     return () => {
-      clearTimeout(timer)
+      if (fadeTimerRef.current) {
+        clearTimeout(fadeTimerRef.current)
+      }
       window.removeEventListener('mousemove', handleMouseMove)
     }
-  }, [isMobile])
+  }, [isMobile, isNoteInputFocused])
 
   // Use mobile version on small screens
   if (isMobile) {
@@ -174,6 +200,7 @@ export const Details = () => {
                   <InlineNotesPanel
                     contentId={contentId}
                     onClose={() => setNotesPanelOpen(false)}
+                    onInputFocusChange={setIsNoteInputFocused}
                   />
                 )}
               </AnimatePresence>

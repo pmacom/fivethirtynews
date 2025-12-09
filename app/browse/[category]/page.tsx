@@ -40,6 +40,7 @@ const groupNames: Record<string, string> = {
   medicine: 'Medicine & Biotech',
   misc: 'Miscellaneous',
   'off-topic': 'Off Topic',
+  characters: 'Characters',
 };
 
 export default function BrowseCategoryPage() {
