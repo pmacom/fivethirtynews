@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type BrowseControlType = 'orbit' | 'wasd' | 'static'
+export type BrowseControlType = 'orbit' | 'wasd' | 'static' | 'pillar-camera'
 
 interface SavedCameraState {
   position: [number, number, number]
@@ -8,17 +8,28 @@ interface SavedCameraState {
   zoom: number
 }
 
+interface PillarCameraState {
+  angle: number      // Radians, camera's orbital position around pillar
+  height: number     // Y position (camera height)
+  radius: number     // Distance from pillar center
+  minHeight: number  // Bottom of pillar (typically 0 or slightly below)
+  maxHeight: number  // Top of pillar (max items - 1)
+}
+
 interface BrowseModeState {
   // State
   isActive: boolean
   controlType: BrowseControlType
   savedCameraState: SavedCameraState | null
+  pillarCameraState: PillarCameraState | null
 
   // Actions
   enterBrowseMode: (controlType: BrowseControlType, cameraState: SavedCameraState) => void
   exitBrowseMode: (restoreCamera: boolean) => void
   toggleBrowseMode: () => void
   setControlType: (type: BrowseControlType) => void
+  setPillarCameraState: (state: PillarCameraState) => void
+  initPillarBrowse: (radius: number, angle: number, height: number, minHeight: number, maxHeight: number) => void
 }
 
 export const useBrowseModeStore = create<BrowseModeState>()((set, get) => ({
@@ -26,6 +37,7 @@ export const useBrowseModeStore = create<BrowseModeState>()((set, get) => ({
   isActive: false,
   controlType: 'orbit',
   savedCameraState: null,
+  pillarCameraState: null,
 
   // Enter browse mode - saves current camera state
   enterBrowseMode: (controlType, cameraState) => {
@@ -66,6 +78,18 @@ export const useBrowseModeStore = create<BrowseModeState>()((set, get) => ({
   // Change control type while in browse mode
   setControlType: (type) => {
     set({ controlType: type })
+  },
+
+  // Update pillar camera state (for drag interactions)
+  setPillarCameraState: (state) => {
+    set({ pillarCameraState: state })
+  },
+
+  // Initialize pillar browse mode with camera orbit parameters
+  initPillarBrowse: (radius, angle, height, minHeight, maxHeight) => {
+    set({
+      pillarCameraState: { radius, angle, height, minHeight, maxHeight }
+    })
   },
 }))
 

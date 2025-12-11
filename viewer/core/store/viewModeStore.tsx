@@ -17,7 +17,7 @@ export const VIEW_MODE_CONFIG: Record<ViewMode, ViewModeConfig> = {
     enableOrbitControls: false,  // Pillar manages its own rotation
     enableWheelZoom: false,
     navigationMode: 'grid',
-    browseControlType: 'orbit',
+    browseControlType: 'pillar-camera',  // Custom camera orbit around pillar
   },
   cloud: {
     enableOrbitControls: false,

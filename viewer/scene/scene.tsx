@@ -12,6 +12,7 @@ import { Leva } from 'leva'
 import SceneEffects from './components/SceneEffects'
 import { TunnelThing } from './components/TunnelThing'
 import { BackgroundScene } from '@/viewer/models/BackgroundScene'
+import { BrowseModeOverlay } from '../ui/browse/BrowseModeOverlay'
 
 interface SceneProps {
   children: React.ReactNode
@@ -37,6 +38,7 @@ function Scene({ children }: SceneProps) {
         {children}
       </Canvas>
       {showLeva && <Leva flat collapsed />}
+      <BrowseModeOverlay />
     </div>
   )
 }

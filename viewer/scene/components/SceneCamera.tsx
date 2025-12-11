@@ -27,9 +27,11 @@ export const SceneCamera = () => {
   const enableOrbit = freelook && viewConfig.enableOrbitControls
 
   // In browse mode with orbit controls, enable full orbit
+  // Note: 'pillar-camera' mode uses custom camera control, not orbit controls
   const enableBrowseOrbit = isBrowseMode && browseControlType === 'orbit'
 
   // Determine if orbit controls should be active
+  // pillar-camera mode deliberately keeps orbit controls disabled
   const orbitEnabled = enableOrbit || enableBrowseOrbit
 
   useEffect(() => {

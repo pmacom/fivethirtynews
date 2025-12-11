@@ -623,8 +623,8 @@
       ],
       "timestamp": "2025-12-01T16:35:36.635Z",
       "context": "fivethirty project - completed Shows feature for 530News platform",
-      "accessCount": 5,
-      "lastAccessed": "2025-12-07T08:26:57.381Z",
+      "accessCount": 6,
+      "lastAccessed": "2025-12-11T21:04:06.444Z",
       "lastVerified": "2025-12-01T16:35:36.635Z",
       "status": "fresh"
     },
@@ -932,8 +932,8 @@
       ],
       "timestamp": "2025-11-29T19:43:10.498Z",
       "context": "User exploration of Chrome extension component architecture before implementation",
-      "accessCount": 7,
-      "lastAccessed": "2025-12-07T08:26:57.281Z",
+      "accessCount": 8,
+      "lastAccessed": "2025-12-11T21:04:06.444Z",
       "lastVerified": "2025-11-29T19:43:10.498Z",
       "status": "fresh"
     },
@@ -1046,8 +1046,8 @@
       ],
       "timestamp": "2025-11-28T18:56:33.241Z",
       "context": "Explored codebase to understand data model for categories, channels, tags",
-      "accessCount": 11,
-      "lastAccessed": "2025-12-07T08:26:57.381Z",
+      "accessCount": 12,
+      "lastAccessed": "2025-12-11T21:04:06.444Z",
       "lastVerified": "2025-11-28T18:56:33.241Z",
       "status": "fresh"
     },
@@ -1165,8 +1165,8 @@
       ],
       "timestamp": "2025-11-28T03:13:40.151Z",
       "context": "Comprehensive codebase exploration for 530News extension project - understanding auth, database, and UI",
-      "accessCount": 12,
-      "lastAccessed": "2025-12-07T08:26:57.381Z",
+      "accessCount": 13,
+      "lastAccessed": "2025-12-11T21:04:06.444Z",
       "lastVerified": "2025-11-28T03:13:40.151Z",
       "status": "fresh"
     },
@@ -1286,8 +1286,8 @@
       ],
       "timestamp": "2025-11-27T20:58:02.515Z",
       "context": "Planning data model migration from hierarchical tags to channel/group organization for 530 News Chrome extension",
-      "accessCount": 7,
-      "lastAccessed": "2025-11-29T19:44:54.061Z",
+      "accessCount": 8,
+      "lastAccessed": "2025-12-11T21:04:06.444Z",
       "lastVerified": "2025-11-27T20:58:02.515Z",
       "status": "fresh"
     },
@@ -1329,8 +1329,8 @@
         "530-project"
       ],
       "timestamp": "2025-11-27T20:47:36.303Z",
-      "accessCount": 16,
-      "lastAccessed": "2025-12-07T08:26:57.381Z",
+      "accessCount": 17,
+      "lastAccessed": "2025-12-11T21:04:06.444Z",
       "lastVerified": "2025-11-27T20:47:36.303Z",
       "status": "fresh"
     },
@@ -1349,8 +1349,8 @@
       ],
       "timestamp": "2025-11-26T22:37:11.807Z",
       "context": "Analysis of merging bot directory (Chrome extension + admin dashboard) into main fivethirty project",
-      "accessCount": 17,
-      "lastAccessed": "2025-12-07T08:26:57.381Z",
+      "accessCount": 18,
+      "lastAccessed": "2025-12-11T21:04:06.444Z",
       "lastVerified": "2025-11-26T22:37:11.807Z",
       "status": "fresh"
     },
@@ -1802,8 +1802,8 @@
         "performance"
       ],
       "timestamp": "2025-11-19T02:37:34.819Z",
-      "accessCount": 8,
-      "lastAccessed": "2025-12-07T08:26:57.381Z",
+      "accessCount": 9,
+      "lastAccessed": "2025-12-11T21:04:06.444Z",
       "lastVerified": "2025-11-19T02:37:34.819Z",
       "status": "fresh"
     },
@@ -2664,8 +2664,8 @@
       ],
       "timestamp": "2025-11-18T03:45:28.704Z",
       "context": "viewer/viewer.tsx lines 9, 28 - Imported and added Pillar component to Canvas",
-      "accessCount": 12,
-      "lastAccessed": "2025-12-07T08:26:57.381Z",
+      "accessCount": 13,
+      "lastAccessed": "2025-12-11T21:04:06.444Z",
       "lastVerified": "2025-11-18T03:45:28.704Z",
       "status": "fresh"
     },
@@ -4032,7 +4032,132 @@
       "lastAccessed": "2025-12-11T19:53:21.621Z",
       "lastVerified": "2025-12-11T19:53:21.621Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765483121777_7a0ltlcwx",
+      "content": "Camera tracking during view mode transitions:\n\nAdded trackActiveItem() to scene store that:\n1. Gets active item's world position every frame\n2. Calculates camera offset to maintain same viewing distance\n3. Updates camera position and target instantly (no smooth) to follow the item\n\nIn ContentScene.tsx, added useFrame hook:\n```tsx\nuseFrame(() => {\n  if (isAnimating) {\n    trackActiveItem()\n  }\n})\n```\n\nThis keeps the active content in view during the transition animation. Once animation completes (onRest), the regular focusOnContent/fitToBox is called for final framing.\n\nFiles modified:\n- viewer/scene/store.tsx - added trackActiveItem()\n- viewer/core/components/ContentScene.tsx - added useFrame tracking",
+      "type": "code",
+      "tags": [
+        "code",
+        "camera",
+        "animation",
+        "tracking",
+        "r3f",
+        "view-mode"
+      ],
+      "timestamp": "2025-12-11T19:58:41.777Z",
+      "context": "Camera follows active item during view mode transition animations",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T19:58:41.777Z",
+      "lastVerified": "2025-12-11T19:58:41.777Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765484001344_kznunejub",
+      "content": "Browse Mode Implementation Analysis for 3D Viewer\n\nSTORE MANAGEMENT:\n- Located: /viewer/core/store/browseModeStore.ts\n- Control types: 'orbit' | 'wasd' | 'static'\n- State: isActive, controlType, savedCameraState\n- Actions: enterBrowseMode, exitBrowseMode, toggleBrowseMode, setControlType\n- Saves camera position/target/zoom before entering, can restore on exit\n\nUI INDICATOR:\n- Orange border ring appears in scene.tsx when browse mode active\n- Tailwind: 'ring-4 ring-inset ring-orange-500'\n- Applied to main scene container when isBrowseMode = true\n\nENTRY/EXIT:\n- TAB key: toggles browse mode (maps camera state, restores on exit)\n- ESC key: exits browse mode and restores camera\n- Auto-enter on cloud view switch (saves state first)\n\nVIEW MODE CONFIGURATIONS (viewModeStore.tsx):\n- pillar: browseControlType='orbit', navigationMode='grid', enableOrbitControls=false\n- cloud: browseControlType='orbit', navigationMode='flat', enableWheelZoom=true, auto-enter browse on switch\n- stack: browseControlType='orbit', navigationMode='flat', enableWheelZoom=true\n- carousel: browseControlType='orbit', navigationMode='flat'\n\nCAMERA CONTROLS:\n- Orbit mode: mouse rotate/zoom (handled by CameraControls)\n- WASD mode: keyboard movement (W/S forward/back, A/D strafe, Q/E up/down, R/F rotate yaw)\n- Implemented in WASDControls.tsx component\n- Conditionally renders only when isBrowseMode && controlType='wasd'\n\nINTERACTION CHANGES:\n- ContentScene.tsx handles click behavior differently when browsing\n- For pillar (grid nav): restores camera before rotating pillar\n- Always exits browse mode on item selection\n- Navigation/interaction disabled while in browse mode (focus on free exploration)\n\nCURRENT LIMITATIONS:\n- All view modes use 'orbit' control type (no per-view WASD differentiation)\n- Limited visual feedback beyond orange border\n- Cloud view auto-enters browse (not configurable)\n- No per-view browse behavior customization",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "b",
+        "r",
+        "o",
+        "w",
+        "s",
+        "e",
+        "-",
+        "m",
+        "d",
+        ",",
+        " ",
+        "3",
+        "v",
+        "i",
+        "c",
+        "a",
+        "n",
+        "t",
+        "l",
+        "g"
+      ],
+      "timestamp": "2025-12-11T20:13:21.344Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-12-11T21:04:06.444Z",
+      "lastVerified": "2025-12-11T20:13:21.344Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765484785953_61c801c6o",
+      "content": "Enhanced Browse Mode for Pillar View implementation:\n\nFiles created:\n1. viewer/ui/browse/BrowseModeOverlay.tsx - Main overlay with status badge, action buttons, hint bar\n2. viewer/ui/browse/BrowseActionButton.tsx - Reusable styled button component\n3. viewer/ui/browse/PillarBrowseActions.tsx - \"Group by Tag\" and \"Jump to Category\" buttons\n4. viewer/core/hooks/usePillarBrowseInteractions.ts - Drag/scroll handlers for pillar navigation\n\nFiles modified:\n- viewer/scene/scene.tsx - Added BrowseModeOverlay import and render\n\nKey features:\n- Orange status badge \"BROWSE MODE\" (top-left)\n- Exit button (X)\n- Action buttons (top-right): Group by Tag, Jump to Category dropdown\n- Hint bar (bottom): \"Drag to rotate • Scroll to navigate • TAB to exit\"\n- Horizontal drag: Navigate between categories (rotate pillar)\n- Vertical scroll/drag: Navigate within category (climb/descend)\n- Jump to Category dropdown shows all categories with item counts\n\nArchitecture allows easy extension for cloud/stack/carousel browse modes.",
+      "type": "code",
+      "tags": [
+        "code",
+        "browse-mode",
+        "pillar",
+        "ui",
+        "interactions",
+        "viewer"
+      ],
+      "timestamp": "2025-12-11T20:26:25.953Z",
+      "context": "Implemented enhanced browse mode UI and interactions for pillar view",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T20:26:25.953Z",
+      "lastVerified": "2025-12-11T20:26:25.953Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765484852286_hq9cba55l",
+      "content": "Enhanced Browse Mode for Pillar View - Phase 1 Complete\n\nImplementation completed:\n1. BrowseModeOverlay.tsx - Main overlay with status badge (top-left), action buttons (top-right), hint bar (bottom)\n2. BrowseActionButton.tsx - Reusable styled button component\n3. PillarBrowseActions.tsx - \"Group by Tag\" toggle and \"Jump to Category\" dropdown\n4. usePillarBrowseInteractions.ts - Drag/scroll handlers for pillar navigation\n\nKey interactions:\n- Horizontal drag: Rotate pillar between categories (DRAG_THRESHOLD_X = 50px)\n- Vertical drag/scroll: Navigate items within category (DRAG_THRESHOLD_Y = 30px)\n- Event listeners attached to canvas element when browse mode active\n\nContent store structure used:\n- content: LiveViewContentBlock[] (has title, content_block_items)\n- categoryIds, categoryTitles arrays\n- activeCategoryIndex, activeItemIndex for navigation state\n\nFuture phases pending:\n- Cloud browse mode (organization switcher, zoom)\n- Stack browse mode (sort, fan-out)\n- Carousel browse mode (auto-play, speed)\n- Actual \"Group by Tag\" implementation (currently just toggles state)",
+      "type": "general",
+      "tags": [
+        "general",
+        "browse-mode",
+        "pillar",
+        "implementation",
+        "phase1-complete"
+      ],
+      "timestamp": "2025-12-11T20:27:32.286Z",
+      "context": "Enhanced browse mode feature development",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T20:27:32.286Z",
+      "lastVerified": "2025-12-11T20:27:32.286Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765485641423_w61noppjn",
+      "content": "Pillar Browse Mode Camera Architecture - Complete Understanding\n\nKEY FINDINGS:\n\n1. ORBIT CONTROLS DISABLING:\n   - SceneCamera.tsx controls orbit based on: `orbitEnabled = enableOrbit || enableBrowseOrbit`\n   - Normal orbit disabled for pillar: VIEW_MODE_CONFIG.pillar.enableOrbitControls = false\n   - Browse mode orbit enabled when: isBrowseMode && browseControlType === 'orbit'\n   - CameraControls mouseButtons are set to ACTION.NONE when orbitEnabled is false\n   - This PREVENTS all mouse/touch rotation in normal pillar mode\n\n2. BROWSE MODE ACTIVATION:\n   - Tab key toggles browse mode (SceneCamera.tsx line 87-103)\n   - Saves camera state before entering browse mode\n   - Restores camera state when exiting\n   - Cloud view auto-enters browse mode (line 69-82)\n\n3. CAMERA DISTANCE:\n   - useLayoutAnimation uses `cameraFitOnly: true` for pillar (line 52)\n   - SceneCamera calls fitToBox() instead of focusOnContent() for pillar (store.tsx line 53)\n   - fitToBox() fits camera to activeItemObject with 0.03 padding\n   - estimateCameraDistance() calculates: (maxDim/2) / tan(FOV/2) * 1.3 margin\n\n4. PILLAR GROUP TRANSFORM:\n   - pillarPositioner.getGroupTransform() rotates entire pillar\n   - rotationY brings active category to front (line 101-102)\n   - positionY = -activeItemIndex centers active item (line 105)\n   - Animation duration: 2000ms with easePolyInOut (line 116-118)\n\n5. DRAG INTERACTIONS (usePillarBrowseInteractions.ts):\n   - Horizontal drag (50px threshold): navigateToCategory()\n   - Vertical drag (30px threshold): navigateToItem()\n   - Wheel scroll: horizontal = categories, vertical = items\n   - Currently navigates content only, DOESN'T rotate camera\n\n6. NAVIGATION MODES:\n   - usePillarNavigation handles keyboard/touch navigation\n   - Keyboard: Arrow keys navigate, Enter/Space for focus, Esc to exit\n   - Touch: Swipe up/down = within column, left/right = between categories\n   - Shows section exit modal at column boundaries\n\n7. CAMERA CONTROL FLOW:\n   - Normal: pillar rotation handled by group transform (ContentScene)\n   - Browse: Can enable orbit controls OR WASD (WASDControls.tsx)\n   - fitToBox called after animation completes (useLayoutAnimation.ts line 53)\n   - Camera preserves position during browse mode, restores on exit",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "pillar",
+        "camera",
+        "browse-mode",
+        "orbit-controls"
+      ],
+      "timestamp": "2025-12-11T20:40:41.423Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T20:40:41.423Z",
+      "lastVerified": "2025-12-11T20:40:41.423Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765486256297_kanufsb9v",
+      "content": "Pillar Browse Mode: Camera-Based Exploration - Implementation Complete (v2)\n\nChanged pillar browse mode from category navigation to camera orbit control:\n\n1. **browseModeStore.ts** - Added:\n   - `BrowseControlType` now includes `'pillar-camera'`\n   - `PillarCameraState` interface: { angle, height, radius, minHeight, maxHeight }\n   - Height bounds for clamping to prevent getting lost\n\n2. **viewModeStore.tsx** - Changed:\n   - pillar.browseControlType from `'orbit'` to `'pillar-camera'`\n\n3. **usePillarBrowseInteractions.ts** - Camera control with bounds:\n   - Horizontal drag: Orbits camera around pillar center\n   - Vertical drag: Moves camera up/down (clamped to pillar bounds)\n   - Scroll wheel vertical: Climbs/descends the pillar (NOT zoom)\n   - Scroll wheel horizontal: Rotates around pillar\n   - Height clamped to [minHeight, maxHeight] with 1.0 padding\n   - calculatePillarMaxHeight() finds tallest category\n\n4. **BrowseModeOverlay.tsx** - Updated hint:\n   - \"Drag to orbit & climb • Scroll to climb • TAB to exit\"\n\nKey changes in v2:\n- Scroll now climbs/descends instead of zooming\n- Height bounds calculated from max items in any category\n- HEIGHT_PADDING = 1.0 allows slight overshoot for visual comfort\n- Sensitivities: ANGLE_SENSITIVITY=0.005, HEIGHT_SENSITIVITY=0.02, SCROLL_HEIGHT_SENSITIVITY=0.02",
+      "type": "general",
+      "tags": [
+        "general",
+        "tip",
+        "pillar",
+        "browse-mode",
+        "camera",
+        "implementation-complete"
+      ],
+      "timestamp": "2025-12-11T20:50:56.297Z",
+      "context": "Pillar browse mode camera orbit implementation",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T20:50:56.297Z",
+      "lastVerified": "2025-12-11T20:50:56.297Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-11T19:53:21.621Z"
+  "lastUpdated": "2025-12-11T21:00:59.146Z"
 }
