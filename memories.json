@@ -4011,7 +4011,28 @@
       "lastAccessed": "2025-12-11T08:54:41.581Z",
       "lastVerified": "2025-12-11T08:54:41.581Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765482801621_rnqijb2hw",
+      "content": "Implemented animated view mode transitions for 3D viewer:\n\nKey changes:\n1. LayoutSwitcher.tsx - Now renders single ContentScene with dynamic positioner instead of swapping layout components. This preserves React component identity enabling smooth animations.\n\n2. ContentItem.tsx - Added base transform springs (posX, posY, posZ, rotX, rotY, rotZ, scaleVal) that animate when transform prop changes. Combined with hover springs using react-spring's `to()` function.\n\nSpring config: { tension: 170, friction: 26 } for smooth, non-jarring transitions.\n\nPattern for combining springs:\n```tsx\nimport { to } from '@react-spring/three'\nposition-y={to([posY, liftY], (py, ly) => py + ly)}\n```\n\nFiles modified:\n- viewer/layouts/LayoutSwitcher.tsx\n- viewer/core/components/ContentItem.tsx",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "spring",
+        "animation",
+        "r3f",
+        "react-spring",
+        "view-mode",
+        "transition"
+      ],
+      "timestamp": "2025-12-11T19:53:21.621Z",
+      "context": "Implemented animated transitions between pillar/cloud/stack/carousel view modes",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T19:53:21.621Z",
+      "lastVerified": "2025-12-11T19:53:21.621Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-11T08:54:41.581Z"
+  "lastUpdated": "2025-12-11T19:53:21.621Z"
 }

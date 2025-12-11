@@ -2,7 +2,7 @@
 
 import { useRef, useMemo, useCallback, useEffect } from 'react'
 import * as THREE from 'three'
-import { useSpring, animated } from '@react-spring/three'
+import { useSpring, animated, to } from '@react-spring/three'
 import { ThreeEvent } from '@react-three/fiber'
 import { isMobile, isTablet } from 'react-device-detect'
 
@@ -20,9 +20,14 @@ interface ContentItemProps {
   onClick?: (item: FlattenedItem) => void
 }
 
+// Spring config for view mode transitions
+const TRANSITION_SPRING_CONFIG = { tension: 170, friction: 26 }
+
 /**
  * Unified content item component
  * Handles rendering, hover animations, and interaction for all layouts
+ *
+ * Now animates position/rotation/scale changes for smooth view mode transitions.
  */
 export function ContentItem({
   item,
@@ -53,7 +58,23 @@ export function ContentItem({
     return [0, 0, 0] as [number, number, number]
   }, [])
 
-  // Hover animation spring
+  // Base transform spring - animates position/rotation/scale during view mode transitions
+  const {
+    posX, posY, posZ,
+    rotX, rotY, rotZ,
+    scaleVal
+  } = useSpring({
+    posX: transform.position[0],
+    posY: transform.position[1],
+    posZ: transform.position[2],
+    rotX: transform.rotation[0] + baseRotation[0],
+    rotY: transform.rotation[1] + baseRotation[1],
+    rotZ: transform.rotation[2] + baseRotation[2],
+    scaleVal: transform.scale,
+    config: TRANSITION_SPRING_CONFIG,
+  })
+
+  // Hover animation spring (additive on top of base transform)
   const { liftY, liftZ, tiltX, hoverScale } = useSpring({
     liftY: isHovered && hoverAnimation?.liftY ? hoverAnimation.liftY : 0,
     liftZ: isHovered && hoverAnimation?.liftZ ? hoverAnimation.liftZ : 0,
@@ -97,48 +118,25 @@ export function ContentItem({
     onClick?.(item)
   }, [item, onClick])
 
-  // Combine base transform with hover animation
-  const hasHoverAnimation = hoverAnimation && (
-    hoverAnimation.liftY || hoverAnimation.liftZ || hoverAnimation.tiltX || hoverAnimation.scale
-  )
-
-  if (hasHoverAnimation) {
-    return (
-      <animated.group
-        ref={groupRef}
-        position-x={transform.position[0]}
-        position-y={liftY.to(ly => transform.position[1] + ly)}
-        position-z={liftZ.to(lz => transform.position[2] + lz)}
-        rotation-x={tiltX.to(tx => transform.rotation[0] + baseRotation[0] + tx)}
-        rotation-y={transform.rotation[1] + baseRotation[1]}
-        rotation-z={transform.rotation[2] + baseRotation[2]}
-        scale={hoverScale.to(s => transform.scale * s)}
-        onClick={handleClick}
-        onPointerEnter={handlePointerEnter}
-        onPointerLeave={handlePointerLeave}
-      >
-        {content}
-      </animated.group>
-    )
-  }
-
-  // No hover animation - simpler render
+  // Always use animated.group for smooth view mode transitions
+  // Hover animations are additive on top of base transform springs
+  // Use to() to combine multiple animated values reactively
   return (
-    <group
+    <animated.group
       ref={groupRef}
-      position={transform.position}
-      rotation={[
-        transform.rotation[0] + baseRotation[0],
-        transform.rotation[1] + baseRotation[1],
-        transform.rotation[2] + baseRotation[2],
-      ]}
-      scale={transform.scale}
+      position-x={posX}
+      position-y={to([posY, liftY], (py, ly) => py + ly)}
+      position-z={to([posZ, liftZ], (pz, lz) => pz + lz)}
+      rotation-x={to([rotX, tiltX], (rx, tx) => rx + tx)}
+      rotation-y={rotY}
+      rotation-z={rotZ}
+      scale={to([scaleVal, hoverScale], (s, hs) => s * hs)}
       onClick={handleClick}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
     >
       {content}
-    </group>
+    </animated.group>
   )
 }
 
