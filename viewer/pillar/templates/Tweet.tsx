@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react'
 import { SafePlaneView } from '../components/SafePlaneView'
 import { TextPlaneView } from '../components/TextPlaneView'
+import { QuoteTweetView } from '../components/QuoteTweetView'
+import { TombstoneView } from '../components/TombstoneView'
 import { useContentStore, useTweetStore } from '../../core/store/contentStore'
 import { LiveViewContentBlockItems } from '../../core/content/types'
 import ContentWrapper from '../components/ContentWrapper'
@@ -9,7 +11,7 @@ import {
   calculateTweetFontSize,
   formatRelativeTime
 } from './utils/textSizing'
-import { extractVideoUrls } from '../../core/content/utils'
+import { extractVideoUrls, getBestTweetMedia, isQuoteTweet, extractQuotedTweetInfo, isTombstonedTweet } from '../../core/content/utils'
 
 interface TemplateTweetProps {
   item: LiveViewContentBlockItems
@@ -36,7 +38,25 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
     return null
   }, [item.content, getTweet])
 
-  // Extract media URLs from tweet data
+  // Check if this tweet has been tombstoned (deleted from Twitter)
+  const isTombstoned = useMemo(() => {
+    if (!tweet) return false
+    return isTombstonedTweet(tweet)
+  }, [tweet])
+
+  // Check if this is a quote tweet with media in the quoted content
+  const quoteTweetInfo = useMemo(() => {
+    if (!tweet || isTombstoned) return null
+    return extractQuotedTweetInfo(tweet)
+  }, [tweet, isTombstoned])
+
+  // Get the best media (from main tweet or quoted tweet)
+  const bestMedia = useMemo(() => {
+    if (!tweet) return { videoUrl: null, imageUrl: null, posterUrl: null, isFromQuotedTweet: false }
+    return getBestTweetMedia(tweet)
+  }, [tweet])
+
+  // Extract media URLs from tweet data (legacy approach for non-quote tweets)
   const tweetMedia = useMemo(() => {
     if (!tweet?.data) return null
 
@@ -66,20 +86,24 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
   const timestamp = formatRelativeTime(item.content?.content_created_at)
   const fontSize = calculateTweetFontSize(tweetText.length)
 
-  // Determine final media URLs (prefer tweet data, fallback to content thumbnail)
-  const hasVideo = tweetMedia?.videoUrl != null
-  const hasImage = tweetMedia?.imageUrl != null || contentThumbnail != null
+  // Determine final media URLs - now using bestMedia which checks quoted tweets
+  const hasVideo = bestMedia.videoUrl != null
+  const hasImage = bestMedia.imageUrl != null || contentThumbnail != null
   const hasMedia = hasVideo || hasImage
 
   // Select the best media URL based on what's available
-  const finalVideoUrl = tweetMedia?.videoUrl || null
-  const finalPosterUrl = tweetMedia?.poster || contentThumbnail || null
-  const finalImageUrl = tweetMedia?.imageUrl || contentThumbnail || null
+  const finalVideoUrl = bestMedia.videoUrl || null
+  const finalPosterUrl = bestMedia.posterUrl || contentThumbnail || null
+  const finalImageUrl = bestMedia.imageUrl || contentThumbnail || null
 
   // Proxy Twitter images through our API to avoid 403 errors
   const thumbnailUrl = finalPosterUrl || finalImageUrl
     ? `/api/proxy-image?url=${encodeURIComponent(finalPosterUrl || finalImageUrl || '')}`
     : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg=='
+
+  // Determine if we should show quote tweet overlay
+  // Show overlay when: media is from quoted tweet AND main tweet has text (the comment)
+  const showQuoteOverlay = bestMedia.isFromQuotedTweet && tweetText.trim().length > 0
 
   return (
     <ErrorBoundary
@@ -108,14 +132,38 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
         itemIndex={itemIndex}
         active={isActive}
       >
-        {hasMedia ? (
-          // Tweet with media: Show media (video or image)
-          <SafePlaneView
-            url={thumbnailUrl}
+        {isTombstoned ? (
+          // Tweet was deleted from Twitter - show tombstone visual
+          <TombstoneView
             active={isActive}
-            videoUrl={finalVideoUrl || undefined}
             itemId={item.id}
+            tweetText={tweetText}
+            authorName={displayName}
+            authorHandle={handle}
           />
+        ) : hasMedia ? (
+          // Tweet with media: Show media (video or image)
+          showQuoteOverlay ? (
+            // Quote tweet with media from quoted content - show with comment overlay
+            <QuoteTweetView
+              thumbnailUrl={thumbnailUrl}
+              videoUrl={finalVideoUrl || undefined}
+              itemId={item.id}
+              active={isActive}
+              commentText={tweetText}
+              commenterName={displayName}
+              commenterHandle={handle}
+              quotedAuthor={quoteTweetInfo?.authorUsername ? `@${quoteTweetInfo.authorUsername}` : undefined}
+            />
+          ) : (
+            // Regular media tweet or quote tweet where main has media
+            <SafePlaneView
+              url={thumbnailUrl}
+              active={isActive}
+              videoUrl={finalVideoUrl || undefined}
+              itemId={item.id}
+            />
+          )
         ) : (
           // Text-only tweet: Show TextPlaneView (matches PlaneView dimensions)
           <TextPlaneView

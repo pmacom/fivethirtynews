@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { CiSettings } from 'react-icons/ci';
-import { useNavigationStore } from '../navigation/store';
 import useSettingStore from '../settings/store';
 
 interface GlobalSettingsButtonProps {
@@ -17,8 +16,10 @@ interface GlobalSettingsButtonProps {
  * across all menu screens (Splash, Main Menu, Stage Select, Characters)
  */
 export function GlobalSettingsButton({ className = '', zIndex = 200 }: GlobalSettingsButtonProps) {
-  const toggleSettings = useSettingStore((state) => state.toggleSettings);
   const showSettings = useSettingStore((state) => state.showSettings);
+  const toggleSettings = useCallback(() => {
+    useSettingStore.setState({ showSettings: !showSettings });
+  }, [showSettings]);
 
   return (
     <button

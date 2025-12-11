@@ -3898,7 +3898,120 @@
       "lastAccessed": "2025-12-11T06:10:15.566Z",
       "lastVerified": "2025-12-11T06:10:15.566Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765437961339_266tnkejx",
+      "content": "Quote Tweet Display Implementation (Dec 2025):\n- Added utilities in viewer/core/content/utils.ts: isQuoteTweet(), extractQuotedTweetInfo(), getBestTweetMedia()\n- Created QuoteTweetView component at viewer/pillar/components/QuoteTweetView.tsx\n- Modified TemplateTweet.tsx to detect quote tweets and show QuoteTweetView when media is from quoted tweet\n- Quote tweets display: shows the quoted tweet's media with an overlay showing the commenter's text\n- Data structure: tweet.data.quoted_tweet contains {text, user{name, screen_name, profile_image}, entities.media[], etc.}\n- getBestTweetMedia() checks main tweet first, falls back to quoted tweet if no media in main",
+      "type": "general",
+      "tags": [
+        "general",
+        "quote-tweet",
+        "viewer",
+        "twitter",
+        "implementation"
+      ],
+      "timestamp": "2025-12-11T07:26:01.339Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T07:26:01.339Z",
+      "lastVerified": "2025-12-11T07:26:01.339Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765438916985_2i1p2fwwm",
+      "content": "Tombstoned Tweet Handling (Dec 2025):\n- Issue: Tweet 1998951043275899025 (el.cine AI animator tweet) was deleted from Twitter\n- Twitter returns: {\"tombstone\": {}, \"__typename\": \"TweetTombstone\"} for deleted tweets\n- Added isTombstonedTweet() function in viewer/core/content/utils.ts\n- Created TombstoneView component at viewer/pillar/components/TombstoneView.tsx\n  - Shows gravestone visual with \"RIP\" text\n  - Displays \"Tweet Deleted\" message\n  - Shows author info and saved tweet text below\n  - Follows ErrorXView pattern for 3D rendering\n- Updated TemplateTweet.tsx to use TombstoneView for tombstoned tweets\n- 9 tombstoned tweets exist in database out of 8,930 total",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "database",
+        "tombstone",
+        "twitter",
+        "deleted-tweet",
+        "viewer",
+        "bugfix"
+      ],
+      "timestamp": "2025-12-11T07:41:56.985Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T07:41:56.985Z",
+      "lastVerified": "2025-12-11T07:41:56.985Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765442391598_cxv7mfltp",
+      "content": "PMNDRS UIKit Search Results - Complete Analysis\n\nPACKAGE INSTALLED: @react-three/uikit v1.0.59 is installed in package.json\n\nKEY FINDINGS:\n\n1. UIKit IMPORTS:\n   - TextPlaneView.tsx: imports { Container, Text, DefaultProperties }\n   - TweetUIKit.tsx: imports { Container, Text, DefaultProperties }\n   - SafeTweetView.tsx: imports { Text } only\n   \n2. TEXT COMPONENT USAGE:\n   - TextPlaneView: Uses Text with fontSize (0.016-0.020), color, fontWeight, lineHeight\n   - TweetUIKit: Uses Text with fontSize (12-14), color, fontWeight, lineHeight\n   - SafeTweetView: Uses Text with fontSize={3}, color, fontWeight, lineHeight, maxWidth, maxHeight, overflow\n\n3. CONTAINER COMPONENT USAGE:\n   - Layout wrapper with flexbox properties (flexDirection, gap, justifyContent, alignItems)\n   - Padding, backgroundColor, borderRadius\n   - Position types: absolute positioning with positionType, positionBottom, positionLeft, etc.\n\n4. 3D TEXT RENDERING APPROACH:\n   - TextPlaneView: Uses UIKit Container + Text for full 3D text-only content\n   - TweetUIKit: Uses PlaneView for media + UIKit Text overlay for metadata\n   - SafeTweetView: Uses UIKit Text wrapped in group with position\n   - QuoteTweetView: Uses Html overlay (NOT 3D text) for quote overlays\n   - TombstoneView: Uses Html overlay (NOT 3D text) for deleted tweet display\n\n5. TEXT STYLING UTILITIES:\n   - viewer/pillar/templates/utils/textSizing.ts contains:\n     * calculateTweetFontSize() - scales font based on text length (0.016-0.028)\n     * extractDisplayName() - extracts name from author field\n     * extractHandle() - extracts @username\n     * formatRelativeTime() - formats timestamps\n\n6. CURRENT TEXT SCALING STRATEGY:\n   - Short (< 50 chars): 0.028\n   - Medium (< 100 chars): 0.024\n   - Long (< 150 chars): 0.020\n   - Very long (< 200 chars): 0.018\n   - Max (> 200 chars): 0.016\n\n7. HTML VS 3D TEXT:\n   - HTML Html component used for overlays (QuoteTweetView, TombstoneView)\n   - UIKit Text component used for main content rendering (TextPlaneView)\n   - Html is positioned in 3D space but renders as DOM overlay\n   - UIKit Text is true 3D text geometry\n\n8. TYPOGRAPHY CONSTANTS OBSERVED:\n   - Header/Name text: fontSize 0.020, fontWeight \"bold\", color \"#e7e9ea\"\n   - Metadata text: fontSize 0.016, color \"#71767b\"\n   - Main content: fontSize varies (0.016-0.028), color \"#e7e9ea\", lineHeight 1.4\n   - Background: \"rgba(21, 32, 43, 0.95)\" for dark theme\n\n9. FILES USING UIKIT:\n   - /viewer/pillar/components/TextPlaneView.tsx\n   - /viewer/pillar/components/SafeTweetView.tsx\n   - /viewer/pillar/templates/TweetUIKit.tsx\n",
+      "type": "general",
+      "tags": [
+        "general",
+        "react",
+        "pmndrs",
+        "uikit",
+        "text-rendering",
+        "3d-typography",
+        "react-three"
+      ],
+      "timestamp": "2025-12-11T08:39:51.598Z",
+      "context": "Search for @pmndrs/uikit usage and 3D text rendering patterns in the codebase",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T08:39:51.598Z",
+      "lastVerified": "2025-12-11T08:39:51.598Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765442788455_u12b52wv4",
+      "content": "Refactored TombstoneView and QuoteTweetView to use @react-three/uikit (Dec 2025):\n- Replaced `Html` from drei (DOM overlays) with true 3D text using uikit\n- Uses Container, Text, DefaultProperties from @react-three/uikit\n- Follows pattern from TextPlaneView.tsx for consistency\n- Typography: fontSize ranges from 0.012 to 0.05 in 3D units\n- Colors: #e7e9ea (primary), #71767b (secondary), #9ca3af (muted)\n- Both components now render actual 3D geometry instead of HTML overlays",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "react",
+        "uikit",
+        "3d-text",
+        "refactor",
+        "viewer"
+      ],
+      "timestamp": "2025-12-11T08:46:28.455Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T08:46:28.455Z",
+      "lastVerified": "2025-12-11T08:46:28.455Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765443151162_4g2goz6ri",
+      "content": "uikit overlay pattern for r3f components:\n1. TextPlaneView.tsx - Standalone uikit Container works fine, uses width/height from screenAspect\n2. TweetUIKit.tsx - Overlay pattern: uses positionType=\"absolute\" with positionBottom/Left/Right for positioning over SafePlaneView\n3. SafeTweetView.tsx - Uses <group position={[x,y,z]}><Text>...</Text></group> to position uikit Text in 3D space\n4. For overlays on existing 3D content: use positionType=\"absolute\" positioning or wrap in Three.js group with position prop\n5. TombstoneView and QuoteTweetView need the overlay approach, not standalone replacement",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "uikit",
+        "r3f",
+        "overlay",
+        "pattern",
+        "technical"
+      ],
+      "timestamp": "2025-12-11T08:52:31.162Z",
+      "context": "Investigation of why uikit refactor broke TombstoneView and QuoteTweetView",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T08:52:31.162Z",
+      "lastVerified": "2025-12-11T08:52:31.162Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765443281581_wmmi0c44t",
+      "content": "Successfully refactored TombstoneView and QuoteTweetView to use @react-three/uikit instead of Html from drei.\n\nKey fix: Use Three.js <group position={[x,y,z]}> to position uikit Container/Text components in 3D space.\n\nPattern:\n- Import { Container, Text } from '@react-three/uikit' (no Html from drei)\n- Wrap uikit components in <group position={[x, y, z]}>\n- Use fontSize in 3D units (0.02 instead of 14px)\n- Use padding/gap in 3D units (0.025 instead of 12px)\n\nPrevious failure was likely due to improper positioning or replacing entire component structure instead of overlaying.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "react",
+        "uikit",
+        "r3f",
+        "fix",
+        "TombstoneView",
+        "QuoteTweetView"
+      ],
+      "timestamp": "2025-12-11T08:54:41.581Z",
+      "context": "Fixed uikit refactor that initially broke the components",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T08:54:41.581Z",
+      "lastVerified": "2025-12-11T08:54:41.581Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-11T06:10:15.566Z"
+  "lastUpdated": "2025-12-11T08:54:41.581Z"
 }

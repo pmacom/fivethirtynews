@@ -106,7 +106,7 @@ export async function GET() {
     const userMap = new Map<string, CharacterRow>();
 
     // Add mods/admins first
-    for (const user of (users || []) as CharacterRow[]) {
+    for (const user of (users || []) as unknown as CharacterRow[]) {
       userMap.set(user.id, {
         ...user,
         show_members: user.show_members || [],
@@ -133,7 +133,7 @@ export async function GET() {
       };
     }
 
-    for (const membership of (showHosts || []) as ShowHostRow[]) {
+    for (const membership of (showHosts || []) as unknown as ShowHostRow[]) {
       const userId = membership.users.id;
       const existing = userMap.get(userId);
 
