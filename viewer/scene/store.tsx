@@ -38,16 +38,13 @@ export const useSceneStore = create<SceneStoreState>()((set, get) => ({
 
     if(!canvasWidth || !canvasHeight || isAnimating) return
 
-    // Error logging for missing dependencies
+    // Early return if dependencies not ready (expected during initial load)
     if(!camera || !activeItemObject) {
-      logger.error('fitToBox failed - missing dependencies', {
-        hasCamera: !!camera,
-        hasActiveItemObject: !!activeItemObject,
-        activeItemId,
-        canvasSize: [canvasWidth, canvasHeight],
-        isAnimating,
-        timestamp: Date.now()
-      })
+      // Only log at debug level - this is expected when no item is selected yet
+      if (activeItemId) {
+        // Only warn if we have an activeItemId but no object (unexpected)
+        logger.debug('fitToBox waiting for activeItemObject', { activeItemId })
+      }
       return
     }
 

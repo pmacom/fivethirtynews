@@ -11,8 +11,8 @@ export function TagsTab() {
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Filter tags based on search query (min 3 chars)
-  const filteredTags = searchQuery.length >= 3
+  // Filter tags based on search query (min 2 chars)
+  const filteredTags = searchQuery.length >= 2
     ? availableTags
         .filter(
           (tag) =>
@@ -80,13 +80,13 @@ export function TagsTab() {
               setShowDropdown(true)
             }}
             onFocus={() => setShowDropdown(true)}
-            placeholder="Search tags (type 3+ chars)..."
+            placeholder="Search tags (type 2+ chars)..."
             className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 outline-none"
           />
         </div>
 
         {/* Autocomplete dropdown */}
-        {showDropdown && searchQuery.length >= 3 && (
+        {showDropdown && searchQuery.length >= 2 && (
           <div
             ref={dropdownRef}
             className="absolute top-full left-0 right-0 mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl z-10 overflow-hidden"
@@ -159,7 +159,7 @@ export function TagsTab() {
 
       {/* Hint */}
       <p className="text-xs text-zinc-500">
-        Type at least 3 characters to search existing tags or create a new one.
+        Type at least 2 characters to search existing tags or create a new one.
       </p>
     </div>
   )

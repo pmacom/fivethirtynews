@@ -43,10 +43,10 @@ export const ContentWrapper = ({
   const onClick = useCallback(() => {
     useContentStore.setState({
       activeCategoryId: categoryId,
-      activeItemId: item.content?.content_id,
+      activeItemId: item.content?.id,
       activeItemIndex: itemIndex,
     })
-  }, [categoryId, item.content?.content_id, itemIndex])
+  }, [categoryId, item.content?.id, itemIndex])
 
   return (
     <group ref={groupRef} onClick={onClick}>

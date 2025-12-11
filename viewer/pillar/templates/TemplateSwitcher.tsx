@@ -27,13 +27,14 @@ export function TemplateSwitcher({
     item: data,
     itemIndex,
     categoryId,
-    active: data.content?.content_id === activeItemId
+    active: data.content?.id === activeItemId
   }
 
     switch (contentType) {
       case 'twitter':
         return <TemplateTweet {...props} />
       case 'video':
+      case 'youtube':
         return <TemplateVideo {...props} />
       case 'image':
         return <TemplateImage {...props} />

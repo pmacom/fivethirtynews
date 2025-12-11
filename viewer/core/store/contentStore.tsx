@@ -82,7 +82,7 @@ export const useContentStore = create<ContentStoreState>()((set, get) => ({
   setIdStrings: (contents: LiveViewContentBlock[]) => {
     if (!contents || contents.length === 0) return;
     const categoryIds = contents.map(content => content.id);
-    const itemIds = contents.map(content => content.content_block_items.map(item => item.content.content_id));
+    const itemIds = contents.map(content => content.content_block_items.map(item => item.content.id));
     set({ categoryIds, itemIds });
   },
 
@@ -1171,7 +1171,10 @@ export const useTweetStore = create<TweetStoreState>()(
     (set, get) => ({
       tweets: {},
 
-      getTweet: (tweet_id: string) => {
+      getTweet: (tweet_id: string | null | undefined) => {
+        // Guard against null/undefined IDs (e.g., content with empty content_id)
+        if (!tweet_id) return null
+
         // Synchronous lookup from pre-loaded tweets (loaded via batch fetch)
         const tweets = get().tweets
 
@@ -1179,8 +1182,8 @@ export const useTweetStore = create<TweetStoreState>()(
           return tweets[tweet_id]
         }
 
-        // Tweet not found in store - should have been batch loaded
-        logger.warn(`Tweet ${tweet_id} not found in store. Was it batch loaded?`)
+        // Tweet not found in store - log at debug level since UI handles this gracefully
+        logger.debug(`Tweet ${tweet_id} not found in store. Was it batch loaded?`)
         return null
       },
     }),

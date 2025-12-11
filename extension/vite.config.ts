@@ -6,10 +6,12 @@ import { resolve } from 'path';
 const isDev = process.env.EXT_ENV === 'development';
 
 // Environment-specific values
+// Default local port: 3530 (configurable via PORT env var)
+const LOCAL_PORT = process.env.PORT || '3530';
 const envConfig = {
   development: {
-    API_URL: 'http://localhost:3000/api',
-    APP_URL: 'http://localhost:3000',
+    API_URL: `http://localhost:${LOCAL_PORT}/api`,
+    APP_URL: `http://localhost:${LOCAL_PORT}`,
     ENV_COLOR: '#8B5CF6', // Purple
   },
   production: {

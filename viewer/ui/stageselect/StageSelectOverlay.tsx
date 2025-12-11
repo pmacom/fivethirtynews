@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { X } from 'lucide-react'
+import { X, ArrowLeft } from 'lucide-react'
 import { useContentStore } from '../../core/store/contentStore'
 import { useStageSelectStore } from './store'
+import { GlobalSettingsButton } from '../components/GlobalSettingsButton'
 import './styles.css'
 
 type Level = {
@@ -163,16 +164,19 @@ export function StageSelectOverlay() {
 
       {/* Main Content */}
       <div className="stage-select-content">
-        {/* Close Button */}
-        <button
-          onClick={() => useStageSelectStore.setState({ showStageSelect: false })}
-          className="absolute top-4 right-4 z-30 w-10 h-10 flex items-center justify-center
-                     text-white/50 hover:text-white border-2 border-white/20 hover:border-white/50
-                     rounded transition-all hover:scale-110"
-          title="Close (Esc)"
-        >
-          <X className="w-6 h-6" />
-        </button>
+        {/* Top Right Buttons: Settings + Close */}
+        <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
+          <GlobalSettingsButton className="!fixed !top-auto !right-auto relative" zIndex={30} />
+          <button
+            onClick={() => useStageSelectStore.setState({ showStageSelect: false })}
+            className="w-10 h-10 flex items-center justify-center
+                       text-white/50 hover:text-white border-2 border-white/20 hover:border-white/50
+                       rounded transition-all hover:scale-110 bg-black/50 backdrop-blur-sm"
+            title="Close (Esc)"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
 
         {/* Background Effects */}
         <div className="absolute inset-0 grid-bg opacity-30" />
@@ -329,6 +333,19 @@ export function StageSelectOverlay() {
             </div>
           </footer>
         </div>
+
+        {/* Back Button - Bottom Left */}
+        <button
+          onClick={() => useStageSelectStore.setState({ showStageSelect: false })}
+          className="fixed bottom-6 left-6 z-50 flex items-center gap-2 px-4 py-3
+                     bg-white/5 hover:bg-white/10 border-2 border-white/30 hover:border-white/50
+                     text-white/70 hover:text-white rounded-lg transition-all hover:scale-105
+                     font-share-tech text-sm tracking-wider backdrop-blur-sm"
+          title="Go back (Esc)"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="hidden sm:inline">BACK</span>
+        </button>
       </div>
     </div>
   )

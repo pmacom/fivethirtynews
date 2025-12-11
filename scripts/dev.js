@@ -109,9 +109,10 @@ function displayStatus() {
 
 // Start Next.js development server
 function startNextjs() {
-  logSection('🌐', 'Starting Next.js...');
+  const port = process.env.PORT || '3530';
+  logSection('🌐', `Starting Next.js on port ${port}...`);
 
-  const next = spawn('next', ['dev', '--turbopack'], {
+  const next = spawn('next', ['dev', '--turbopack', '--port', port], {
     shell: true,
     stdio: 'inherit'
   });

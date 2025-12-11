@@ -34,7 +34,7 @@ export const Pillar = () => {
     if(!contents || contents.length === 0) return
     useContentStore.setState({
       activeCategoryId: contents[0].id,
-      activeItemId: contents[0].content_block_items[0]?.content?.content_id,
+      activeItemId: contents[0].content_block_items[0]?.content?.id,
       activeItemData: contents[0].content_block_items[0],
       activeCategoryIndex: 0,
       activeItemIndex: 0,

@@ -24,7 +24,7 @@ interface TemplateTweetUIKitProps {
  */
 export const TemplateTweetUIKit = ({ item, itemIndex, categoryId }: TemplateTweetUIKitProps) => {
   const activeItemId = useContentStore(state => state.activeItemId)
-  const isActive = item.content?.content_id === activeItemId
+  const isActive = item.content?.id === activeItemId
 
   const containerRef = useRef<THREE.Group>(null)
 
@@ -62,7 +62,7 @@ export const TemplateTweetUIKit = ({ item, itemIndex, categoryId }: TemplateTwee
   // Debug logging (only when active to reduce noise)
   if (isActive) {
     console.log('[TweetUIKit]', {
-      contentId: item.content?.content_id,
+      contentId: item.content?.id,
       mediaType,
       thumbnailUrl: contentThumbnail,
       author: tweetAuthor

@@ -40,10 +40,16 @@ export const FadeShaderMaterial = shaderMaterial(
 
   void main() {
     vec4 thumbnailColor = texture2D(thumbnailTexture, vUv);
+
+    // Fallback: If thumbnail is transparent (alpha near 0), show dark gray
+    // This handles the case where texture is null or failed to load
+    if (thumbnailColor.a < 0.01) {
+      gl_FragColor = vec4(0.15, 0.15, 0.15, 1.0);
+      return;
+    }
+
     vec4 videoColor = texture2D(videoTexture, vUv);
-    
     vec4 blendedColor = mix(thumbnailColor, videoColor, blendFactor);
-    
     gl_FragColor = blendedColor;
   }
   `
@@ -153,7 +159,11 @@ export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick, is
       (loader as THREE.TextureLoader).crossOrigin = 'anonymous';
     },
     (error) => {
-      logger.warn('Failed to load texture:', url, error);
+      logger.error('[PlaneView] Texture load FAILED:', {
+        url: url.substring(0, 120),
+        itemId,
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   )
 
@@ -199,20 +209,21 @@ export const PlaneView = ({ url, active, videoUrl, itemId, onClick: _onClick, is
         videoRef.current.currentTime = videoSeekTime * videoRef.current.duration;
       }
     } else if(videoRef && videoRef.current && !isVideoSeeking) {
-      videoRef.current.play(); // Resume playing the video
+      // Resume playing - handle promise rejection (CORS/network errors)
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          // AbortError is expected when quickly navigating, NotSupportedError for CORS issues
+          if (error.name !== 'AbortError' && error.name !== 'NotSupportedError') {
+            logger.warn('Video resume failed:', error);
+          }
+        });
+      }
     }
   },[videoRef, isVideoSeeking, videoSeekTime])
 
   // Handle video texture loading and aspect ratio adjustment
   useEffect(() => {
-    // Debug logging for video state
-    logger.debug('[PlaneView] Video state:', {
-      itemId,
-      videoUrl: videoUrl ? videoUrl.substring(0, 50) + '...' : 'none',
-      lingeringActive,
-      willSetIsContentVideo: !!(lingeringActive && videoUrl)
-    });
-
     // Note: Don't set isContentVideo: false here unconditionally -
     // the cleanup handles resetting state when appropriate
     if (lingeringActive && videoUrl) {

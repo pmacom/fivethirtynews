@@ -24,7 +24,8 @@ function debugLog(message: string, data?: unknown) {
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const DISCORD_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI || 'http://localhost:3000/api/auth/discord/callback';
+const DEFAULT_PORT = process.env.PORT || '3530';
+const DISCORD_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI || `http://localhost:${DEFAULT_PORT}/api/auth/discord/callback`;
 const DISCORD_GUILD_ID = process.env.DISCORD_GUILD_ID || '1031322428288278539';
 
 interface DiscordUser {

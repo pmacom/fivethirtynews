@@ -10,7 +10,6 @@ import {
   formatRelativeTime
 } from './utils/textSizing'
 import { extractVideoUrls } from '../../core/content/utils'
-import logger from '../../utils/logger'
 
 interface TemplateTweetProps {
   item: LiveViewContentBlockItems
@@ -20,7 +19,7 @@ interface TemplateTweetProps {
 
 export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProps) => {
   const activeItemId = useContentStore(state => state.activeItemId)
-  const isActive = item.content?.content_id === activeItemId
+  const isActive = item.content?.id === activeItemId
   const getTweet = useTweetStore(state => state.getTweet)
 
   // Get thumbnail and text from content data
@@ -28,13 +27,14 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
   const tweetText = item.content?.description || ''
 
   // Get tweet data synchronously from pre-loaded store
+  // Use platform_content_id (tweet ID) - content_id is legacy/empty for newer content
   const tweet = useMemo(() => {
-    const contentId = item.content?.content_id
-    if (contentId) {
-      return getTweet(contentId)
+    const tweetId = (item.content as any)?.platform_content_id || item.content?.content_id
+    if (tweetId) {
+      return getTweet(tweetId)
     }
     return null
-  }, [item.content?.content_id, getTweet])
+  }, [item.content, getTweet])
 
   // Extract media URLs from tweet data
   const tweetMedia = useMemo(() => {
@@ -80,30 +80,6 @@ export const TemplateTweet = ({ item, itemIndex, categoryId }: TemplateTweetProp
   const thumbnailUrl = finalPosterUrl || finalImageUrl
     ? `/api/proxy-image?url=${encodeURIComponent(finalPosterUrl || finalImageUrl || '')}`
     : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg=='
-
-  // Detect media type
-  const mediaType = hasVideo ? 'video' : hasImage ? 'image' : 'text'
-
-  // Debug logging (only when active to reduce noise)
-  if (isActive) {
-    logger.debug('[Tweet]', {
-      contentId: item.content?.content_id,
-      hasMedia,
-      mediaType,
-      displayMode: hasMedia ? 'MEDIA_ONLY' : 'TEXT_CARD',
-      thumbnailUrl: contentThumbnail || '(none)',
-      textLength: tweetText.length,
-      fontSize: hasMedia ? 'N/A' : fontSize,
-    })
-
-    // Warn if this might be a data quality issue
-    if (!hasMedia && tweetText.toLowerCase().includes('pic.twitter.com')) {
-      logger.warn('[Tweet] Text-only tweet mentions pic.twitter.com - possible missing media', {
-        contentId: item.content?.content_id,
-        text: tweetText.substring(0, 100)
-      })
-    }
-  }
 
   return (
     <ErrorBoundary

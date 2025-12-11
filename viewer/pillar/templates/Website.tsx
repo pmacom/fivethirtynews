@@ -12,7 +12,7 @@ interface TemplateWebsiteProps {
 
 export const TemplateWebsite = ({ item, itemIndex, categoryId }: TemplateWebsiteProps) => {
   const activeItemId = useContentStore(state => state.activeItemId)
-  const isActive = item.content?.content_id === activeItemId
+  const isActive = item.content?.id === activeItemId
 
   // Get website thumbnail from content data
   const thumbnailUrl = item.content?.thumbnail_url || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAEBgIApD5fRAAAAABJRU5ErkJggg=='

@@ -1749,8 +1749,8 @@
         "data-quality"
       ],
       "timestamp": "2025-11-19T03:23:40.758Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-19T03:23:40.758Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-12-10T19:17:10.214Z",
       "lastVerified": "2025-11-19T03:23:40.758Z",
       "status": "fresh"
     },
@@ -1766,8 +1766,8 @@
         "performance"
       ],
       "timestamp": "2025-11-19T02:49:38.691Z",
-      "accessCount": 2,
-      "lastAccessed": "2025-11-28T03:16:16.928Z",
+      "accessCount": 3,
+      "lastAccessed": "2025-12-10T19:17:10.214Z",
       "lastVerified": "2025-11-19T02:49:38.691Z",
       "status": "fresh"
     },
@@ -1945,8 +1945,8 @@
       ],
       "timestamp": "2025-11-18T19:27:05.155Z",
       "context": "Fixed TweetCard element sizing - scaled from absolute pixels to relative 3D units",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-28T18:59:34.413Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-12-10T19:17:10.214Z",
       "lastVerified": "2025-11-18T19:27:05.155Z",
       "status": "fresh"
     },
@@ -2074,8 +2074,8 @@
       ],
       "timestamp": "2025-11-18T17:09:37.332Z",
       "context": "Fixed pillar animation and camera fitToBox coordination",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T17:09:37.332Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-12-10T19:17:10.214Z",
       "lastVerified": "2025-11-18T17:09:37.332Z",
       "status": "fresh"
     },
@@ -2401,8 +2401,8 @@
         "root-cause"
       ],
       "timestamp": "2025-11-18T06:02:07.510Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-11-18T06:02:07.510Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-12-10T19:17:10.214Z",
       "lastVerified": "2025-11-18T06:02:07.510Z",
       "status": "fresh"
     },
@@ -2439,8 +2439,8 @@
       ],
       "timestamp": "2025-11-18T05:47:37.581Z",
       "context": "Investigation of fitToBox camera positioning bug with single-item columns",
-      "accessCount": 1,
-      "lastAccessed": "2025-11-19T03:22:02.006Z",
+      "accessCount": 2,
+      "lastAccessed": "2025-12-10T19:17:10.214Z",
       "lastVerified": "2025-11-18T05:47:37.581Z",
       "status": "fresh"
     },
@@ -3018,8 +3018,8 @@
       ],
       "timestamp": "2025-12-07T18:46:41.909Z",
       "context": "Fixed 591 tweet import errors down to 32 by properly handling PostgreSQL escaping",
-      "accessCount": 0,
-      "lastAccessed": "2025-12-07T18:46:41.909Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-12-10T19:17:10.214Z",
       "lastVerified": "2025-12-07T18:46:41.909Z",
       "status": "fresh"
     },
@@ -3519,8 +3519,8 @@
         "implementation"
       ],
       "timestamp": "2025-12-09T03:52:48.043Z",
-      "accessCount": 0,
-      "lastAccessed": "2025-12-09T03:52:48.043Z",
+      "accessCount": 1,
+      "lastAccessed": "2025-12-10T19:17:10.214Z",
       "lastVerified": "2025-12-09T03:52:48.043Z",
       "status": "fresh"
     },
@@ -3597,7 +3597,308 @@
       "lastAccessed": "2025-12-09T06:06:18.903Z",
       "lastVerified": "2025-12-09T06:06:18.903Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765396201589_biwym11b0",
+      "content": "Profile & Character Feature Implementation Progress (Dec 10, 2024):\n\nCOMPLETED:\n1. Database backup created: backups/backup_20251210_140833.dump (7.2 MB)\n2. Supabase services restarted - all containers running including storage\n3. Created migration: supabase/migrations/20251210000000_create_profile_images_bucket.sql\n4. Storage bucket 'profile-images' created with RLS policies\n5. Data restored from backup - verified: 3 users, 8847 content, 8825 tweets\n\nPENDING:\n- Start fivethirty dev server (different project on port 3000)\n- Test API endpoints: /api/characters, /api/users/profile, /api/users/profile/image\n- Test UI flow: ProfileEditModal, Characters page\n\nNEW FILES (untracked):\n- app/api/characters/route.ts\n- app/api/users/profile/route.ts\n- app/api/users/profile/image/route.ts\n- app/characters/page.tsx\n- viewer/ui/profile/ProfileEditModal.tsx\n- viewer/ui/characters/store.ts, types.ts\n- viewer/ui/navigation/store.ts, useEscapeNavigation.ts\n- viewer/ui/components/GlobalSettingsButton.tsx\n\nMODIFIED FILES:\n- contexts/AuthContext.tsx (added profile fields, refreshUser)\n- viewer/ui/splash/SplashScreen.tsx\n- viewer/ui/stageselect/StageSelectOverlay.tsx",
+      "type": "general",
+      "tags": [
+        "general",
+        "database",
+        "api",
+        "fivethirty",
+        "profile",
+        "characters",
+        "storage",
+        "implementation",
+        "progress"
+      ],
+      "timestamp": "2025-12-10T19:50:01.589Z",
+      "context": "Profile customization and character select feature implementation",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-10T19:50:01.589Z",
+      "lastVerified": "2025-12-10T19:50:01.589Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765400314158_7rmppajjv",
+      "content": "Port Configuration Update (Dec 10, 2024):\n\nChanged default ports from 3000/3001 to 3530/3531:\n- PORT=3530 (Next.js app)\n- BOT_HTTP_PORT=3531 (Discord bot)\n\nFiles updated:\n1. .env.local - Added PORT=3530, BOT_HTTP_PORT=3531, BOT_URL=http://localhost:3531\n2. .env.example - Same updates with documentation\n3. supabase/config.toml - site_url and redirect_urls now use port 3530\n4. scripts/dev.js - Uses process.env.PORT || '3530' for Next.js\n5. extension-dev/background.js - DEFAULT_PORT = 3530\n6. extension-dev/manifest.json - host_permissions use 3530/3531\n7. extension/scripts/generate-manifest.js - LOCAL_PORT = process.env.PORT || '3530'\n\nAll hardcoded ports now use environment variables with defaults.",
+      "type": "config",
+      "tags": [
+        "config",
+        "ports",
+        "environment",
+        "fivethirty"
+      ],
+      "timestamp": "2025-12-10T20:58:34.158Z",
+      "context": "Port configuration change from 3000/3001 to 3530/3531",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-10T20:58:34.158Z",
+      "lastVerified": "2025-12-10T20:58:34.158Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765403193245_98hlu7zgw",
+      "content": "Chrome Extension API URL Configuration Architecture\n\n## Current Architecture Summary\n\n### 1. Configuration Layers (3-tier system):\n- **Layer 1: Build Time (Vite/generate-manifest.js)** - Injects env vars during build\n- **Layer 2: Runtime Default** - Hard-coded in background.js (ENV object)\n- **Layer 3: Runtime Override** - Chrome storage sync (apiUrl) can override defaults\n\n### 2. Default URLs by Environment:\n- PRODUCTION: API=https://530society.com/api, APP=https://530society.com\n- DEVELOPMENT: API=http://localhost:3530/api, APP=http://localhost:3530\n- PORT is configurable via PORT env var (default 3530)\n\n### 3. Multiple Extension Versions:\n- extension/ - Production version\n- extension-dev/ - Development version (built with EXT_ENV=development)\n- bot/extension/public - Legacy/bot version (old hardcoded localhost:3530)\n\n### Key Finding: NO .env FILE READING\nExtension cannot read .env or .env.local files directly - only supports:\n- Build-time environment variable substitution via Vite/generate-manifest.js\n- Runtime chrome.storage.sync override\n\n### Files with Hardcoded localhost:3530:\n- extension/tagify-integration.js (line 7) - HARDCODED, not build-injected\n- extension/background.js line 1108 - fallback in config reset\n- bot/extension/public/background.js - Legacy version\n\n### 25+ API Endpoints Called:\nAll in extension/background.js using apiConfig.baseUrl:\n- Auth: /auth/discord, /auth/verify\n- Content: /content, /content/check, /content/{id}/notes\n- Tags: /tags, /tags/hierarchy, /tags/co-occurrence, /tags/suggest\n- Posts: /posts, /posts/check, /posts/recent\n- Channels: /channels\n- Comments: /comments\n- Stats: /user/stats\n- Count: /content/count",
+      "type": "config",
+      "tags": [
+        "config",
+        "api",
+        "extension-config",
+        "api-urls",
+        "port-configuration",
+        "architecture"
+      ],
+      "timestamp": "2025-12-10T21:46:33.245Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-10T21:46:33.245Z",
+      "lastVerified": "2025-12-10T21:46:33.245Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765403620358_d9zg46129",
+      "content": "Chrome Extension Port Configuration Fix Complete (2024-12-10):\n\nAll extension files now correctly use port 3530/3531:\n- extension/popup.html uses %%APP_URL%% placeholders\n- extension-dev/ files generated with localhost:3530\n- extension/vite.config.ts uses PORT env var\n- extension/scripts/generate-manifest.js replaces placeholders at build time\n- bot/extension/public/ files updated\n\nKey insight: Chrome extensions CANNOT read .env files (sandboxed). Configuration comes from:\n1. Build-time injection (Vite + generate-manifest.js)\n2. Runtime defaults in background.js\n3. Runtime override via chrome.storage.sync\n\nTo rebuild extension-dev:\nEXT_ENV=development PORT=3530 node extension/scripts/generate-manifest.js\n\nVerification: grep \"localhost:3000\" across all extension dirs returns nothing",
+      "type": "config",
+      "tags": [
+        "config",
+        "extension",
+        "chrome",
+        "ports",
+        "configuration",
+        "build"
+      ],
+      "timestamp": "2025-12-10T21:53:40.358Z",
+      "context": "Port configuration fix from 3000 to 3530",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-10T21:53:40.358Z",
+      "lastVerified": "2025-12-10T21:53:40.358Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765424047982_rco036b1y",
+      "content": "Fixed gray/transparent planes on /recent page by adding /api/proxy-image to public routes in middleware.ts. The proxy was being redirected to /login for unauthenticated users, causing texture loads to fail. The shader fallback (dark gray for alpha < 0.01) correctly shows when textures fail to load.",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "api",
+        "fix",
+        "middleware",
+        "proxy-image",
+        "authentication",
+        "viewer"
+      ],
+      "timestamp": "2025-12-11T03:34:07.982Z",
+      "context": "PlaneView shader shows gray rectangles when textures don't load. Root cause was proxy-image API requiring auth.",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T03:34:07.982Z",
+      "lastVerified": "2025-12-11T03:34:07.982Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765424373137_o7idqzwlv",
+      "content": "Port configuration: App runs on port 3530 (not default 3000). Fixed package.json scripts to explicitly use --port 3530 for dev:next-only and start commands. The main dev script (scripts/dev.js) already uses PORT env var with 3530 default. Extension configs in extension/ and extension-dev/ also use 3530.",
+      "type": "config",
+      "tags": [
+        "config",
+        "port",
+        "3530",
+        "package.json"
+      ],
+      "timestamp": "2025-12-11T03:39:33.137Z",
+      "context": "Preventing port conflicts by ensuring all scripts explicitly use port 3530",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T03:39:33.137Z",
+      "lastVerified": "2025-12-11T03:39:33.137Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765425200414_z4pfz52fw",
+      "content": "Found more content_id → id fixes needed:\n1. viewer/core/positioning/utils.ts:17 - flattenContent was prioritizing content_id over id with || operator. Empty string '' is truthy so it never fell through to id.\n2. viewer/pillar/components/ContentWrapper.tsx:46 - onClick handler was setting activeItemId to content_id instead of id.\n\nThese caused activeItemId to be '' (empty string), which broke fitToBox, navigation, and texture loading.",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "fix",
+        "content_id",
+        "activeItemId",
+        "navigation"
+      ],
+      "timestamp": "2025-12-11T03:53:20.414Z",
+      "context": "Gray rectangles issue - root cause was empty activeItemId due to content_id being empty string",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T03:53:20.414Z",
+      "lastVerified": "2025-12-11T03:53:20.414Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765425448669_zy2ubpb8i",
+      "content": "Complete content_id → id migration fixes applied:\n\n1. viewer/pillar/templates/TemplateSwitcher.tsx:30 - active prop comparison\n2. viewer/pillar/templates/Discord.tsx:15 - isActive check\n3. viewer/pillar/templates/Video.tsx:16 - isActive check  \n4. viewer/pillar/templates/Website.tsx:15 - isActive check\n5. viewer/ui/details/components/DetailNotes.tsx:17-18 - tweet lookup (uses platform_content_id)\n6. viewer/core/positioning/utils.ts:17 - flattenContent contentId extraction\n7. viewer/pillar/components/ContentWrapper.tsx:46 - onClick activeItemId setter\n\nKey insight: Empty string '' is truthy in JS, so `content_id || id` never fell through when content_id was ''.",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "fix",
+        "content_id",
+        "migration",
+        "complete"
+      ],
+      "timestamp": "2025-12-11T03:57:28.669Z",
+      "context": "Final batch of content_id to id fixes for gray rectangles issue",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T03:57:28.669Z",
+      "lastVerified": "2025-12-11T03:57:28.669Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765425835031_w2va2xkef",
+      "content": "CONTENT SUBMISSION WORKFLOW ANALYSIS - 530 News Extension\n\nCRITICAL FINDINGS ON thumbnail_url MISSING:\n\n1. THUMBNAIL EXTRACTION IN EXTENSION (content.js):\n   - Line 140: thumbnailUrl = firstImage ? firstImage.src : null\n   - BLOCKING ISSUE: Uses FIRST image element only (.querySelector)\n   - Images extracted from [data-testid=\"tweetPhoto\"] and card media elements\n   - NO ASYNC WAITING for image load completion before extraction\n\n2. ASYNC MEDIA EXTRACTION (content.js lines 197-204):\n   - mediaAssets loop AWAITS extractMediaAsset() which waits for images to load\n   - BUT thumbnailUrl is extracted BEFORE channel selector is opened\n   - RACE CONDITION: Image may not be loaded when thumbnailUrl assigned\n\n3. SUBMISSION TO API (channel-selector.js line 261):\n   - thumbnailUrl passed from postData.thumbnailUrl\n   - Auto-save sends to /content API endpoint with thumbnailUrl\n\n4. API ENDPOINT: /api/content/route.ts (POST handler):\n   - Line 158: thumbnailUrl extracted from request body\n   - Line 294: Inserted into content record (can be null)\n   - Line 321-325: BACKGROUND TASK - fetchAndStoreTweet() called for Twitter content\n     * NO AWAIT - doesn't block response\n     * Fetches from Twitter syndication API\n     * Extracts thumbnail via extractThumbnailFromTweetData()\n     * BACKFILLS thumbnail_url if missing (lines 102-115)\n\n5. TWITTER API BACKFILL (lines 9-51):\n   Multiple extraction paths:\n   - mediaDetails[0].media_url_https\n   - photos[0].url\n   - video.poster or video.thumbnail_url\n   - card.binding_values (thumbnail_image, player_image)\n   - entities.media[0].media_url_https\n\nROOT CAUSES OF MISSING thumbnail_url:\nA) Extension: thumbnailUrl extracted before image loads = empty string\nB) API: Background fetch doesn't block, thumbnail not in initial response\nC) Twitter API: Syndication endpoint missing media for some tweets\nD) Missing async handling in extension code",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "content-workflow",
+        "thumbnail-missing",
+        "async-bug",
+        "critical"
+      ],
+      "timestamp": "2025-12-11T04:03:55.031Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T04:03:55.031Z",
+      "lastVerified": "2025-12-11T04:03:55.031Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765427241554_3dpzq6kca",
+      "content": "PlaneView.tsx Logging Investigation - Root Cause Found\n\nCRITICAL ISSUE: Logger.log on lines 156-160 runs on EVERY render (component body execution)\n\nLocation: /Users/patrickmacom/MainQuests/530News/fivethirty/viewer/pillar/components/PlaneView.tsx:156-160\n\nThe problematic code:\n```\n// Stage 2: Log texture URL being loaded\nlogger.log('[PlaneView] Loading texture:', {\n  url: url.substring(0, 120),\n  itemId,\n  isProxy: url.includes('/api/proxy-image'),\n});\n```\n\nThis runs in the component body (not in useEffect), so it executes on EVERY render.\n\nROOT CAUSES FOR RE-RENDERS:\n\n1. **ImageTexture Hook Dependency (Lines 162-175)**:\n   - useLoader(THREE.TextureLoader, url) is called in component body\n   - useLoader can cause re-renders when texture loading completes\n   - useEffect on lines 177-196 depends on [imageTexture, screenAspect]\n   - screenAspect changes on every width/height change\n\n2. **screenAspect Dependency Chain**:\n   - useEffect (lines 135-142) calculates screenAspect from width/height\n   - Every time viewport resizes, screenAspect updates\n   - This triggers useEffect on line 196: [imageTexture, screenAspect]\n   - Which causes component re-renders\n\n3. **Video State Updates (Lines 232-417)**:\n   - Large useEffect depends on [lingeringActive, videoUrl, itemId]\n   - Video playback triggers multiple state updates (setBlendFactor, setVideoTexture)\n   - Each state update causes component re-render\n   - Logger runs before useEffect, so it logs multiple times\n\n4. **TemplateSwitcher Props Instability (PillarColumnItem.tsx:26-35)**:\n   - TemplateSwitcher called inside useMemo but data object may not be stable\n   - activeItemId is subscribed from useContentStore and can change\n   - This causes SafePlaneView to re-render with same props\n\n5. **No Memoization**:\n   - PlaneView is not memoized (no React.memo)\n   - Parent component (SafePlaneView) isn't memoized either\n   - Even with same props, component re-renders if parent updates\n\nIMPACT:\n- Each re-render executes logger.log in component body\n- User sees duplicate logs with same itemId\n- This is exponential: resize + video playback + state updates = multiple logs per texture load\n",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "react",
+        "api",
+        "debugging",
+        "planeview",
+        "logging",
+        "react-renders"
+      ],
+      "timestamp": "2025-12-11T04:27:21.554Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T04:27:21.554Z",
+      "lastVerified": "2025-12-11T04:27:21.554Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765427826092_nuahnlx0x",
+      "content": "TWEET STORAGE INVESTIGATION - How tweets are stored during content creation\n\nKEY FINDINGS:\n\n1. TWEETS TABLE STRUCTURE (from /Users/patrickmacom/MainQuests/530News/fivethirty/supabase/migrations/20250117_initial_schema.sql):\n   - id TEXT PRIMARY KEY (Twitter/X tweet ID)\n   - data JSONB NOT NULL (Full tweet data from Twitter API)\n   - created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n   - updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n\n2. CONTENT CREATION FLOW (from /Users/patrickmacom/MainQuests/530News/fivethirty/app/api/content/route.ts):\n   \n   SYNCHRONOUS:\n   - Content is created/updated in the 'content' table synchronously\n   - All required fields are stored (platform, platform_content_id, url, tags, channels, approval status, etc.)\n   \n   ASYNCHRONOUS (Background):\n   - For Twitter content (platform === 'twitter'), fetchAndStoreTweet() is called in background\n   - This DOES NOT block the response (line 321-325)\n   - Tweet data is fetched from Twitter syndication API: https://cdn.syndication.twimg.com/tweet-result?id={tweetId}&lang=en&token=0\n   - Tweet data is stored/upserted to tweets table with: id, data, created_at, updated_at\n   - If tweet fetch fails, an error is logged but response still succeeds\n\n3. BACKGROUND FETCH FUNCTION (fetchAndStoreTweet in app/api/content/route.ts lines 58-119):\n   - Checks if tweet already exists in tweets table\n   - Fetches from Twitter syndication API if not\n   - Upserts into tweets table (on conflict: id, do update)\n   - Also extracts thumbnail_url from tweet data and backfills to content table if missing\n   - Handles failures gracefully with console.error logging\n\n4. ADDITIONAL TWEET MANAGEMENT:\n   - /api/tweets/fetch route: Explicit endpoint to fetch and store tweets (supports batch)\n   - /api/content/backfill-thumbnails route: Backfill missing thumbnails from existing tweet data or fetch from Twitter\n\nANSWER TO KEY QUESTIONS:\n\nQ: When content is created via the extension, is tweet data stored in the tweets table?\nA: YES, but ASYNCHRONOUSLY. For Twitter content, tweet data is fetched and stored in background after content is created. The content creation returns immediately, so tweet table may not be populated yet.\n\nQ: Is the tweet data stored synchronously or in background?\nA: BACKGROUND. The fetchAndStoreTweet() call uses .catch() without await, meaning it runs in background without blocking the response.\n\nQ: What fields are stored in the tweets table?\nA: \n- id: Tweet ID (TEXT PRIMARY KEY)\n- data: Complete JSON response from Twitter syndication API (JSONB)\n- created_at: Timestamp\n- updated_at: Timestamp\n\nPOTENTIAL ISSUE:\n- If background fetch fails silently, tweets table won't be populated\n- Content will still be created successfully\n- Thumbnail extraction requires tweet data to exist\n- Can be fixed by explicit /api/tweets/fetch call or /api/content/backfill-thumbnails\n",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "api",
+        "tweets",
+        "content-creation",
+        "storage",
+        "async-flow",
+        "database-schema"
+      ],
+      "timestamp": "2025-12-11T04:37:06.092Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T04:37:06.092Z",
+      "lastVerified": "2025-12-11T04:37:06.092Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765427829577_m7t3xr8zc",
+      "content": "INVESTIGATION: Tweet Loading and Storage Flow - \"Tweet null not found in store\" Warnings\n\nKEY FINDINGS:\n\n1. BATCH LOADING MECHANISM (contentStore.tsx lines 235-291):\n   - Episodes fetch ALL tweet IDs from content_block_items (checking both platform_content_id and content_id)\n   - Tweets are batch fetched in chunks of 100 from the database\n   - All tweets stored in useTweetStore.tweets map (synchronous access)\n   - Called in: fetchEpisodeContent, fetchLatestEpisode, fetchThisWeekContent, fetchRecentContent\n\n2. SEARCH/FLOATING ITEMS - THE PROBLEM (TopToolbar.tsx lines 107-158):\n   - When user adds content via search (handleSearchConfirm), it calls fetchTweetDataForSearchItems\n   - This ONLY fetches tweets for the search items being added\n   - Only merges new tweets with existing ones (line 157)\n   - BUT: hoveredItemData triggers DetailNotes component which calls getTweet() on hover\n   - getTweet() warns \"Tweet not found in store\" if not previously batch loaded\n\n3. HOVER TRIGGER FLOW:\n   - FloatingContentItem.tsx: handlePointerEnter (line 92) → setHoveredItem(data)\n   - Details.tsx: hoveredItemData || activeItemData (line 33)\n   - DetailNotes.tsx: getTweet((content as any).platform_content_id) (line 19)\n   - If tweet not in store → getTweet returns null → warning logged\n\n4. MISSING TWEETS SCENARIOS:\n   a) Episode load: All tweets preloaded ✓\n   b) Search results: Tweets loaded before addContent ✓ \n   c) addContent called directly with items that haven't had getTweet called yet\n   d) Floating items from other sources not covered by fetchTweetDataForSearchItems\n\n5. getTweet() IMPLEMENTATION (contentStore.tsx lines 1174-1185):\n   - Synchronous lookup from tweets map\n   - Returns null if not found\n   - Logs warning with tweet ID\n   - No fallback or error handling\n\n6. ROOT CAUSE:\n   - Not all code paths that add content ensure tweet data is batch loaded first\n   - addContent() in contentStore doesn't trigger tweet fetch\n   - setHoveredItem() immediately triggers rendering that calls getTweet()\n   - Race condition: item becomes hoverable before tweets are loaded\n",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "database",
+        "investigation",
+        "tweet-loading",
+        "bug-analysis",
+        "hover-issue"
+      ],
+      "timestamp": "2025-12-11T04:37:09.577Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T04:37:09.577Z",
+      "lastVerified": "2025-12-11T04:37:09.577Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765431901827_gx75jj4wr",
+      "content": "Characters Page Fetch Failure - Investigation Summary\n\nKEY FINDINGS:\n1. API Endpoint: /api/characters (called from store.ts line 26)\n2. Store Implementation: viewer/ui/characters/store.ts - Zustand store with fetchCharacters() action\n3. Page Component: app/characters/page.tsx - Shows error state at line 119-121\n\nROOT CAUSE ANALYSIS:\n1. HTTP 404 Error: curl test shows API route returning 404 (not found)\n2. Possible Route Issues:\n   - app/api/characters/route.ts file exists with GET handler\n   - Route should be accessible at /api/characters\n   - Next.js dev server may not be recognizing the route file\n\nDATABASE SETUP:\n- users table created with: is_admin, is_moderator, discord_avatar, display_name fields\n- show_members table created with: show_id, user_id, role relationship\n- Profile fields added via 20251209000000 migration: bio, background_image_url, profile_links\n\nAPI LOGIC (route.ts lines 40-210):\n1. Queries users table for admins/mods\n2. Joins with show_members to get show information\n3. Merges results to deduplicate users with multiple show roles\n4. Returns formatted character list with shows array\n\nPOTENTIAL ISSUES:\n1. Route file exists but Next.js may not be compiling it properly\n2. Supabase client initialization might be failing silently\n3. Database tables might not exist or have schema mismatches\n4. No error logging visible in the HTTP response",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "api",
+        "database",
+        "characters-page",
+        "api-route",
+        "fetch-failure",
+        "investigation"
+      ],
+      "timestamp": "2025-12-11T05:45:01.827Z",
+      "context": "Investigating why /characters page shows \"Failed to fetch characters\"",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T05:45:01.827Z",
+      "lastVerified": "2025-12-11T05:45:01.827Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765431903815_zfel4b1gk",
+      "content": "Database schema and user/profile infrastructure exploration completed for 530News project.\n\nKEY FINDINGS:\n\n## Users Table Structure (in Supabase)\n- **Discord Authentication**: discord_id (unique), discord_username, discord_avatar\n- **User Info**: id (UUID), display_name, is_guild_member, created_at, updated_at\n- **Roles & Permissions**: \n  - is_moderator (BOOLEAN) - Moderator/admin role in Discord\n  - is_admin (BOOLEAN) - Admin status (added in 20251128200000_add_roles_and_approval.sql)\n  - discord_roles (TEXT[]) - Array of Discord role IDs\n- **Session Management**: session_token (JWT), session_expires_at (TIMESTAMPTZ)\n- **Profile Fields** (added in 20251209000000_add_user_profile_fields.sql):\n  - bio (TEXT, max 200 chars)\n  - background_image_url (TEXT) - URL to profile background in Supabase Storage\n  - profile_links (JSONB) - Array of {label, url} objects (max 4 items)\n\n## Constraints:\n- bio max 200 chars\n- profile_links max 4 items\n- Unique discord_id per user\n- RLS policies: All permissive (API handles auth via JWT)\n\n## Related Tables:\n- content_notes: One note per user per content (max 280 chars)\n- content: Main content items with approval_status workflow\n- All have updated_at triggers\n\n## Authentication Flow (Discord OAuth):\n1. User logs in via Discord\n2. Callback checks guild membership in 530Society (DISCORD_GUILD_ID = 1031322428288278539)\n3. Checks user roles against ADMIN_ROLE_IDS and MODERATOR_ROLE_IDS env vars\n4. Creates/updates user record with roles and session token\n5. Session expires after 30 days\n6. Returns session cookie (530_session - HttpOnly) and user info cookie (530_user)\n\n## API Endpoints:\n- GET /api/auth/session - Validate session, return user with profile fields\n- GET /api/users/profile - Get current user's profile\n- PATCH /api/users/profile - Update bio and profile_links (with validation)\n- POST /api/users/profile/image - Upload background image (2MB, JPEG/PNG/WebP)\n- DELETE /api/users/profile/image - Remove background image\n\n## Frontend Integration (AuthContext.tsx):\nUser interface has fields: id, discord_id, display_name, avatar, is_admin, is_moderator, bio, background_image_url, profile_links\n\n## Key Notes:\n- No separate \"characters\" table - users with is_moderator=true are shown as \"characters\" in UI\n- Discord roles determine admin/moderator status (hierarchical: admin implies moderator)\n- Profile images stored in Supabase Storage bucket 'profile-images'\n- File paths: {user_id}/background.{ext}",
+      "type": "config",
+      "tags": [
+        "config",
+        "database",
+        "authentication",
+        "api",
+        "schema",
+        "users",
+        "discord-oauth",
+        "profile",
+        "infrastructure"
+      ],
+      "timestamp": "2025-12-11T05:45:03.815Z",
+      "context": "READ-ONLY exploration task - identified complete user/profile infrastructure for 530News character select feature",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T05:45:03.815Z",
+      "lastVerified": "2025-12-11T05:45:03.815Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765432345745_yltu5l9tx",
+      "content": "Fixed /characters page \"Failed to fetch characters\" error:\n\n1. **Root cause 1**: middleware.ts didn't include `/characters` or `/api/characters` in public routes\n   - Added `/characters` to `publicRoutes` array (line 15)\n   - Added `/api/characters` to `publicGetApiRoutes` array (line 32)\n\n2. **Root cause 2**: Supabase query in `/api/characters/route.ts` used wrong foreign key syntax\n   - Changed `show_members!left` to `show_members!user_id` (line 58)\n   - Changed `shows!inner` to `shows!show_id` (lines 60, 93)\n   - Changed `users!inner` to `users!user_id` (line 83)\n   \nSupabase requires explicit foreign key hints when joining tables (e.g., `table!foreign_key_column`).",
+      "type": "error",
+      "tags": [
+        "error",
+        "api",
+        "fix",
+        "characters",
+        "middleware",
+        "supabase"
+      ],
+      "timestamp": "2025-12-11T05:52:25.745Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T05:52:25.745Z",
+      "lastVerified": "2025-12-11T05:52:25.745Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765433415566_5sn4enmdu",
+      "content": "Implemented My Profile feature for /characters page:\n\n1. **My Profile Button** (`app/characters/page.tsx`)\n   - Added cyan \"MY PROFILE\" button in bottom right corner\n   - Only visible when user is authenticated (`isAuthenticated`)\n   - Uses arcade-style design matching the page theme\n   - Links to `/characters/me`\n\n2. **Profile Edit Page** (`app/characters/me/page.tsx`)\n   - Full-page profile editor (not modal) with arcade theme\n   - Features:\n     - Background image upload/remove (2MB max, JPEG/PNG/WebP)\n     - Bio textarea (200 char limit with counter)\n     - Profile links management (up to 4 links)\n   - Client-side auth check - redirects to login if not authenticated\n   - Uses existing API endpoints: PATCH /api/users/profile, POST/DELETE /api/users/profile/image\n   - ESC key navigates back to /characters\n\n3. **Routing**\n   - `/characters` is already public in middleware\n   - `/characters/me` matches the `/characters` prefix so also loads publicly\n   - Auth is handled client-side with redirect to `/login?redirect=/characters/me`",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "feature",
+        "profile",
+        "characters",
+        "ui"
+      ],
+      "timestamp": "2025-12-11T06:10:15.566Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-11T06:10:15.566Z",
+      "lastVerified": "2025-12-11T06:10:15.566Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-09T06:21:50.304Z"
+  "lastUpdated": "2025-12-11T06:10:15.566Z"
 }

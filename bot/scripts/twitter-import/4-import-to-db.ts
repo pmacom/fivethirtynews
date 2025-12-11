@@ -268,7 +268,7 @@ if (countError) {
 // Next steps
 console.log('\n📋 NEXT STEPS')
 console.log('═'.repeat(60))
-console.log('1. Visit http://localhost:3000/embed to view your imported tweets')
+console.log('1. Visit http://localhost:3530/embed to view your imported tweets')
 console.log('2. Run: npm run db:counts    # Verify database counts')
 console.log('3. Filter by tag "liked-tweets" to see only imported content')
 console.log('\n✨ Import complete!\n')

@@ -12,7 +12,7 @@ interface TemplateImageProps {
 
 export const TemplateImage = ({ item, itemIndex, categoryId }: TemplateImageProps) => {
   const activeItemId = useContentStore(state => state.activeItemId)
-  const isActive = item.content?.content_id === activeItemId
+  const isActive = item.content?.id === activeItemId
 
   // Get image thumbnail from content data
   const imageUrl = item.content?.thumbnail_url || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI/an+cHAAAAABJRU5ErkJggg=='

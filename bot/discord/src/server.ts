@@ -6,7 +6,8 @@ const app = express();
 app.use(express.json());
 
 const BOT_API_SECRET = process.env.BOT_API_SECRET;
-const APP_URL = process.env.APP_URL || 'http://localhost:3000';
+const DEFAULT_PORT = process.env.PORT || '3530';
+const APP_URL = process.env.APP_URL || `http://localhost:${DEFAULT_PORT}`;
 
 // Middleware to verify API secret
 function verifySecret(req: Request, res: Response, next: NextFunction): void {

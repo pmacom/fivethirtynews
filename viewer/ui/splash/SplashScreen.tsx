@@ -18,6 +18,8 @@ import { useStageSelectStore } from '../stageselect/store'
 import { useContentStore } from '../../core/store/contentStore'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import { GlobalSettingsButton } from '../components/GlobalSettingsButton'
+import { useNavigationStore } from '../navigation/store'
 
 // --- 3D Components ---
 
@@ -62,7 +64,7 @@ function Logo3D() {
         ref={meshRef}
         object={scene}
         scale={3}
-        rotation={[0, Math.PI * 0.25, 0]}
+        rotation={[0, Math.PI * 1.25, 0]}
       />
     </Float>
   )
@@ -201,7 +203,7 @@ export const SplashScreen = () => {
         action: () => {
           setMenuState('transitioning')
           setTimeout(() => {
-            router.push('/browse/characters')
+            router.push('/characters')
           }, 800)
         }
       },
@@ -317,6 +319,9 @@ export const SplashScreen = () => {
 
   return (
     <div className="h-screen w-screen bg-black overflow-hidden fixed inset-0 z-[210] font-orbitron select-none">
+
+      {/* Global Settings Button */}
+      <GlobalSettingsButton zIndex={220} />
 
       {/* 3D Background Layer */}
       <div className="absolute inset-0 z-0">

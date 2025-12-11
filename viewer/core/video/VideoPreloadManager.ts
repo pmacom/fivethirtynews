@@ -211,12 +211,15 @@ class VideoPreloadManager {
       return item.content.content_url || null;
     }
 
-    // Twitter video
+    // Twitter video - use platform_content_id (tweet ID), content_id is often empty for newer content
     if (item.content.content_type === 'twitter') {
-      const tweet = useTweetStore.getState().getTweet(item.content.content_id);
-      if (tweet) {
-        const videoUrls = extractVideoUrls(tweet);
-        return videoUrls.length > 0 ? videoUrls[0] : null;
+      const tweetId = (item.content as any).platform_content_id || item.content.content_id;
+      if (tweetId) {
+        const tweet = useTweetStore.getState().getTweet(tweetId);
+        if (tweet) {
+          const videoUrls = extractVideoUrls(tweet);
+          return videoUrls.length > 0 ? videoUrls[0] : null;
+        }
       }
     }
 
@@ -377,7 +380,8 @@ class VideoPreloadManager {
         error.type === 'error';
 
       if (isCorsError || errorMessage.includes('ERR_FAILED')) {
-        logger.warn(`Video CORS/Network error for ${itemId}, using thumbnail fallback`);
+        // CORS errors are expected for Twitter videos - log at debug level
+        logger.debug(`Video CORS/Network error for ${itemId}, using thumbnail fallback`);
         this.blacklistedUrls.set(videoUrl, 'CORS or network error');
         this.failedItems.add(itemId);
 

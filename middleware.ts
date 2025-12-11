@@ -9,8 +9,11 @@ const publicRoutes = [
   '/api/auth/session',
   '/api/auth/logout',
   '/api/auth/verify', // For extension auth
+  '/api/proxy-image', // Image proxy for Twitter images (needed for public viewer)
   '/recent', // Public "This Week" content view
   '/browse', // Public category browsing
+  '/characters', // Public character selection screen
+  '/shows', // Public shows selection screen
 ];
 
 // API routes that require authentication (add more as needed)
@@ -27,6 +30,7 @@ const publicGetApiRoutes = [
   '/api/labels',   // List labels publicly, creating requires moderator
   '/api/tags',     // List tags publicly for autocomplete
   '/api/shows',    // Browse shows publicly, auth required to modify
+  '/api/characters', // Public character roster
 ];
 
 // Routes that require moderator role

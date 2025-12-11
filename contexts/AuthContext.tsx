@@ -2,6 +2,11 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
+interface ProfileLink {
+  label: string;
+  url: string;
+}
+
 interface User {
   id: string;
   discord_id: string;
@@ -9,6 +14,10 @@ interface User {
   avatar: string | null;
   is_admin: boolean;
   is_moderator: boolean;
+  // Profile fields
+  bio?: string | null;
+  background_image_url?: string | null;
+  profile_links?: ProfileLink[];
 }
 
 interface AuthContextType {
@@ -17,6 +26,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,6 +66,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshSession();
   }, []);
 
+  // refreshUser is an alias for refreshSession - both fetch the full user data
+  const refreshUser = refreshSession;
+
   return (
     <AuthContext.Provider
       value={{
@@ -64,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         logout,
         refreshSession,
+        refreshUser,
       }}
     >
       {children}

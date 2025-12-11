@@ -22,7 +22,7 @@ function Scene({ children }: SceneProps) {
   const isBrowseMode = useBrowseModeStore(state => state.isActive)
 
   return (
-    <div className={`w-screen h-screen bg-slate-900 ${isBrowseMode ? 'ring-4 ring-inset ring-orange-500' : ''}`}>
+    <div className={`w-screen h-screen bg-black ${isBrowseMode ? 'ring-4 ring-inset ring-orange-500' : ''}`}>
       <Canvas gl={{ localClippingEnabled: true }}>
         <PerspectiveCamera position={[0, 0, 0]} />
 

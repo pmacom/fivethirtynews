@@ -24,9 +24,14 @@ export async function GET(request: NextRequest) {
       return returnBrokenImage('No URL provided')
     }
 
-    // Only allow Twitter image URLs for security
-    if (!imageUrl.includes('pbs.twimg.com')) {
-      return returnBrokenImage('Only Twitter images are allowed')
+    // Only allow Twitter image domains
+    const isTwitterDomain = imageUrl.includes('pbs.twimg.com')
+    if (!isTwitterDomain) {
+      let domain = 'invalid'
+      try {
+        domain = new URL(imageUrl).hostname
+      } catch {}
+      return returnBrokenImage(`Only Twitter images are allowed (got: ${domain})`)
     }
 
     // Fetch the image with proper headers

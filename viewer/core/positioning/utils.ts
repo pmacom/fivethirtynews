@@ -13,8 +13,8 @@ export function flattenContent(contents: LiveViewContentBlock[]): FlattenedItem[
 
   contents.forEach((category, categoryIndex) => {
     category.content_block_items?.forEach((item, itemIndex) => {
-      // Use content_id for data lookup, but globalIndex for unique React key
-      const contentId = item.content?.content_id || item.content?.id || `${category.id}-${itemIndex}`
+      // Use id (primary key) for data lookup - content_id is often empty for newer content
+      const contentId = item.content?.id || item.content?.content_id || `${category.id}-${itemIndex}`
       // Unique key includes category to handle same content in multiple categories
       const uniqueKey = `${category.id}-${contentId}-${itemIndex}`
 

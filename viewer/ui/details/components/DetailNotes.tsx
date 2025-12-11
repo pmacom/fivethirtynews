@@ -14,8 +14,9 @@ export const DetailNotes = ({ data }: DetailNotesProps) => {
   const [hasOverflow, setHasOverflow] = useState(false)
 
   // For Twitter content, get tweet data as fallback for missing fields
-  const tweetData = content.content_type === 'twitter' && content.content_id
-    ? getTweet(content.content_id)?.data
+  // Use platform_content_id (tweet ID) for lookup - content_id is often empty
+  const tweetData = content.content_type === 'twitter' && (content as any).platform_content_id
+    ? getTweet((content as any).platform_content_id)?.data
     : null
 
   // Author info with fallbacks to tweet data

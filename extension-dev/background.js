@@ -3,8 +3,8 @@
 // ===== ENVIRONMENT CONFIGURATION =====
 // These values are replaced during build for production
 const ENV = {
-  API_URL: 'http://localhost:3000/api',
-  APP_URL: 'http://localhost:3000',
+  API_URL: 'http://localhost:3530/api',
+  APP_URL: 'http://localhost:3530',
   IS_DEV: true,
   ENV_NAME: 'development',
   ENV_COLOR: '#8B5CF6',
@@ -1103,9 +1103,9 @@ async function handleGetRecentPosts() {
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     console.log('530: Extension installed');
-    // Set default local API config
+    // Set default local API config (default port: 3530)
     chrome.storage.sync.set({
-      apiUrl: 'http://localhost:3000/api'
+      apiUrl: 'http://localhost:3530/api'
     });
     console.log('530: Default API config set to local Next.js server');
   } else if (details.reason === 'update') {

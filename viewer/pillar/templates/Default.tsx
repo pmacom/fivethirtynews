@@ -1,8 +1,9 @@
 import React from 'react'
-import { PlaneView } from '../components/PlaneView'
 import { useContentStore } from '../../core/store/contentStore'
 import { LiveViewContentBlockItems } from '../../core/content/types'
 import ContentWrapper from '../components/ContentWrapper'
+import { ErrorXView } from '../components/ErrorXView'
+import logger from '../../utils/logger'
 
 interface TemplateDefaultProps {
   item: LiveViewContentBlockItems
@@ -13,10 +14,16 @@ interface TemplateDefaultProps {
 
 export const TemplateDefault = ({ item, itemIndex, categoryId }: TemplateDefaultProps) => {
   const activeItemId = useContentStore(state => state.activeItemId)
-  const isActive = item.content?.content_id === activeItemId
+  const isActive = item.content?.id === activeItemId
 
-  // Solid color data URI - gray for default
-  const placeholderUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKQAAAABJRU5ErkJggg=='
+  // Log when content hits the default template (indicates content_type issue)
+  logger.warn('[Default] Content using fallback template:', {
+    contentId: item.content?.id,
+    contentType: item.content?.content_type,
+    platformContentId: (item.content as any)?.platform_content_id,
+    hasThumbnail: !!item.content?.thumbnail_url,
+    contentUrl: item.content?.content_url?.substring(0, 60),
+  })
 
   return (
     <ContentWrapper
@@ -25,7 +32,11 @@ export const TemplateDefault = ({ item, itemIndex, categoryId }: TemplateDefault
       itemIndex={itemIndex}
       active={isActive}
     >
-      <PlaneView url={placeholderUrl} active={isActive} />
+      <ErrorXView
+        active={isActive}
+        itemId={item.content?.id}
+        message={`Unknown type: ${item.content?.content_type || 'null'}`}
+      />
     </ContentWrapper>
   )
 }

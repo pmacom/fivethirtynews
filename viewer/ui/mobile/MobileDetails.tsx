@@ -118,9 +118,9 @@ const MobileDetailsContent = ({ itemData, expanded }: MobileDetailsContentProps)
   const { content, note } = itemData
   const getTweet = useTweetStore(state => state.getTweet)
 
-  // Get tweet data for fallbacks
-  const tweetData = content.content_type === 'twitter' && content.content_id
-    ? getTweet(content.content_id)?.data
+  // Get tweet data for fallbacks - use platform_content_id for tweet lookup
+  const tweetData = content.content_type === 'twitter' && (content as any).platform_content_id
+    ? getTweet((content as any).platform_content_id)?.data
     : null
 
   // Author info with fallbacks

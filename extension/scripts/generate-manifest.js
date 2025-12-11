@@ -84,10 +84,12 @@ fs.writeFileSync(outputPath, JSON.stringify(manifest, null, 2));
 console.log(`✓ Generated ${isDev ? 'development' : 'production'} manifest: ${outputPath}`);
 
 // Environment values for replacement
+// Default local port: 3530 (configurable via PORT env var)
+const LOCAL_PORT = process.env.PORT || '3530';
 const envValues = {
   development: {
-    API_URL: 'http://localhost:3000/api',
-    APP_URL: 'http://localhost:3000',
+    API_URL: `http://localhost:${LOCAL_PORT}/api`,
+    APP_URL: `http://localhost:${LOCAL_PORT}`,
     IS_DEV: 'true',
     ENV_NAME: 'development',
     ENV_COLOR: '#8B5CF6', // Purple

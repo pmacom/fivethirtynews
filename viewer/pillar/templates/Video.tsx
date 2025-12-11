@@ -13,7 +13,7 @@ interface TemplateVideoProps {
 
 export const TemplateVideo = ({ item, itemIndex, categoryId }: TemplateVideoProps) => {
   const activeItemId = useContentStore(state => state.activeItemId)
-  const isActive = item.content?.content_id === activeItemId
+  const isActive = item.content?.id === activeItemId
 
   const videoUrl = item.content?.content_url || ''
 

@@ -17,10 +17,12 @@
     "https://old.reddit.com/*",
     "https://bsky.app/*",
     "https://discord.com/*",
-    "http://localhost:3000/*",
-    "http://localhost:3001/*",
-    "http://127.0.0.1:3000/*",
-    "http://127.0.0.1:3001/*"
+    "http://localhost:3530/*",
+    "http://localhost:3531/*",
+    "http://127.0.0.1:3530/*",
+    "http://127.0.0.1:3531/*",
+    "https://530society.com/*",
+    "https://*.530society.com/*"
   ],
   "background": {
     "service_worker": "background.js"

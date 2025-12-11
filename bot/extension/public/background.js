@@ -3,7 +3,7 @@ console.log('530 Extension: Background service worker initialized');
 
 // API configuration - Use Next.js API instead of direct Supabase
 let apiConfig = {
-  baseUrl: 'http://localhost:3000/api'
+  baseUrl: 'http://localhost:3530/api'
 };
 
 console.log('530: Using API at:', apiConfig.baseUrl);
@@ -715,7 +715,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     console.log('530: Extension installed');
     // Set default local API config
     chrome.storage.sync.set({
-      apiUrl: 'http://localhost:3000/api'
+      apiUrl: 'http://localhost:3530/api'
     });
     console.log('530: Default API config set to local Next.js server');
   } else if (details.reason === 'update') {

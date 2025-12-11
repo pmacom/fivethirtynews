@@ -3,11 +3,11 @@
 // ===== ENVIRONMENT CONFIGURATION =====
 // These values are replaced during build for production
 const ENV = {
-  API_URL: 'https://530society.com/api',
-  APP_URL: 'https://530society.com',
-  IS_DEV: false,
-  ENV_NAME: 'production',
-  ENV_COLOR: '#10B981',
+  API_URL: '%%API_URL%%',
+  APP_URL: '%%APP_URL%%',
+  IS_DEV: %%IS_DEV%%,
+  ENV_NAME: '%%ENV_NAME%%',
+  ENV_COLOR: '%%ENV_COLOR%%',
 };
 
 // Log environment with colored badge
@@ -1103,9 +1103,9 @@ async function handleGetRecentPosts() {
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     console.log('530: Extension installed');
-    // Set default local API config
+    // Set default local API config (default port: 3530)
     chrome.storage.sync.set({
-      apiUrl: 'http://localhost:3000/api'
+      apiUrl: 'http://localhost:3530/api'
     });
     console.log('530: Default API config set to local Next.js server');
   } else if (details.reason === 'update') {

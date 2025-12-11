@@ -5,7 +5,8 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET /api/auth/discord?web=true (for web app login)
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-const DISCORD_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI || 'http://localhost:3000/api/auth/discord/callback';
+const DEFAULT_PORT = process.env.PORT || '3530';
+const DISCORD_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI || `http://localhost:${DEFAULT_PORT}/api/auth/discord/callback`;
 
 export async function GET(request: NextRequest) {
   // Check if this is a web app login or extension login

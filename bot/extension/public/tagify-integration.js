@@ -3,7 +3,8 @@
 
 class TagifyIntegration {
   constructor() {
-    this.apiBaseUrl = 'http://localhost:3000/api';
+    // Default port: 3530 (configurable via apiBaseUrl setter)
+    this.apiBaseUrl = 'http://localhost:3530/api';
     this.debounceTimer = null;
     this.debounceDelay = 300; // ms
     this.controller = null; // For aborting fetch requests
