@@ -8,6 +8,8 @@ const client = new Client({
 });
 const memberCache = new Map();
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const FETCH_CHUNK_SIZE = 100; // Fetch members in chunks of 100 to reduce memory pressure
+const CHUNK_DELAY_MS = 100; // Small delay between chunks to allow GC
 client.once('ready', () => {
     console.log(`[Discord] Bot logged in as ${client.user?.tag}`);
     console.log(`[Discord] Connected to ${client.guilds.cache.size} guild(s)`);
@@ -15,6 +17,29 @@ client.once('ready', () => {
 client.on('error', (error) => {
     console.error('[Discord] Client error:', error);
 });
+/**
+ * Convert a GuildMember to our DiscordMemberInfo format
+ * Extracted to reduce memory allocation in loops
+ */
+function memberToInfo(member) {
+    return {
+        id: member.user.id,
+        username: member.user.username,
+        displayName: member.displayName || member.user.username,
+        avatar: member.user.avatarURL({ size: 128 }),
+        roles: member.roles.cache
+            .filter(role => role.name !== '@everyone')
+            .map(role => role.name),
+        joinedAt: member.joinedAt?.toISOString() || null,
+        isBot: member.user.bot,
+    };
+}
+/**
+ * Small delay helper for chunked operations
+ */
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 export async function sendContentEmbed(channelId, embed) {
     try {
         const channel = await client.channels.fetch(channelId);
@@ -39,7 +64,7 @@ export async function loginBot(token) {
     await client.login(token);
 }
 /**
- * Fetch all members from a guild
+ * Fetch all members from a guild in chunks to reduce memory pressure
  * Returns member info with count for caching comparison
  * Uses server-side cache to prevent Discord rate limiting
  */
@@ -61,22 +86,41 @@ export async function fetchGuildMembers(guildId) {
                 guildName: cached.guildName,
             };
         }
-        // Fetch all members (requires GuildMembers intent)
-        const members = await guild.members.fetch();
-        console.log(`[Discord] Fetched ${members.size} members from ${guild.name}`);
-        const memberList = members
-            .filter(member => !member.user.bot) // Exclude bots
-            .map(member => ({
-            id: member.user.id,
-            username: member.user.username,
-            displayName: member.displayName || member.user.username,
-            avatar: member.user.avatarURL({ size: 128 }),
-            roles: member.roles.cache
-                .filter(role => role.name !== '@everyone')
-                .map(role => role.name),
-            joinedAt: member.joinedAt?.toISOString() || null,
-            isBot: member.user.bot,
-        }));
+        // Fetch members in chunks to reduce memory pressure
+        const memberList = [];
+        let lastMemberId;
+        let chunkCount = 0;
+        console.log(`[Discord] Starting chunked fetch for ${guild.name} (chunk size: ${FETCH_CHUNK_SIZE})`);
+        while (true) {
+            // Fetch a chunk of members
+            const fetchOptions = {
+                limit: FETCH_CHUNK_SIZE,
+            };
+            if (lastMemberId) {
+                fetchOptions.after = lastMemberId;
+            }
+            const chunk = await guild.members.list(fetchOptions);
+            chunkCount++;
+            if (chunk.size === 0) {
+                console.log(`[Discord] Completed fetching ${guild.name}: ${memberList.length} members in ${chunkCount} chunks`);
+                break;
+            }
+            // Process this chunk immediately
+            for (const member of chunk.values()) {
+                if (!member.user.bot) {
+                    memberList.push(memberToInfo(member));
+                }
+                lastMemberId = member.id;
+            }
+            console.log(`[Discord] Chunk ${chunkCount}: fetched ${chunk.size}, total so far: ${memberList.length}`);
+            // If we got fewer than the chunk size, we're done
+            if (chunk.size < FETCH_CHUNK_SIZE) {
+                console.log(`[Discord] Completed fetching ${guild.name}: ${memberList.length} members in ${chunkCount} chunks`);
+                break;
+            }
+            // Small delay between chunks to allow garbage collection
+            await delay(CHUNK_DELAY_MS);
+        }
         // Update server-side cache
         memberCache.set(guildId, {
             members: memberList,

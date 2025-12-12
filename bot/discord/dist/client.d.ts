@@ -12,7 +12,7 @@ export interface DiscordMemberInfo {
 export declare function sendContentEmbed(channelId: string, embed: EmbedBuilder): Promise<boolean>;
 export declare function loginBot(token: string): Promise<void>;
 /**
- * Fetch all members from a guild
+ * Fetch all members from a guild in chunks to reduce memory pressure
  * Returns member info with count for caching comparison
  * Uses server-side cache to prevent Discord rate limiting
  */
