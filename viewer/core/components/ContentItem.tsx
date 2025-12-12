@@ -18,6 +18,7 @@ interface ContentItemProps {
   hoverAnimation?: HoverAnimation
   onHover: (item: FlattenedItem | null) => void
   onClick?: (item: FlattenedItem) => void
+  disablePointerEvents?: boolean  // When true, don't attach pointer event handlers (used in stack mode)
 }
 
 // Spring config for view mode transitions
@@ -37,6 +38,7 @@ export function ContentItem({
   hoverAnimation,
   onHover,
   onClick,
+  disablePointerEvents = false,
 }: ContentItemProps) {
   const groupRef = useRef<THREE.Group>(null)
   const activeItemId = useContentStore(state => state.activeItemId)
@@ -121,6 +123,7 @@ export function ContentItem({
   // Always use animated.group for smooth view mode transitions
   // Hover animations are additive on top of base transform springs
   // Use to() to combine multiple animated values reactively
+  // When disablePointerEvents is true, don't attach event handlers (stack mode uses deck mesh instead)
   return (
     <animated.group
       ref={groupRef}
@@ -131,9 +134,9 @@ export function ContentItem({
       rotation-y={rotY}
       rotation-z={rotZ}
       scale={to([scaleVal, hoverScale], (s, hs) => s * hs)}
-      onClick={handleClick}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
+      onClick={disablePointerEvents ? undefined : handleClick}
+      onPointerEnter={disablePointerEvents ? undefined : handlePointerEnter}
+      onPointerLeave={disablePointerEvents ? undefined : handlePointerLeave}
     >
       {content}
     </animated.group>

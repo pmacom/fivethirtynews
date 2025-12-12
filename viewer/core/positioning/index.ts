@@ -7,8 +7,8 @@ export * from './utils'
 // Positioners
 export { pillarPositioner } from './pillar'
 export { cloudPositioner, type CloudOrganizationMode } from './cloud'
-export { stackPositioner } from './stack'
 export { carouselPositioner } from './carousel'
+export { deckPositioner, getDeckDepth, getItemIndexFromZ, getDeckPoints } from './deck'
 
 // Orbit positioning (for floating content)
 export {

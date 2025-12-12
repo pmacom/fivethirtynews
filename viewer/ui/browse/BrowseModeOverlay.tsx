@@ -13,7 +13,7 @@ import { usePillarBrowseInteractions } from '../../core/hooks/usePillarBrowseInt
 const VIEW_MODE_HINTS: Record<ViewMode, string> = {
   pillar: 'Drag to orbit & climb • Scroll to climb • TAB to exit',
   cloud: 'Drag to orbit • Scroll to zoom • TAB to exit',
-  stack: 'Scroll to browse • Hover to preview • TAB to exit',
+  stack: 'Hover stack to preview • Click to select • TAB to exit',
   carousel: 'Drag to scroll • Arrow keys to navigate • TAB to exit',
 }
 

@@ -1,13 +1,12 @@
 "use client"
 
-import React, { useCallback, useState, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useViewModeStore, ViewMode } from '../core/store/viewModeStore'
 import { useCloudViewStore } from '../core/store/cloudViewStore'
-import { ContentScene } from '../core/components'
+import { ContentScene, StackScene } from '../core/components'
 import {
   pillarPositioner,
   cloudPositioner,
-  stackPositioner,
   carouselPositioner,
   Positioner,
   HoverAnimation,
@@ -22,7 +21,7 @@ interface ViewModeConfig {
   itemHoverAnimation?: HoverAnimation
 }
 
-const VIEW_MODE_CONFIGS: Record<ViewMode, ViewModeConfig> = {
+const VIEW_MODE_CONFIGS: Partial<Record<ViewMode, ViewModeConfig>> = {
   pillar: {
     positioner: pillarPositioner,
     enableWheelZoom: false,
@@ -31,20 +30,11 @@ const VIEW_MODE_CONFIGS: Record<ViewMode, ViewModeConfig> = {
     positioner: cloudPositioner,
     enableWheelZoom: true,
   },
-  stack: {
-    positioner: stackPositioner,
-    enableWheelZoom: true,
-    itemHoverAnimation: {
-      liftY: 0.8,
-      liftZ: 1.5,
-      tiltX: -0.15,
-      scale: 1,
-    },
-  },
   carousel: {
     positioner: carouselPositioner,
     enableWheelZoom: false,
   },
+  // Note: 'stack' mode uses StackScene component directly, not ContentScene
 }
 
 /**
@@ -62,10 +52,7 @@ export const LayoutSwitcher = () => {
   const cloudOrganizationMode = useCloudViewStore(state => state.organizationMode)
   const toggleCloudZoom = useCloudViewStore(state => state.toggleZoom)
 
-  // Stack-specific state
-  const [stackFocused, setStackFocused] = useState(false)
-
-  // Get config for current view mode
+  // Get config for current view mode (may be undefined for stack which uses its own scene)
   const config = VIEW_MODE_CONFIGS[viewMode]
 
   // Build positioner options based on view mode
@@ -79,23 +66,10 @@ export const LayoutSwitcher = () => {
     return undefined
   }, [viewMode, cloudOrganizationMode, cloudZoomLevel])
 
-  // Build hover animation with focus state for stack
-  const itemHoverAnimation = useMemo(() => {
-    if (viewMode === 'stack') {
-      return {
-        ...config.itemHoverAnimation,
-        scale: stackFocused ? 1.5 : 1,
-      }
-    }
-    return config.itemHoverAnimation
-  }, [viewMode, config.itemHoverAnimation, stackFocused])
-
-  // Toggle focus handler (cloud zoom / stack focus)
+  // Toggle focus handler (cloud zoom)
   const handleToggleFocus = useCallback(() => {
     if (viewMode === 'cloud') {
       toggleCloudZoom()
-    } else if (viewMode === 'stack') {
-      setStackFocused(prev => !prev)
     }
   }, [viewMode, toggleCloudZoom])
 
@@ -103,34 +77,38 @@ export const LayoutSwitcher = () => {
   const handleEscape = useCallback(() => {
     if (viewMode === 'cloud' && cloudZoomLevel === 'focused') {
       useCloudViewStore.setState({ zoomLevel: 'distant' })
-    } else if (viewMode === 'stack' && stackFocused) {
-      setStackFocused(false)
     }
-  }, [viewMode, cloudZoomLevel, stackFocused])
+  }, [viewMode, cloudZoomLevel])
 
   // Scroll up handler (zoom in)
   const handleScrollUp = useCallback(() => {
     if (viewMode === 'cloud' && cloudZoomLevel === 'distant') {
       useCloudViewStore.setState({ zoomLevel: 'focused' })
-    } else if (viewMode === 'stack' && !stackFocused) {
-      setStackFocused(true)
     }
-  }, [viewMode, cloudZoomLevel, stackFocused])
+  }, [viewMode, cloudZoomLevel])
 
   // Scroll down handler (zoom out)
   const handleScrollDown = useCallback(() => {
     if (viewMode === 'cloud' && cloudZoomLevel === 'focused') {
       useCloudViewStore.setState({ zoomLevel: 'distant' })
-    } else if (viewMode === 'stack' && stackFocused) {
-      setStackFocused(false)
     }
-  }, [viewMode, cloudZoomLevel, stackFocused])
+  }, [viewMode, cloudZoomLevel])
+
+  // Stack mode uses its own specialized scene component
+  if (viewMode === 'stack') {
+    return <StackScene />
+  }
+
+  // For other modes, use ContentScene with positioner
+  if (!config) {
+    return null
+  }
 
   return (
     <ContentScene
       positioner={config.positioner}
       positionerOptions={positionerOptions}
-      itemHoverAnimation={itemHoverAnimation}
+      itemHoverAnimation={config.itemHoverAnimation}
       enableNavigation={true}
       enableWheelZoom={config.enableWheelZoom}
       onToggleFocus={handleToggleFocus}

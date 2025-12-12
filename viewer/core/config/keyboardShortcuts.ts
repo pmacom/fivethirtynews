@@ -53,12 +53,12 @@ export const KEYBOARD_SHORTCUTS: Record<ViewMode, ViewModeShortcuts> = {
   },
   stack: {
     navigation: [
-      { keys: ['←', '↑'], action: 'Previous' },
-      { keys: ['→', '↓'], action: 'Next' },
+      { keys: ['←', '→'], action: 'Switch Stack' },
+      { keys: ['↑', '↓'], action: 'Browse Stack' },
     ],
     actions: [
-      { keys: ['Space'], action: 'Toggle Focus' },
-      { keys: ['Esc'], action: 'Unfocus' },
+      { keys: ['Enter'], action: 'Select' },
+      { keys: ['Esc'], action: 'Back' },
     ],
   },
   carousel: {

@@ -27,8 +27,8 @@ export const VIEW_MODE_CONFIG: Record<ViewMode, ViewModeConfig> = {
   },
   stack: {
     enableOrbitControls: false,
-    enableWheelZoom: true,
-    navigationMode: 'flat',
+    enableWheelZoom: false,
+    navigationMode: 'grid',
     browseControlType: 'orbit',
   },
   carousel: {
@@ -53,6 +53,6 @@ export const useViewModeStore = create<ViewModeState>((set) => ({
 export const VIEW_MODE_OPTIONS: { value: ViewMode; label: string; description: string }[] = [
   { value: 'pillar', label: 'Pillar', description: 'Circular column arrangement' },
   { value: 'cloud', label: 'Cloud', description: 'Scattered 3D space' },
-  { value: 'stack', label: 'Stack', description: 'Layered cards' },
+  { value: 'stack', label: 'Stack', description: 'Vinyl bin racks per category' },
   { value: 'carousel', label: 'Carousel', description: 'Horizontal scroll' },
 ]
