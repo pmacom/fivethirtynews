@@ -1,10 +1,11 @@
 "use client"
 
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react'
-import { animated } from '@react-spring/three'
+import * as THREE from 'three'
 
 import { useContentStore } from '../store/contentStore'
 import { useSceneStore } from '../../scene/store'
+import { useBrowseModeStore } from '../store/browseModeStore'
 import { useFlattenedContent } from '../hooks/useFlattenedContent'
 import { useCanvasResize } from '../hooks/useCanvasResize'
 import { ContentItem } from './ContentItem'
@@ -12,40 +13,47 @@ import { Deck } from './Deck'
 import { getCategoryInfo } from '../positioning/utils'
 import { FlattenedItem } from '../positioning/types'
 
-// Layout constants
+// Layout constants - "vinyl bins on floor, art on wall" metaphor
 const DECK_SPACING = 0.15         // Z-spacing between items in a deck
-const HOVER_RAISE = 0.5           // How much item raises on hover (preview)
-const ACTIVE_RAISE = 2.0          // How much item raises when active
-const STACK_Y_POSITION = -0.3     // Stacks positioned near bottom of screen
-const RACK_SPACING_BASE = 0.2     // Base spacing added to content width
+const HOVER_RAISE = 0.6           // How much item raises on hover (preview) - doubled for better visibility
+const FLOOR_Y = -1.0              // Y position of deck bins (floor level)
+const RACK_SPACING_BASE = 0.15    // Base spacing added to content width between racks
+
+// Two-zone bounding box system
+// Deck Zone: 1x height - where vinyl bin racks sit on "floor"
+// Content Zone: 3x height - where active content displays (stacked on top)
+const CONTENT_ZONE_MULTIPLIER = 3  // Content zone is 3x taller than deck zone
 
 interface StackSceneProps {
   deckSpacing?: number
   hoverRaise?: number
-  activeRaise?: number
+  floorY?: number
   debug?: boolean
 }
 
 /**
  * StackScene - Multiple deck stacks arranged side-by-side like vinyl bin racks
  *
- * One stack per category, positioned horizontally. Each stack allows:
- * - Hover to preview: Item raises slightly so user can see it
- * - Click to activate: Item raises much higher and camera zooms to it
+ * Uses a two-zone bounding box system:
+ * - Deck Zone (1x height): Where vinyl bin racks sit on "floor"
+ * - Content Zone (3x height): Where active content displays (stacked on top)
+ * - Combined Zone (4x height): Used for fitToBox camera positioning in browse mode
  *
  * Interaction flow:
- * 1. User hovers over a stack - item under pointer raises for preview
- * 2. User clicks the previewed item - it becomes "active" and raises higher
- * 3. Camera zooms to the active item
+ * 1. Normal mode: Camera focuses on active content in content zone
+ * 2. Browse mode (Tab): Camera fits to combined zone, showing all decks
+ * 3. User hovers over decks to preview items
+ * 4. User clicks to select - exits browse mode, focuses on new content
  */
 export function StackScene({
   deckSpacing = DECK_SPACING,
   hoverRaise = HOVER_RAISE,
-  activeRaise = ACTIVE_RAISE,
-  debug = true,  // Enable debug to visualize hit meshes
+  floorY = FLOOR_Y,
+  debug = false,
 }: StackSceneProps) {
   const hasInitializedRef = useRef(false)
-  const cameraInitializedRef = useRef(false)
+  const sceneGroupRef = useRef<THREE.Group>(null)
+  const combinedBoundsRef = useRef<THREE.Mesh>(null)
 
   // Track which item in which category is active (categoryIndex -> itemIndex)
   const [activeState, setActiveState] = useState<{
@@ -53,9 +61,12 @@ export function StackScene({
     itemIndex: number
   } | null>(null)
 
+  // Subscribe to browse mode - stack uses this to trigger camera fit
+  const isBrowsing = useBrowseModeStore((state) => state.isActive)
+
   // Get flattened content and category info
   const flattenedContent = useFlattenedContent()
-  const { items, categories, hasContent } = flattenedContent
+  const { items, hasContent } = flattenedContent
 
   // Get canvas size for dynamic sizing
   const { canvasWidth, canvasHeight } = useCanvasResize()
@@ -75,68 +86,159 @@ export function StackScene({
     [items]
   )
 
-  // Calculate rack positions (centered around origin, positioned near bottom)
+  // Calculate max deck depth (zfront) for bounding box
+  const maxItemsInDeck = useMemo(() => {
+    let max = 0
+    itemsPerCategory.forEach((items) => {
+      if (items.length > max) max = items.length
+    })
+    return max
+  }, [itemsPerCategory])
+
+  const maxDeckDepth = (maxItemsInDeck - 1) * deckSpacing
+
+  // ==========================================
+  // TWO-ZONE BOUNDING BOX CALCULATIONS
+  // ==========================================
+
+  // Deck zone dimensions (where vinyl bins sit)
+  const deckZoneWidth = (categoryCount - 1) * rackSpacing + deckWidth
+  const deckZoneHeight = deckHeight
+  const deckZoneDepth = Math.max(maxDeckDepth, 0.1) // Ensure minimum depth
+
+  // Content zone dimensions (3x taller, stacked on top of deck zone)
+  const contentZoneHeight = deckHeight * CONTENT_ZONE_MULTIPLIER
+
+  // Combined zone for browse mode camera (4x total height)
+  const combinedHeight = deckZoneHeight + contentZoneHeight
+
+  // Content zone center (where active content should be positioned)
+  const contentCenterY = floorY + deckZoneHeight + (contentZoneHeight / 2)
+  const contentCenterX = 0
+  const contentCenterZ = deckZoneDepth / 2
+
+  // Combined zone center (for bounding box positioning)
+  const combinedCenterY = floorY + (combinedHeight / 2)
+
+  // Calculate the raise amount needed to get from deck position to content zone center
+  const activeRaise = contentCenterY - floorY
+
+  // Calculate rack positions (centered around origin, positioned at floor level)
   const rackPositions = useMemo(() => {
     const positions: [number, number, number][] = []
     const totalWidth = (categoryCount - 1) * rackSpacing
     const startX = -totalWidth / 2
 
     for (let i = 0; i < categoryCount; i++) {
-      positions.push([startX + i * rackSpacing, STACK_Y_POSITION, 0])
+      positions.push([startX + i * rackSpacing, floorY, 0])
     }
 
     return positions
-  }, [categoryCount, rackSpacing])
+  }, [categoryCount, rackSpacing, floorY])
 
-  // Position camera to see all stacks on mount and resize
-  useEffect(() => {
+  // ==========================================
+  // STACK MODE CAMERA - POSITION ON MOUNT AND BROWSE ENTER
+  // ==========================================
+  // Stack mode always shows the "browse" view - camera fitted to combined zone
+  // We position camera both on initial mount AND when browse mode is entered
+  const cameraInitializedRef = useRef(false)
+
+  // Helper to fit camera to combined bounds (browse view - see all decks)
+  const fitCameraToBounds = useCallback(() => {
     const camera = useSceneStore.getState().camera
-    if (!camera || categoryCount === 0) return
+    if (!camera || !combinedBoundsRef.current || categoryCount === 0) return false
 
-    // Calculate camera distance to see all stacks
-    const totalWidth = (categoryCount - 1) * rackSpacing + deckWidth
-    const cameraDistance = Math.max(totalWidth * 0.6, 4)
+    camera.fitToBox(combinedBoundsRef.current, true, {
+      paddingTop: 0.1,
+      paddingBottom: 0.1,
+      paddingLeft: 0.1,
+      paddingRight: 0.1,
+    })
+    return true
+  }, [categoryCount])
+
+  // Helper to focus camera on active content (after selection)
+  const focusOnActiveContent = useCallback(() => {
+    const camera = useSceneStore.getState().camera
+    if (!camera || categoryCount === 0) return false
+
+    // Calculate distance to frame content nicely
+    const fovRad = (50 * Math.PI) / 180
+    const vFovHalf = fovRad / 2
+
+    // Frame the content zone (where active content is displayed)
+    const distanceForHeight = (contentZoneHeight / 2) / Math.tan(vFovHalf)
+    const cameraDistance = distanceForHeight * 1.5 // Add padding
 
     camera.setLookAt(
-      0,                          // Center X
-      STACK_Y_POSITION + 0.5,     // Slightly above stacks
-      cameraDistance,             // Back from origin
-      0,                          // Look at center X
-      STACK_Y_POSITION,           // Look at stack Y level
-      0,                          // Look at Z=0
-      !cameraInitializedRef.current  // Smooth only after first init
+      contentCenterX,
+      contentCenterY,
+      contentCenterZ + cameraDistance,
+      contentCenterX,
+      contentCenterY,
+      contentCenterZ,
+      true  // Smooth animation
     )
-    cameraInitializedRef.current = true
-  }, [categoryCount, rackSpacing, deckWidth, canvasWidth, canvasHeight])
+    return true
+  }, [categoryCount, contentCenterX, contentCenterY, contentCenterZ, contentZoneHeight])
 
-  // Initialize active item if needed
+  // Initial camera position on mount (when we have content)
   useEffect(() => {
-    if (items.length > 0 && !hasInitializedRef.current) {
-      const currentActiveId = useContentStore.getState().activeItemId
-      const activeItem = items.find((item) => item.contentId === currentActiveId)
+    if (categoryCount === 0 || cameraInitializedRef.current) return
 
-      if (activeItem) {
-        setActiveState({
-          categoryIndex: activeItem.categoryIndex,
-          itemIndex: activeItem.itemIndex,
-        })
-      } else {
-        // Default to first item
-        const firstItem = items[0]
-        useContentStore.setState({
-          activeCategoryId: firstItem.categoryId,
-          activeCategoryIndex: firstItem.categoryIndex,
-          activeItemId: firstItem.contentId,
-          activeItemData: firstItem.itemData,
-          activeItemIndex: firstItem.itemIndex,
-        })
-        setActiveState({
-          categoryIndex: firstItem.categoryIndex,
-          itemIndex: firstItem.itemIndex,
-        })
+    // Delay slightly to ensure mesh is rendered
+    const timeoutId = setTimeout(() => {
+      if (fitCameraToBounds()) {
+        cameraInitializedRef.current = true
       }
-      hasInitializedRef.current = true
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
+  }, [categoryCount, fitCameraToBounds])
+
+  // Also fit camera when browse mode is toggled ON
+  useEffect(() => {
+    if (!isBrowsing) return
+
+    // Small delay to ensure state is settled
+    const timeoutId = setTimeout(() => {
+      fitCameraToBounds()
+    }, 50)
+
+    return () => clearTimeout(timeoutId)
+  }, [isBrowsing, fitCameraToBounds])
+
+  // Initialize active item on first render with content
+  // Uses a ref to track initialization and updates content store if needed
+  useEffect(() => {
+    if (items.length === 0 || hasInitializedRef.current) return
+
+    const currentActiveId = useContentStore.getState().activeItemId
+    const activeItem = items.find((item) => item.contentId === currentActiveId)
+
+    // Determine which item should be active
+    const targetItem = activeItem || items[0]
+    if (!targetItem) return
+
+    // Update content store if no active item was set
+    if (!activeItem) {
+      useContentStore.setState({
+        activeCategoryId: targetItem.categoryId,
+        activeCategoryIndex: targetItem.categoryIndex,
+        activeItemId: targetItem.contentId,
+        activeItemData: targetItem.itemData,
+        activeItemIndex: targetItem.itemIndex,
+      })
     }
+
+    // Set local active state - this is intentional initialization
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setActiveState({
+      categoryIndex: targetItem.categoryIndex,
+      itemIndex: targetItem.itemIndex,
+    })
+
+    hasInitializedRef.current = true
   }, [items])
 
   // Handle hover change from a deck
@@ -158,16 +260,17 @@ export function StackScene({
     [itemsPerCategory]
   )
 
-  // Handle item click - make it active and zoom camera
+  // Handle item click - make it active (content rises to content zone center)
+  // Exit browse mode and re-fit camera after animation completes
   const handleItemClick = useCallback(
-    async (categoryIndex: number, itemIndex: number) => {
+    (categoryIndex: number, itemIndex: number) => {
       const categoryItems = itemsPerCategory.get(categoryIndex)
       if (!categoryItems) return
 
       const item = categoryItems[itemIndex]
       if (!item) return
 
-      // Update active state
+      // Update active state - old active item returns to deck, new one rises
       setActiveState({ categoryIndex, itemIndex })
 
       // Update content store
@@ -179,35 +282,17 @@ export function StackScene({
         activeItemIndex: item.itemIndex,
       })
 
-      // Zoom camera to the active item
-      // Calculate item's world position
-      const rackPosition = rackPositions[categoryIndex]
-      if (!rackPosition) return
-
-      const itemZ = itemIndex * deckSpacing
-      const itemY = activeRaise // Item will be raised to this height
-
-      const targetX = rackPosition[0]
-      const targetY = itemY
-      const targetZ = itemZ
-
-      // Get camera and zoom to the item
-      const camera = useSceneStore.getState().camera
-      if (camera) {
-        // Position camera in front of and slightly above the item
-        const cameraDistance = 3
-        await camera.setLookAt(
-          targetX,
-          targetY + 0.5,
-          targetZ + cameraDistance,
-          targetX,
-          targetY,
-          targetZ,
-          true // smooth transition
-        )
+      // Exit browse mode
+      if (useBrowseModeStore.getState().isActive) {
+        useBrowseModeStore.getState().exitBrowseMode(false)
       }
+
+      // Focus camera on active content after animation completes (~500ms for spring animation)
+      setTimeout(() => {
+        focusOnActiveContent()
+      }, 500)
     },
-    [itemsPerCategory, rackPositions, deckSpacing, activeRaise]
+    [itemsPerCategory, focusOnActiveContent]
   )
 
   // Handle individual item hover (direct interaction bypass)
@@ -228,7 +313,37 @@ export function StackScene({
   }
 
   return (
-    <group>
+    <group ref={sceneGroupRef}>
+      {/* Combined bounding box for fitToBox camera positioning */}
+      <mesh
+        ref={combinedBoundsRef}
+        position={[contentCenterX, combinedCenterY, contentCenterZ]}
+        visible={false}
+      >
+        <boxGeometry args={[deckZoneWidth, combinedHeight, deckZoneDepth]} />
+        <meshBasicMaterial color="cyan" wireframe transparent opacity={0.2} />
+      </mesh>
+
+      {/* Debug visualization of zones */}
+      {debug && (
+        <>
+          {/* Deck zone (bottom) */}
+          <mesh
+            position={[contentCenterX, floorY + deckZoneHeight / 2, contentCenterZ]}
+          >
+            <boxGeometry args={[deckZoneWidth, deckZoneHeight, deckZoneDepth]} />
+            <meshBasicMaterial color="orange" wireframe transparent opacity={0.3} />
+          </mesh>
+          {/* Content zone (top) */}
+          <mesh
+            position={[contentCenterX, contentCenterY, contentCenterZ]}
+          >
+            <boxGeometry args={[deckZoneWidth, contentZoneHeight, deckZoneDepth]} />
+            <meshBasicMaterial color="cyan" wireframe transparent opacity={0.3} />
+          </mesh>
+        </>
+      )}
+
       {/* Render one Deck per category */}
       {Array.from(itemsPerCategory.entries()).map(([categoryIndex, categoryItems]) => {
         const position = rackPositions[categoryIndex]
@@ -270,29 +385,12 @@ export function StackScene({
                 isHovered={false}
                 onHover={handleDirectItemHover}
                 onClick={handleDirectItemClick}
-                disablePointerEvents={true}  // Stack mode relies on deck mesh for selection
+                disablePointerEvents={true}
               />
             ))}
           </Deck>
         )
       })}
-
-      {/* Category labels (optional - can be added later) */}
-      {debug &&
-        categories.map((category, idx) => {
-          const position = rackPositions[idx]
-          if (!position) return null
-
-          return (
-            <group key={`label-${idx}`} position={[position[0], -1, 0]}>
-              {/* Placeholder for category label */}
-              <mesh>
-                <boxGeometry args={[0.5, 0.1, 0.1]} />
-                <meshBasicMaterial color="white" />
-              </mesh>
-            </group>
-          )
-        })}
     </group>
   )
 }

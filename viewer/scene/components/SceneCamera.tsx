@@ -27,11 +27,11 @@ export const SceneCamera = () => {
   const enableOrbit = freelook && viewConfig.enableOrbitControls
 
   // In browse mode with orbit controls, enable full orbit
-  // Note: 'pillar-camera' mode uses custom camera control, not orbit controls
+  // Note: 'pillar-camera' and 'static' modes use custom camera control, not orbit controls
   const enableBrowseOrbit = isBrowseMode && browseControlType === 'orbit'
 
   // Determine if orbit controls should be active
-  // pillar-camera mode deliberately keeps orbit controls disabled
+  // pillar-camera and static modes deliberately keep orbit controls disabled
   const orbitEnabled = enableOrbit || enableBrowseOrbit
 
   useEffect(() => {
@@ -68,15 +68,23 @@ export const SceneCamera = () => {
     )
   }, [savedCameraState])
 
-  // Auto-enter browse mode when switching to cloud view
+  // Auto-enter browse mode when switching to cloud or stack view
   useEffect(() => {
     // Skip on initial mount (prevViewModeRef is null)
-    if (prevViewModeRef.current !== null && viewMode === 'cloud' && prevViewModeRef.current !== 'cloud') {
+    if (prevViewModeRef.current === null) {
+      prevViewModeRef.current = viewMode
+      return
+    }
+
+    const autoEnterBrowseModes: Array<typeof viewMode> = ['cloud', 'stack']
+    const shouldAutoEnter = autoEnterBrowseModes.includes(viewMode) && prevViewModeRef.current !== viewMode
+
+    if (shouldAutoEnter) {
       const { isActive, enterBrowseMode } = useBrowseModeStore.getState()
       if (!isActive) {
         const cameraState = saveCameraState()
         if (cameraState) {
-          enterBrowseMode(VIEW_MODE_CONFIG.cloud.browseControlType, cameraState)
+          enterBrowseMode(VIEW_MODE_CONFIG[viewMode].browseControlType, cameraState)
         }
       }
     }

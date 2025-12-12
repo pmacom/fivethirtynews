@@ -154,11 +154,15 @@ export function Deck({
   const handlePointerMove = useCallback(
     (event: ThreeEvent<PointerEvent>) => {
       event.stopPropagation()
-      if (itemCount < 2 || !pointRef.current) return
+      if (itemCount < 2) return
 
       // Convert hit point to local space
       const localPoint = event.eventObject.worldToLocal(event.point.clone())
-      pointRef.current.position.copy(localPoint)
+
+      // Update debug pointer position if available
+      if (pointRef.current) {
+        pointRef.current.position.copy(localPoint)
+      }
 
       // Calculate which item the pointer is over based on Z position
       // Items are at z = index * spacing, from 0 to zfront
@@ -199,7 +203,7 @@ export function Deck({
           onPointerMove={handlePointerMove}
           onPointerLeave={handlePointerLeave}
           onClick={handleClick}
-          visible={debug}
+          visible={false}
         >
           <meshNormalMaterial side={THREE.DoubleSide} />
         </mesh>

@@ -4157,7 +4157,134 @@
       "lastAccessed": "2025-12-11T20:50:56.297Z",
       "lastVerified": "2025-12-11T20:50:56.297Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765501101348_gtkll1was",
+      "content": "Stack Mode Layout Implementation - \"Vinyl Bins on Floor, Art on Wall\" Metaphor\n\n**Layout Constants (StackScene.tsx):**\n- FLOOR_Y = -1.0 (where deck bins sit)\n- WALL_Y = 0.8 (where active content displays)\n- activeRaise = wallY - floorY (calculated automatically)\n\n**Camera Behavior:**\n- On mode switch: uses fitToBox with a bounding box encompassing floor + wall area\n- Creates THREE.Box3 from (-halfWidth, floorY, 0) to (halfWidth, wallY, maxDeckDepth)\n- Uses THREE.Box3Helper for camera.fitToBox()\n\n**Item Behavior:**\n- Items sit in decks at floorY\n- Hovered items raise by hoverRaise (0.3) for preview\n- Active item raises by activeRaise to reach wallY (on the \"wall\")\n\n**Key Files:**\n- viewer/core/components/StackScene.tsx - main layout logic\n- viewer/core/components/Deck.tsx - individual deck with mesh geometry",
+      "type": "general",
+      "tags": [
+        "general",
+        "stack-mode",
+        "layout",
+        "camera",
+        "3d-viewer",
+        "implementation"
+      ],
+      "timestamp": "2025-12-12T00:58:21.348Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T00:58:21.348Z",
+      "lastVerified": "2025-12-12T00:58:21.348Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765504511891_hqgd60yur",
+      "content": "CameraControls Investigation - StackScene.tsx Camera Issues\n\nKEY FINDINGS:\n\n1. CAMERA DEFAULT FOV: The code assumes 75° FOV when calculating camera distance (StackScene.tsx line 124), but this is NOT verified with actual THREE.js defaults.\n\n2. DEFAULT THREE.JS FOV: THREE.PerspectiveCamera defaults to 50° FOV, NOT 75°. This is a major discrepancy.\n\n3. ACTUAL CAMERA SETUP (scene.tsx line 28):\n   - PerspectiveCamera with NO FOV specified = defaults to 50°\n   - But StackScene calculates distance assuming 75° FOV\n   - This means setLookAt positions camera too close (wrong FOV assumption)\n\n4. CAMERACONTROLS CONFIGURATION (SceneCamera.tsx):\n   - CameraControls uses camera-controls library\n   - makeDefault=true (so it becomes the active camera)\n   - Orbit controls DISABLED for stack mode (enableOrbitControls: false)\n   - NO custom FOV is passed to CameraControls\n\n5. CAMERA OVERRIDE SYSTEMS:\n   - fitToBox() is called after animation completes (useLayoutAnimation.ts line 53, 109)\n   - fitToBox uses padding: 0.03 on all sides (minimal padding)\n   - fitToBox may override or adjust camera after setLookAt\n\n6. THE PROBLEM:\n   StackScene.tsx line 124: Uses 75° FOV for distance calculation\n   scene.tsx line 28: Creates camera with DEFAULT FOV (50°)\n   = Camera positioned for 75° FOV but actually using 50° FOV = zoomed in effect\n\n7. SECONDARY ISSUE - fitToBox called after:\n   - useLayoutAnimation calls fitToBox() after animation (could zoom/adjust)\n   - This happens via requestAnimationFrame (delayed)\n   - Could override the setLookAt position\n\n8. SPLASH SCREEN CAMERA:\n   - Uses explicit FOV of 60° (SplashScreen.tsx line 148)\n   - Shows the inconsistency in the codebase\n\nSOLUTION:\nEither:\nA) Change StackScene FOV calc to match THREE.js default 50°\nB) Set explicit FOV=75 in scene.tsx PerspectiveCamera\nC) Check what CameraControls library actually uses by default",
+      "type": "config",
+      "tags": [
+        "config",
+        "camera",
+        "cameracontrols",
+        "fov",
+        "stackscene",
+        "bug-investigation"
+      ],
+      "timestamp": "2025-12-12T01:55:11.891Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T01:55:11.891Z",
+      "lastVerified": "2025-12-12T01:55:11.891Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765504532539_l6klsq8az",
+      "content": "Browse Mode Camera Interference Investigation - Stack Scene\n\nKEY FINDINGS:\n\n1. AUTO-BROWSE-MODE ENTRY ON CLOUD VIEW SWITCH\n   - SceneCamera.tsx line 72-84: There's a useEffect that AUTOMATICALLY enters browse mode when switching FROM any view TO cloud view\n   - The effect checks: if (viewMode === 'cloud' && prevViewModeRef.current !== 'cloud')\n   - This saves the CURRENT camera position before entering browse mode\n   \n2. CRITICAL TIMING ISSUE: \n   - When entering stack mode FROM cloud mode: StackScene's useEffect runs and calls setLookAt()\n   - The StackScene effect is in the dependency array: [categoryCount, rackSpacing, deckWidth, deckHeight, floorY, wallY, maxDeckDepth, canvasWidth, canvasHeight, maxItemsInDeck, rackPositions]\n   - The camera effect in SceneCamera runs when viewMode changes\n   - BUT there's an async saveCameraState() call happening at line 100 when entering stack mode with Tab key\n\n3. BROWSE MODE STORAGE OF CAMERA STATE\n   - When entering browse mode, savedCameraState is stored in browseModeStore\n   - This state is used in restoreCameraState() to restore camera AFTER exiting browse mode\n   - BUT if entering stack mode directly from cloud (where browse mode might be active), this could interfere\n\n4. POSSIBLE RACE CONDITION:\n   - Stack mode immediately enters browse mode if there was a previous state\n   - Actually, checking code: entering stack mode from cloud doesn't auto-save camera (only cloud auto-enters)\n   - Tab key manually saves camera and enters browse mode\n\n5. NO DIRECT CAMERA RESTORATION ON VIEW MODE CHANGE\n   - SceneCamera doesn't restore camera when switching view modes\n   - Only restores when EXITING browse mode (Tab or Escape)\n   - So StackScene's setLookAt() should NOT be overridden unless browse mode exit is somehow triggered\n\nPOSSIBLE ISSUES:\n- The saveCameraState() in SceneCamera line 100 (Tab press) might be capturing the camera BEFORE StackScene's setLookAt() completes\n- If browse mode is active in stack mode, the savedCameraState could be stale (from previous view)\n- No evidence of automatic browse mode restoration running AFTER StackScene's setLookAt()\n\nNext: Check if browse mode is being automatically entered when switching to stack, or if camera state is being saved too early in the effect cycle.",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "browser-mode",
+        "camera-positioning",
+        "stack-scene",
+        "timing-issue"
+      ],
+      "timestamp": "2025-12-12T01:55:32.539Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T01:55:32.539Z",
+      "lastVerified": "2025-12-12T01:55:32.539Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765505718364_wlbype1cw",
+      "content": "Implemented two-zone bounding box system for StackScene stack mode:\n\n1. **Deck Zone** (1x height at floorY): Where vinyl bin racks sit\n2. **Content Zone** (3x height, stacked on top): Where active content displays\n3. **Combined Zone** (4x total height): Used for fitToBox camera in browse mode\n\nKey changes to StackScene.tsx:\n- Added `useBrowseModeStore` subscription for `isBrowsing` state\n- Calculated zone dimensions: `deckZoneWidth`, `deckZoneHeight`, `deckZoneDepth`, `contentZoneHeight`, `combinedHeight`\n- Content center position: `contentCenterY = floorY + deckZoneHeight + (contentZoneHeight / 2)`\n- Added invisible `combinedBoundsRef` mesh for camera.fitToBox()\n- Browse mode camera: fits to combined bounds with padding\n- Normal mode camera: focuses on content zone center with calculated distance\n- handleItemClick now exits browse mode when selecting content\n- Debug visualization shows orange deck zone and cyan content zone wireframes",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "stack-mode",
+        "camera",
+        "bounding-box",
+        "browse-mode",
+        "implementation"
+      ],
+      "timestamp": "2025-12-12T02:15:18.363Z",
+      "context": "Stack mode two-zone bounding box implementation for vinyl bin browsing UX",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T02:15:18.363Z",
+      "lastVerified": "2025-12-12T02:15:18.363Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765506045644_rpyzi5z1j",
+      "content": "Stack mode browse behavior updates:\n\n1. **Stack mode defaults to browse view** - Added to auto-enter list in SceneCamera.tsx alongside cloud view\n2. **Static browse control type** - Changed `viewModeStore.tsx` stack config from `'orbit'` to `'static'` - disables orbit controls so mouse only interacts with deck meshes\n3. **Camera stays fitted** - StackScene always fits camera to combined bounds, doesn't change on item selection\n4. **Click behavior** - Selecting item updates activeState, content animates to content zone center, camera doesn't move\n5. **No more isBrowsing check** - Removed from StackScene since it's always in browse-like state\n\nFiles modified:\n- `viewer/core/store/viewModeStore.tsx` - browseControlType: 'static'\n- `viewer/scene/components/SceneCamera.tsx` - auto-enter browse for ['cloud', 'stack']\n- `viewer/core/components/StackScene.tsx` - simplified camera effect, removed browse mode toggle",
+      "type": "tip",
+      "tags": [
+        "tip",
+        "stack-mode",
+        "browse-mode",
+        "camera",
+        "static-controls"
+      ],
+      "timestamp": "2025-12-12T02:20:45.644Z",
+      "context": "Stack mode always stays in browse view with static controls",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T02:20:45.644Z",
+      "lastVerified": "2025-12-12T02:20:45.644Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765512496087_nefd3p1v5",
+      "content": "PILLAR MODE ARCHITECTURE - Complete Overview\n\n## Navigation System (usePillarNavigation.ts)\n- Handles Up/Down (within column) and Left/Right (between categories)\n- Keyboard: ArrowUp/Down/Left/Right, Enter/Space for focus toggle, Escape\n- Touch/Swipe: 50px threshold, detects direction (horizontal=category, vertical=item)\n- Section Exit Modal: Shows adjacent categories when reaching column edges\n- All navigation updates activeCategoryIndex, activeItemIndex, activeCategoryId, activeItemId in contentStore\n\n## Positioning System (pillar.ts positioner)\n- Items positioned in vertical columns around a circle (radius calculated from viewport aspect ratio)\n- Formula: radius = (planeWidth/2) / sin(π/numColumns)\n- Each column at angle: categoryIndex * angleStep (angleStep = 2π/numColumns)\n- Items stack vertically: y = itemIndexInCategory (0 at bottom, increases upward)\n- Column rotation: -angle + π - π/2 (faces outward)\n- Group rotation: Entire pillar rotates to bring active category to front (ANGLE_OFFSET = π/2)\n- Group translation: Moves pillar vertically to center active item (positionY = -activeItemIndex)\n- Animation: 2000ms with easePolyInOut\n\n## Browse Mode Interactions (usePillarBrowseInteractions.ts)\n- Horizontal drag: Rotates camera around pillar (ANGLE_SENSITIVITY = 0.005 rad/pixel)\n- Vertical drag: Moves camera up/down (HEIGHT_SENSITIVITY = 0.02 units/pixel)\n- Scroll wheel: Vertical=climb/descend, Horizontal=rotate\n- Height clamped with padding (allows 1 unit overshoot for visual comfort)\n- Camera orbit: radius = pillarRadius * 2.5 for overview\n- Initial angle: activeCategoryIndex * angleStep + π/2\n\n## Camera System (SceneCamera + store)\n- Uses CameraControls library for orbit/pan/zoom\n- fitToBox: Frames active item with padding (0.03 on all sides)\n- focusOnContent: Positions camera in front of plane along its normal with optimal distance\n- Browse mode: Can save/restore camera state when entering/exiting\n- SceneCamera disables orbit when in pillar-camera or static browse modes (custom control only)\n\n## PlaneView Component\n- Viewport-based sizing: width = height * viewportAspect (1.0 unit height)\n- Content scaling: Uses contain behavior (fits full content within screen bounds)\n- Video support: Preloads via VideoPreloadManager, blends from thumbnail (300ms preloaded, 1000ms fresh)\n- Active plane only loads/plays video (lingeringActive state for fade-out)\n\n## Data Structure\n- FlattenedItem: id, contentId, itemData, categoryId, categoryIndex, itemIndex, globalIndex\n- Content organized as categories -> items\n- Navigation tracking: activeCategoryIndex, activeItemIndex, activeGlobalIndex\n",
+      "type": "concept",
+      "tags": [
+        "concept",
+        "pillar-mode",
+        "architecture",
+        "navigation",
+        "camera",
+        "positioning"
+      ],
+      "timestamp": "2025-12-12T04:08:16.087Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T04:08:16.087Z",
+      "lastVerified": "2025-12-12T04:08:16.087Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765512755209_2g78exukj",
+      "content": "Implemented drag-to-navigate for pillar mode (normal, non-browse):\n\n**File:** `viewer/core/hooks/usePillarNavigation.ts`\n\n**Features:**\n1. **Mouse drag (desktop)**: Click and drag to navigate\n   - Drag up/down: Climb/descend pillar (navigate within column)\n   - Drag left/right: Switch to adjacent category (rotate pillar)\n   \n2. **Touch drag (mobile)**: Same as mouse but with touch events\n   - Continuous navigation as you drag (not discrete swipe)\n   - Resets start position after each navigation for smooth continuous drag\n\n**Key implementation details:**\n- `dragThreshold = 80` pixels before triggering navigation\n- Only active when NOT in browse mode (`useBrowseModeStore.getState().isActive === false`)\n- Respects section exit modal state (blocks input when modal open)\n- Drag direction mapping:\n  - Drag down → goUp() (pull content down to see higher items)\n  - Drag up → goDown()\n  - Drag right → goLeft() (rotate pillar to show left category)\n  - Drag left → goRight()\n\n**Removed:** Old `swipeThreshold` and `isSwipingRef` (replaced with continuous drag)",
+      "type": "general",
+      "tags": [
+        "general",
+        "pillar-mode",
+        "drag-navigation",
+        "touch",
+        "mouse",
+        "implementation"
+      ],
+      "timestamp": "2025-12-12T04:12:35.209Z",
+      "context": "Pillar mode drag-to-navigate for climbing/descending and column switching",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T04:12:35.209Z",
+      "lastVerified": "2025-12-12T04:12:35.209Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-11T21:00:59.146Z"
+  "lastUpdated": "2025-12-12T04:12:35.209Z"
 }

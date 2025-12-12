@@ -29,7 +29,7 @@ export const VIEW_MODE_CONFIG: Record<ViewMode, ViewModeConfig> = {
     enableOrbitControls: false,
     enableWheelZoom: false,
     navigationMode: 'grid',
-    browseControlType: 'orbit',
+    browseControlType: 'static',  // No orbit - pointer-based deck selection only
   },
   carousel: {
     enableOrbitControls: false,

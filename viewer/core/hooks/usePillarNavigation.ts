@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef } from 'react'
 import { useContentStore } from '../store/contentStore'
 import { useSectionExitStore } from '../../ui/sectionexit/store'
+import { useBrowseModeStore } from '../store/browseModeStore'
 import { FlattenedItem } from '../positioning/types'
 import {
   navigateWithinCategory,
@@ -14,13 +15,16 @@ interface UsePillarNavigationProps {
   enabled?: boolean
   onToggleFocus?: () => void
   onEscape?: () => void
-  swipeThreshold?: number
+  dragThreshold?: number  // Pixels to drag before triggering navigation
 }
 
 /**
  * Pillar-specific navigation hook
- * - Up/Down (keyboard & swipe): Navigate within column (same category)
- * - Left/Right (keyboard & swipe): Navigate between categories (rotate pillar)
+ * - Up/Down (keyboard, swipe, drag): Navigate within column (same category)
+ * - Left/Right (keyboard, swipe, drag): Navigate between categories (rotate pillar)
+ *
+ * Supports both discrete swipes and continuous drag navigation.
+ * Drag navigation works with mouse (click+drag) and touch (drag).
  */
 export function usePillarNavigation({
   items,
@@ -28,10 +32,22 @@ export function usePillarNavigation({
   enabled = true,
   onToggleFocus,
   onEscape,
-  swipeThreshold = 50,
+  dragThreshold = 80,  // Pixels to drag before triggering navigation
 }: UsePillarNavigationProps) {
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
-  const isSwipingRef = useRef(false)
+  const touchStartRef = useRef<{ x: number; y: number; lastNavigationTime: number } | null>(null)
+
+  // Drag state for continuous navigation (mouse + touch)
+  const dragStateRef = useRef<{
+    isDragging: boolean
+    startX: number
+    startY: number
+    accumulatedX: number  // Accumulated drag distance for horizontal
+    accumulatedY: number  // Accumulated drag distance for vertical
+    lastNavigationTime: number  // Debounce rapid navigations
+  } | null>(null)
+
+  // Minimum time between navigations (ms) - prevents rapid-fire navigation
+  const NAVIGATION_COOLDOWN = 150
 
   // Get current item and category info
   const currentItem = items[activeGlobalIndex]
@@ -170,76 +186,82 @@ export function usePillarNavigation({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [enabled, items.length, goUp, goDown, goLeft, goRight, onToggleFocus, onEscape])
 
-  // Touch/swipe handlers
+  // Touch drag handlers for continuous navigation (mobile)
+  // Only active when NOT in browse mode
   useEffect(() => {
     if (!enabled || items.length === 0) return
 
     const handleTouchStart = (e: TouchEvent) => {
+      // Don't start drag if in browse mode
+      if (useBrowseModeStore.getState().isActive) return
+      // Don't start drag if section exit modal is open
+      if (useSectionExitStore.getState().isVisible) return
+
       if (e.touches.length === 1) {
         touchStartRef.current = {
           x: e.touches[0].clientX,
           y: e.touches[0].clientY,
+          lastNavigationTime: 0,
         }
-        isSwipingRef.current = false
       }
     }
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!touchStartRef.current || e.touches.length !== 1) return
+      // Don't process if browse mode became active
+      if (useBrowseModeStore.getState().isActive) {
+        touchStartRef.current = null
+        return
+      }
+
+      const now = Date.now()
+      // Check cooldown - prevent rapid-fire navigation
+      if (now - touchStartRef.current.lastNavigationTime < NAVIGATION_COOLDOWN) {
+        return
+      }
 
       const deltaX = e.touches[0].clientX - touchStartRef.current.x
       const deltaY = e.touches[0].clientY - touchStartRef.current.y
 
-      // Mark as swiping if moved past threshold
-      if (Math.abs(deltaX) > swipeThreshold || Math.abs(deltaY) > swipeThreshold) {
-        isSwipingRef.current = true
-      }
-    }
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (!touchStartRef.current) return
-
-      // Don't process swipes when section exit modal is open
-      if (useSectionExitStore.getState().isVisible) {
-        touchStartRef.current = null
-        isSwipingRef.current = false
-        return
-      }
-
-      const touch = e.changedTouches[0]
-      const deltaX = touch.clientX - touchStartRef.current.x
-      const deltaY = touch.clientY - touchStartRef.current.y
-
       const absX = Math.abs(deltaX)
       const absY = Math.abs(deltaY)
 
-      // Only process if moved past threshold
-      if (absX > swipeThreshold || absY > swipeThreshold) {
-        // Determine primary direction (horizontal vs vertical)
-        if (absX > absY) {
-          // Horizontal swipe - change category
-          if (deltaX > 0) {
-            goRight() // Swipe right = next category
-          } else {
-            goLeft() // Swipe left = previous category
-          }
+      // Continuous navigation - trigger when drag threshold exceeded
+      if (absY > dragThreshold && absY > absX) {
+        // Vertical drag - navigate within column
+        if (deltaY > 0) {
+          goUp()  // Drag down = go up in column (pull content down to see higher items)
         } else {
-          // Vertical swipe - navigate within column
-          if (deltaY > 0) {
-            goDown() // Swipe down = next item in column
-          } else {
-            goUp() // Swipe up = previous item in column
-          }
+          goDown()  // Drag up = go down in column
+        }
+        // Reset start position and record navigation time
+        touchStartRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+          lastNavigationTime: now,
+        }
+      } else if (absX > dragThreshold && absX > absY) {
+        // Horizontal drag - navigate between categories
+        if (deltaX > 0) {
+          goLeft()  // Drag right = go left (rotate pillar to show left category)
+        } else {
+          goRight()  // Drag left = go right
+        }
+        // Reset start position and record navigation time
+        touchStartRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+          lastNavigationTime: now,
         }
       }
+    }
 
+    const handleTouchEnd = () => {
       touchStartRef.current = null
-      isSwipingRef.current = false
     }
 
     const handleTouchCancel = () => {
       touchStartRef.current = null
-      isSwipingRef.current = false
     }
 
     window.addEventListener('touchstart', handleTouchStart, { passive: true })
@@ -253,7 +275,91 @@ export function usePillarNavigation({
       window.removeEventListener('touchend', handleTouchEnd)
       window.removeEventListener('touchcancel', handleTouchCancel)
     }
-  }, [enabled, items.length, goUp, goDown, goLeft, goRight, swipeThreshold])
+  }, [enabled, items.length, goUp, goDown, goLeft, goRight, dragThreshold])
+
+  // Mouse drag handlers for click+drag navigation (desktop)
+  // Only active when NOT in browse mode
+  useEffect(() => {
+    if (!enabled || items.length === 0) return
+
+    const handleMouseDown = (e: MouseEvent) => {
+      // Don't start drag if in browse mode
+      if (useBrowseModeStore.getState().isActive) return
+      // Don't start drag if section exit modal is open
+      if (useSectionExitStore.getState().isVisible) return
+      // Only left click
+      if (e.button !== 0) return
+
+      dragStateRef.current = {
+        isDragging: true,
+        startX: e.clientX,
+        startY: e.clientY,
+        accumulatedX: 0,
+        accumulatedY: 0,
+        lastNavigationTime: 0,
+      }
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragStateRef.current?.isDragging) return
+      // Don't process if browse mode became active
+      if (useBrowseModeStore.getState().isActive) {
+        dragStateRef.current = null
+        return
+      }
+
+      const now = Date.now()
+      // Check cooldown - prevent rapid-fire navigation
+      if (now - dragStateRef.current.lastNavigationTime < NAVIGATION_COOLDOWN) {
+        return
+      }
+
+      const deltaX = e.clientX - dragStateRef.current.startX
+      const deltaY = e.clientY - dragStateRef.current.startY
+
+      // Determine dominant direction
+      const absX = Math.abs(deltaX)
+      const absY = Math.abs(deltaY)
+
+      if (absY > dragThreshold && absY > absX) {
+        // Vertical drag - navigate within column
+        if (deltaY > 0) {
+          goUp()  // Drag down = go up in column (pull content down to see higher items)
+        } else {
+          goDown()  // Drag up = go down in column
+        }
+        // Reset start position and record navigation time
+        dragStateRef.current.startX = e.clientX
+        dragStateRef.current.startY = e.clientY
+        dragStateRef.current.lastNavigationTime = now
+      } else if (absX > dragThreshold && absX > absY) {
+        // Horizontal drag - navigate between categories
+        if (deltaX > 0) {
+          goLeft()  // Drag right = go left (rotate pillar to show left category)
+        } else {
+          goRight()  // Drag left = go right
+        }
+        // Reset start position and record navigation time
+        dragStateRef.current.startX = e.clientX
+        dragStateRef.current.startY = e.clientY
+        dragStateRef.current.lastNavigationTime = now
+      }
+    }
+
+    const handleMouseUp = () => {
+      dragStateRef.current = null
+    }
+
+    window.addEventListener('mousedown', handleMouseDown)
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      window.removeEventListener('mousedown', handleMouseDown)
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [enabled, items.length, goUp, goDown, goLeft, goRight, dragThreshold])
 
   return {
     navigateToItem,
@@ -261,7 +367,6 @@ export function usePillarNavigation({
     goDown,
     goLeft,
     goRight,
-    isSwiping: isSwipingRef.current,
   }
 }
 
