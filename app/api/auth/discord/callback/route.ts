@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 import { appendFileSync } from 'fs';
+
+// Use service role key to bypass RLS for user creation
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 // File-based logging for production debugging (PM2 may not capture Next.js stdout)
 function debugLog(message: string, data?: unknown) {
@@ -360,12 +364,12 @@ export async function GET(request: NextRequest) {
     // 5. Create or update user in database
     debugLog('Starting database operation for user', discordUser.id);
     debugLog('Supabase config', {
-      urlConfigured: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-      keyConfigured: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      urlPrefix: process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 30) || 'NOT SET',
+      urlConfigured: !!supabaseUrl,
+      serviceKeyConfigured: !!supabaseServiceKey,
+      urlPrefix: supabaseUrl?.substring(0, 30) || 'NOT SET',
     });
 
-    const supabase = await createClient();
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const sessionToken = generateSessionToken();
     const sessionExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
