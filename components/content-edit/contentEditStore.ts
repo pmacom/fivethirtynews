@@ -73,6 +73,10 @@ interface ContentEditState {
   existingChannels: string[]
   existingPrimaryChannel: string | null
 
+  // Media focus state (true = media is primary, text is secondary)
+  mediaFocus: boolean
+  existingMediaFocus: boolean
+
   // Notes state
   noteText: string
   allNotes: ContentNote[]
@@ -94,6 +98,10 @@ interface ContentEditState {
   // Channel actions
   toggleChannel: (slug: string) => void
   setPrimaryChannel: (slug: string) => void
+
+  // Media focus actions
+  setMediaFocus: (value: boolean) => void
+  toggleMediaFocus: () => void
 
   // Tag actions
   addTag: (slug: string) => void
@@ -126,6 +134,8 @@ const initialState = {
   existingTags: [],
   existingChannels: [],
   existingPrimaryChannel: null,
+  mediaFocus: false,
+  existingMediaFocus: false,
   noteText: '',
   allNotes: [],
   sendingNote: false,
@@ -149,6 +159,7 @@ export const useContentEditStore = create<ContentEditState>((set, get) => ({
       selectedChannels: new Set<string>(),
       primaryChannel: null,
       selectedTags: new Set<string>(),
+      mediaFocus: false,
       noteText: '',
       activeTab: 'tags',
       activeGroupId: null,
@@ -213,6 +224,10 @@ export const useContentEditStore = create<ContentEditState>((set, get) => ({
       set({ primaryChannel: slug })
     }
   },
+
+  setMediaFocus: (value) => set({ mediaFocus: value }),
+
+  toggleMediaFocus: () => set((state) => ({ mediaFocus: !state.mediaFocus })),
 
   addTag: (slug) => {
     const { selectedTags } = get()
@@ -329,6 +344,10 @@ export const useContentEditStore = create<ContentEditState>((set, get) => ({
         const existingPrimaryChannel = data.primary_channel || null
         console.log('[ContentEdit] Existing channels:', existingChannels, 'primary:', existingPrimaryChannel)
 
+        // Load media focus
+        const existingMediaFocus = data.media_focus || false
+        console.log('[ContentEdit] Existing media_focus:', existingMediaFocus)
+
         set({
           existingTags,
           selectedTags: new Set(existingTags),
@@ -336,6 +355,8 @@ export const useContentEditStore = create<ContentEditState>((set, get) => ({
           existingPrimaryChannel,
           selectedChannels: new Set(existingChannels),
           primaryChannel: existingPrimaryChannel,
+          existingMediaFocus,
+          mediaFocus: existingMediaFocus,
         })
       } else {
         console.log('[ContentEdit] API returned no data or error:', contentData)
@@ -370,6 +391,8 @@ export const useContentEditStore = create<ContentEditState>((set, get) => ({
       existingTags,
       existingChannels,
       existingPrimaryChannel,
+      mediaFocus,
+      existingMediaFocus,
     } = get()
 
     if (!contentId) return false
@@ -394,6 +417,7 @@ export const useContentEditStore = create<ContentEditState>((set, get) => ({
         currentChannels.some((c) => !existingChannels.includes(c))
 
       const primaryChanged = primaryChannel !== existingPrimaryChannel
+      const mediaFocusChanged = mediaFocus !== existingMediaFocus
 
       // Build update payload for content (tags + channels in one request)
       const contentUpdates: Record<string, unknown> = {}
@@ -406,6 +430,9 @@ export const useContentEditStore = create<ContentEditState>((set, get) => ({
       }
       if (primaryChanged) {
         contentUpdates.primaryChannel = primaryChannel
+      }
+      if (mediaFocusChanged) {
+        contentUpdates.mediaFocus = mediaFocus
       }
 
       // Send content update if anything changed

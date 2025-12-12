@@ -4284,7 +4284,86 @@
       "lastAccessed": "2025-12-12T04:12:35.209Z",
       "lastVerified": "2025-12-12T04:12:35.209Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1765515635617_66rejcmqh",
+      "content": "Browse Page Architecture Exploration - Complete Map\n\n## URL Structure\n- Category page: /browse/[category] (e.g., /browse/general, /browse/ai)\n- Channel page: /browse/[category]/[channel] (e.g., /browse/general/main-events)\n\n## Database Schema\n### channel_groups table\n- id (UUID)\n- slug (unique identifier, e.g., \"general\", \"ai\", \"thirddimension\")\n- name (display name)\n- icon (emoji)\n- description\n- display_order (sorting)\n- is_active (filter)\n\n### channels table\n- id (UUID)\n- group_id (FK to channel_groups)\n- slug (e.g., \"main-events\", \"ai-tips\")\n- name (display name)\n- icon (emoji)\n- description\n- display_order (sorting)\n- is_active (filter)\n- discord_channel_id (for Discord broadcast mapping)\n- UNIQUE(group_id, slug) constraint\n\n### content table relationships\n- primary_channel: TEXT (slug reference)\n- channels: JSONB array (array of channel slugs)\n- tags: JSONB array (legacy tags)\n- approval_status: 'approved'|'pending'\n\n## API Endpoints\n\n### GET /api/content\nParams: limit, offset, platform, channel, group, since\nLogic:\n1. If 'group' param: lookup group_id, fetch all channels in group\n2. If 'channel' param: lookup specific channel\n3. Filters content by: primary_channel OR channels array contains\n4. Returns paginated results (20 per page default)\n\n### GET /api/admin/channels\nReturns all active groups with nested channels structure\nUsed by admin UI\n\n## Browse Page Components\n\n### /browse/[category] page.tsx (1-level deep)\n- Shows all content in a category/group\n- Header: Back button, category name, item count, search\n- Fetches: /api/content?group={category}&limit=20&offset={offset}\n- Maps groupNames to display strings (e.g., \"thirddimension\" → \"3D Graphics\")\n- Infinite scroll with IntersectionObserver\n- Renders NewsCard components\n\n### /browse/[category]/[channel] page.tsx (2-level deep)\n- Shows content in specific channel\n- Header: Back button, breadcrumb (Category/Channel), search\n- Fetches: /api/content?group={category}&channel={channel}&limit=20&offset={offset}\n- ContentCard component (simpler than NewsCard)\n- Same infinite scroll pattern\n\n## Header/Navigation Patterns\n\n### Current Header Styling (sticky, top-0, z-50)\n- bg-zinc-900/95 backdrop-blur\n- border-b border-zinc-800\n- max-width container (max-w-6xl or max-w-4xl)\n- px-4 py-4 flex layout\n- Back button with SVG chevron\n- Flexible center content area\n- SearchTrigger component on right\n\n### TopToolbar (3D Viewer Mode)\n- Fixed position overlay (not page header)\n- Episode navigation with show name/number\n- View mode selector (pillar/cloud/stack/carousel)\n- Search, Curate, Edit, Stage Select, Settings buttons\n- Mobile-responsive with simplified version\n\n### BrowseModeOverlay\n- Status badge \"BROWSE MODE\" (top-left)\n- Action buttons (top-right, view-mode specific)\n- Hint bar (bottom-center)\n\n## Channel/Category Relationship Flow\n1. User navigates to /browse/general\n2. Page slug \"general\" is used to query channel_groups by slug\n3. Gets group_id, fetches all channels in that group\n4. API returns content filtered by those channels\n5. If user clicks channel, navigates to /browse/general/main-events\n6. Filters content to just that specific channel\n\n## Navigation Patterns\n- Stack-based (useNavigationStore): For 3D viewer modes\n- React Router: For web pages (/browse, /show routes)\n- useParams() for reading [category] and [channel] params\n- useRouter() for navigation (push())\n",
+      "type": "config",
+      "tags": [
+        "config",
+        "react",
+        "database",
+        "api",
+        "browse-page",
+        "architecture",
+        "navigation",
+        "routing"
+      ],
+      "timestamp": "2025-12-12T05:00:35.617Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T05:00:35.617Z",
+      "lastVerified": "2025-12-12T05:00:35.617Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765515654551_bibvblx51",
+      "content": "## Content Schema & Type Exploration - 530News/fivethirty\n\n### KEY FINDING: Database Schema Structure\n**Content Table** (`content`) has evolved to support unified content with many columns:\n- **Core ID fields**: `id` (UUID), `platform` (maps from content_type), `platform_content_id` (external ID), `url`\n- **Approval/Status**: `approval_status` (pending/approved/rejected), `approved_by` (user UUID), `approved_at`, `approval_reason`\n- **Boolean flags already exist**: \n  - Content labels system has: `is_system`, `is_active` boolean fields\n  - Moderator comments have: `is_pinned`, `is_public` boolean fields\n  - Channel groups/channels have: `is_active` boolean\n  \n### Existing Boolean Field Patterns to Follow:\n1. **content_labels table** (20251130000000):\n   - `is_system BOOLEAN DEFAULT false` - marks auto-seeded vs user-created\n   - `is_active BOOLEAN DEFAULT true` - soft-delete pattern\n   - INDEX on is_active with WHERE is_active = true (partial index)\n\n2. **moderator_comments table** (20251130000002):\n   - `is_pinned BOOLEAN DEFAULT false` - priority/importance\n   - `is_public BOOLEAN DEFAULT true` - visibility control\n   - Has comment_type: note|context|warning|highlight|question\n\n3. **channels & channel_groups**:\n   - `is_active BOOLEAN DEFAULT true` - soft-delete/visibility\n\n### Content Type Definitions Found:\n**TypeScript Types** (`viewer/core/content/types.ts`):\n```typescript\ninterface Content {\n  id: string\n  version: number\n  content_type: ContentType (video|twitter|warpcast|website|discord|image)\n  content_url: string\n  content_id: string | null\n  thumbnail_url: string | null\n  submitted_by: string\n  submitted_at: string\n  category: string | null\n  categories: string[] | null\n  description: string | null\n}\n\ninterface LiveViewContent extends Content {\n  author_name?: string\n  author_username?: string\n  author_avatar_url?: string\n  author_url?: string\n}\n```\n\n**JSONB Arrays on content**:\n- `tags TEXT[]` - content tags\n- `channels TEXT[]` - assigned channels  \n- `metadata JSONB` - flexible metadata\n- `categories JSONB` - alternative categories format\n\n### Content Creation/Editing Flow:\n1. **POST /api/content** (route.ts):\n   - Creates new content with auto-approval for admins/moderators\n   - Handles tags, channels, metadata, author info\n   - Sets `approval_status` to 'approved' or 'pending' based on user role\n\n2. **Content Edit Store** (`contentEditStore.ts`):\n   - Manages UI state for editing content\n   - Updates `tags[]` and `channels[]` arrays directly on content table\n   - Separate endpoint for notes: `/api/content/{id}/notes`\n\n3. **Moderation UI** (`app/moderate/page.tsx`):\n   - Shows pending content with approve/reject actions\n   - Uses `/api/content/pending` to fetch items where `approval_status = 'pending'`\n   - `/api/content/{id}/approve` endpoint with optional action=reject\n\n### Content Label System (Related but Different):\n- **content_labels** table: Stores badge/label definitions (name, color, icon, category, is_system, is_active)\n- **content_label_assignments**: Junction table linking labels to content (many-to-many)\n- Used for content classification like: \"Breaking\", \"Improvement\", \"Tutorial\", \"Discussion\"\n\n### Moderator Comments System:\n- Separate from user notes\n- Has extended text limit (2000 vs 280 chars)\n- Type classification: note|context|warning|highlight|question\n- Visibility controls: is_pinned, is_public\n- Author snapshot for audit trail\n\n### Patterns for Adding Boolean Flags:\n1. Use `ALTER TABLE content ADD COLUMN IF NOT EXISTS <flag> BOOLEAN DEFAULT <value>`\n2. Add partial index for important flags: `CREATE INDEX idx_content_<flag> ON content(<flag>) WHERE <flag> = true`\n3. Include in content select queries\n4. Add TypeScript interface fields\n5. Expose through API endpoints\n6. Create UI controls in content-edit modal or moderation page",
+      "type": "warning",
+      "tags": [
+        "warning",
+        "typescript",
+        "database",
+        "api",
+        "database-schema",
+        "content-system",
+        "boolean-flags",
+        "supabase-migrations",
+        "530news"
+      ],
+      "timestamp": "2025-12-12T05:00:54.551Z",
+      "context": "Exploration task completed - understanding patterns for implementing content flags",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T05:00:54.551Z",
+      "lastVerified": "2025-12-12T05:00:54.551Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765516583787_3qrkveadp",
+      "content": "Implemented two features for the fivethirty project:\n\n1. **media_focus boolean field on content**\n   - Migration: `supabase/migrations/20251212000000_add_media_focus_field.sql`\n   - Added to types in `viewer/core/content/types.ts` (Content and LiveViewContent interfaces)\n   - API support in `app/api/content/[id]/route.ts` (PATCH with mediaFocus)\n   - Store state in `components/content-edit/contentEditStore.ts` (mediaFocus, existingMediaFocus, toggleMediaFocus, setMediaFocus)\n   - UI toggle in `components/content-edit/ContentEditOverlay.tsx` (toggle switch below header)\n\n2. **Browse header channel navigation**\n   - New API: `app/api/channels/by-group/route.ts` - GET with ?group=slug&withContent=true\n   - Category page: `app/browse/[category]/page.tsx` - channel pills linking to sub-channels\n   - Channel page: `app/browse/[category]/[channel]/page.tsx` - channel pills with current highlighted (green)\n   - Only shows channels that have approved content (per user preference)",
+      "type": "general",
+      "tags": [
+        "general",
+        "api",
+        "fivethirty",
+        "media_focus",
+        "channel_navigation",
+        "browse",
+        "implementation"
+      ],
+      "timestamp": "2025-12-12T05:16:23.787Z",
+      "context": "Completed feature implementation on 2025-12-11",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T05:16:23.787Z",
+      "lastVerified": "2025-12-12T05:16:23.787Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1765518503768_g47syq1t8",
+      "content": "VISUAL DESIGN SYSTEM ANALYSIS FOR NEWSCARD LEFT COLUMN STYLING\n\nCompleted exploration of Stage Select, Character Select, and shared UI components.\n\nKEY ARCADE AESTHETIC FINDINGS:\n1. Color Palette (defined in stageselect/styles.css):\n   - Arcade Yellow: #ffd700 (primary highlight/active state)\n   - Arcade Cyan: #00ffff (secondary/info)\n   - Arcade Red: #ff0000 (alerts/emphasis)\n   - Arcade Blue: #0000ff (tertiary)\n   - Neutrals: white/black with alpha transparency\n\n2. Typography (Font Stack):\n   - Primary: Orbitron (all-caps headers, titles)\n   - Secondary: ShareTech (monospace, data/stats)\n\n3. Common Styling Patterns:\n\nBUTTONS & INTERACTIVE ELEMENTS:\n- Circular buttons: rounded-full, w-10 h-10, border-2\n- Action buttons: flex items-center justify-center, border-2 rounded-full p-1.5 w-9 h-9\n- Active states: border-arcade-yellow, text-arcade-yellow, bg-arcade-yellow/10-20\n- Inactive states: border-white/20, text-white/70, bg-black/50\n- Hover effects: border-white/50-70, text-white, scale-110\n- Transitions: duration-200, duration-300\n- Backdrop blur: backdrop-blur-sm\n\nSELECTION/TILE PATTERNS (Stage & Character Select):\n- Container: border-2, transform transition-all duration-100, skew-x-[-10deg]\n- Selected state: \n  * border-arcade-yellow, bg-arcade-yellow/10, scale-105, z-10\n  * box-shadow: 0 0 20px rgba(255, 215, 0, 0.4)\n  * text-glow effect\n- Unselected state: border-white/20, bg-black/50, hover:border-white/50\n- Corner accents: absolute corners with 2px borders (top-left, bottom-right)\n- Selection label: bg-arcade-yellow text-black, absolute -bottom-3, skew-x-[10deg], font-bold\n\nCARDS & CONTAINERS:\n- Preview cards: border-4 border-white/20, bg-black/80\n- Gradient overlays: bg-gradient-to-t from-black/80 via-black/50 to-transparent\n- Inner spacing: p-4 md:p-6, gap-3 md:gap-4\n- Decorative lines (right side): stacked horizontal bars with opacity variation\n  * w-16 h-1 bg-white/50 → w-8 h-1 bg-white/30 → w-4 h-1 bg-white/10\n\nBORDERS & DIVIDERS:\n- Subtle: border-white/20, border-2\n- Section dividers: border-b-2 border-white/20, pb-3 md:pb-4\n- Outlined elements: 1px solid rgba(255,255,255,0.5)\n\nBACKGROUNDS & FILLS:\n- Semi-transparent: bg-black/50, bg-black/80\n- Colored overlays: {color}/10, {color}/20 (very subtle)\n- Grid background: linear-gradient with rgba white 0.05, animated scroll\n- Scanlines effect: horizontal stripes with 0.2-0.3 opacity\n\nSPACING & SIZING:\n- UI margin: 1rem\n- UI padding: 0.8rem (and half variants)\n- Gap patterns: gap-2, gap-3 md:gap-4, gap-4 md:gap-8\n- Responsive text: text-sm md:text-base, text-3xl md:text-6xl\n- Icon sizes: w-4 h-4 (action buttons), w-5 h-5 (section buttons)\n\nEFFECTS & ANIMATIONS:\n- Text glow: text-shadow: 0 0 10px currentColor\n- Box glow: box-shadow: 0 0 20px currentColor\n- Drop shadow glow: drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]\n- Scale transitions: scale-105, scale-110, hover:scale-110\n- Opacity effects: opacity-50, opacity-70, hover:opacity-100\n- Animations: duration-100 (quick), duration-200 (standard), duration-300 (smooth)\n- Pulse animation: animate-pulse\n\nDROPDOWN/MENU STYLING:\n- Modal: rounded-lg bg-black/95, border border-white/20, backdrop-blur-sm\n- Items: px-4 py-3, hover:bg-white/10, transition-colors\n- Active item: bg-orange-500/20 text-orange-300\n\nSHARED UI COMPONENTS:\n1. ActionButton: icon-only circular button with border\n2. BrowseActionButton: flex with gap-2, px-3 py-2, rounded-lg\n3. GlobalSettingsButton: fixed top-4 right-4, w-10 h-10, transition on active state\n4. Icon labels (Stats row): uppercase text-xs, text-white/40\n",
+      "type": "solution",
+      "tags": [
+        "solution",
+        "styling",
+        "design-system",
+        "arcade-theme",
+        "newscard"
+      ],
+      "timestamp": "2025-12-12T05:48:23.768Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-12-12T05:48:23.768Z",
+      "lastVerified": "2025-12-12T05:48:23.768Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-12-12T04:12:35.209Z"
+  "lastUpdated": "2025-12-12T05:48:23.768Z"
 }

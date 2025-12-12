@@ -91,6 +91,9 @@ export interface Content {
   category: string | null
   categories: string[] | null
   description: string | null
+
+  // When true, the media (image/video) is the primary content, text is secondary
+  media_focus?: boolean
 }
 
 
@@ -164,4 +167,6 @@ export interface LiveViewContent {
   author_username?: string
   author_avatar_url?: string
   author_url?: string
+  // When true, the media (image/video) is the primary content, text is secondary
+  media_focus?: boolean
 }

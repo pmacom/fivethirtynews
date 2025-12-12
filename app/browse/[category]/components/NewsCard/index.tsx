@@ -8,6 +8,8 @@ import BadgePanel from '../BadgePanel';
 import RichEmbed from '../RichEmbed';
 import CommentThread, { CommentPreview } from '../CommentThread';
 import TagChipBar from '../TagChips';
+import { EditButton } from '@/viewer/ui/details/components/icons/EditButton';
+import { EditTagsButton } from '@/viewer/ui/details/components/icons/EditTagsButton';
 
 interface ContentLabel {
   id: string;
@@ -117,41 +119,81 @@ export default function NewsCard({
   return (
     <div
       className={`
-        bg-zinc-800/50 border border-zinc-700/50 rounded-xl overflow-hidden
+        bg-black/80 border-2 border-white/20 rounded-xl overflow-hidden
         transition-all duration-300
-        ${isExpanded ? 'border-green-500/30 shadow-lg shadow-green-500/5' : 'hover:border-zinc-600'}
+        hover:border-white/40 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]
+        ${isExpanded ? 'border-[#ffd700]/50 shadow-[0_0_30px_rgba(255,215,0,0.15)]' : ''}
       `}
     >
-      {/* Three-column layout: Badges | Content | Comments */}
-      <div className="grid grid-cols-1 lg:grid-cols-[140px_1fr_300px]">
-        {/* LEFT: Large Badges */}
-        <div className="p-4 border-b lg:border-b-0 lg:border-r border-zinc-700/50 bg-zinc-800/30 flex flex-col gap-3">
-          {!labelsLoading && labels.length > 0 ? (
-            <BadgePanel labels={labels} size="lg" orientation="vertical" />
-          ) : (
-            <div className="text-xs text-zinc-600 italic">No labels</div>
-          )}
+      {/* Three-column layout: Sidebar | Content | Comments */}
+      <div className="grid grid-cols-1 lg:grid-cols-[160px_1fr_300px]">
+        {/* LEFT: Arcade Sidebar */}
+        <div className="p-3 border-b lg:border-b-0 lg:border-r-2 border-white/20 bg-black/50 flex flex-col gap-3">
+          {/* Labels Section */}
+          <div>
+            <span className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block font-bold">
+              Labels
+            </span>
+            {!labelsLoading && labels.length > 0 ? (
+              <BadgePanel labels={labels} size="lg" orientation="vertical" />
+            ) : (
+              <span className="text-xs text-white/30 italic">None</span>
+            )}
+          </div>
 
-          {/* Tags below badges */}
-          {displayTags.length > 0 && (
-            <div className="mt-auto pt-3 border-t border-zinc-700/50">
-              <TagChipBar tags={displayTags} maxVisible={3} size="sm" />
+          {/* Actions & Tags Section */}
+          <div className="pt-3 border-t border-white/20">
+            <span className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block font-bold">
+              Actions
+            </span>
+
+            {/* Edit buttons row */}
+            <div className="flex gap-2 mb-3">
+              <EditButton
+                contentId={content.id}
+                contentData={{
+                  id: content.id,
+                  content_url: contentUrl,
+                  content_type: platform,
+                  title: content.title,
+                  description: content.description,
+                  author_name: content.author_name,
+                  author_username: content.author_username,
+                }}
+              />
+              <EditTagsButton
+                contentId={content.id}
+                contentData={{
+                  id: content.id,
+                  content_url: contentUrl,
+                  content_type: platform,
+                  title: content.title,
+                  description: content.description,
+                  author_name: content.author_name,
+                  author_username: content.author_username,
+                }}
+              />
             </div>
-          )}
+
+            {/* Tags - grouped with actions */}
+            {displayTags.length > 0 && (
+              <TagChipBar tags={displayTags} maxVisible={4} size="sm" />
+            )}
+          </div>
         </div>
 
-        {/* CENTER: Full Content (Tweet or other) */}
-        <div className="p-4 border-b lg:border-b-0 lg:border-r border-zinc-700/50">
+        {/* CENTER: Content with arcade treatment */}
+        <div className="p-4 border-b lg:border-b-0 lg:border-r-2 border-white/20 bg-black/60">
           {isTwitter && contentId ? (
-            // Full Tweet Embed
+            // Full Tweet Embed - themed for arcade
             <div
-              className="[&_.react-tweet-theme]:!bg-transparent [&_.react-tweet-theme]:!border-zinc-700 [&_article]:!bg-zinc-800/50 [&_article]:!border-zinc-700 [&_a]:!text-green-400 [&_span]:!text-zinc-300"
+              className="[&_.react-tweet-theme]:!bg-transparent [&_.react-tweet-theme]:!border-white/20 [&_article]:!bg-black/30 [&_article]:!border-white/20 [&_a]:!text-[#00ffff] [&_span]:!text-white/80"
             >
               <Tweet
                 id={contentId}
                 fallback={
-                  <div className="flex items-center justify-center p-8 bg-zinc-800/50 rounded-lg border border-zinc-700">
-                    <div className="animate-pulse text-zinc-500">Loading tweet...</div>
+                  <div className="flex items-center justify-center p-8 bg-black/30 rounded-lg border-2 border-white/20">
+                    <div className="animate-pulse text-white/50">Loading tweet...</div>
                   </div>
                 }
               />
@@ -165,22 +207,22 @@ export default function NewsCard({
               </h3>
 
               {content.description && (
-                <p className="text-sm text-zinc-400 mb-4 line-clamp-3">
+                <p className="text-sm text-white/60 mb-4 line-clamp-3">
                   {content.description}
                 </p>
               )}
 
               {/* Thumbnail */}
               {content.thumbnail_url ? (
-                <div className="relative w-full max-w-md aspect-video rounded-lg overflow-hidden bg-zinc-700 mb-4">
+                <div className="relative w-full max-w-md aspect-video rounded-lg overflow-hidden bg-black/50 border-2 border-white/20 mb-4 group">
                   <img
                     src={content.thumbnail_url}
                     alt=""
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {isYouTube && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                      <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/30 transition-colors">
+                      <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(255,0,0,0.5)] group-hover:shadow-[0_0_30px_rgba(255,0,0,0.7)] transition-shadow">
                         <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M8 5v14l11-7z" />
                         </svg>
@@ -189,39 +231,39 @@ export default function NewsCard({
                   )}
                 </div>
               ) : (
-                <div className="w-full max-w-md aspect-video rounded-lg bg-zinc-700/50 flex items-center justify-center mb-4">
-                  <span className="text-zinc-500 text-4xl capitalize">{platform[0]}</span>
+                <div className="w-full max-w-md aspect-video rounded-lg bg-black/50 border-2 border-white/20 flex items-center justify-center mb-4">
+                  <span className="text-white/30 text-4xl capitalize">{platform[0]}</span>
                 </div>
               )}
 
               {/* Meta info */}
-              <div className="flex items-center gap-3 text-xs text-zinc-500">
+              <div className="flex items-center gap-3 text-xs text-white/40">
                 {content.author_name && (
-                  <span className="text-zinc-400">@{content.author_username || content.author_name}</span>
+                  <span className="text-white/60">@{content.author_username || content.author_name}</span>
                 )}
                 <span>{formatDate(content.created_at)}</span>
-                <span className="text-zinc-600">•</span>
+                <span className="text-white/20">•</span>
                 <span className="capitalize">{platform}</span>
               </div>
             </div>
           )}
 
-          {/* External link */}
-          <div className="mt-4 pt-4 border-t border-zinc-700/50">
+          {/* External link with arcade glow */}
+          <div className="mt-4 pt-4 border-t border-white/20">
             <a
               href={contentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-[#00ffff] hover:text-white transition-all group"
             >
-              <ExternalLink className="w-4 h-4" />
-              Open original
+              <ExternalLink className="w-4 h-4 group-hover:drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]" />
+              <span className="group-hover:drop-shadow-[0_0_8px_rgba(0,255,255,0.5)]">Open original</span>
             </a>
           </div>
         </div>
 
-        {/* RIGHT: Comments (chat-like) */}
-        <div className="bg-zinc-900/50 min-h-[200px] max-h-[500px] overflow-hidden">
+        {/* RIGHT: Comments panel */}
+        <div className="bg-black/70 min-h-[200px] max-h-[500px] overflow-hidden">
           <CommentThread contentId={content.id} />
         </div>
       </div>

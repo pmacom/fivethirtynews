@@ -22,8 +22,10 @@ export function ContentEditOverlay() {
     channelGroups,
     selectedTags,
     allNotes,
+    mediaFocus,
     setActiveTab,
     setActiveGroupId,
+    toggleMediaFocus,
     close,
     save,
   } = useContentEditStore()
@@ -115,6 +117,25 @@ export function ContentEditOverlay() {
           </div>
           <button onClick={close} className="p-1 text-zinc-400 hover:text-white transition-colors">
             <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Media Focus Toggle */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800 bg-zinc-800/30">
+          <span className="text-sm text-zinc-400">Media is the focus (text is secondary)</span>
+          <button
+            onClick={toggleMediaFocus}
+            className={`relative w-10 h-6 rounded-full transition-colors ${
+              mediaFocus ? 'bg-green-500' : 'bg-zinc-700'
+            }`}
+            aria-pressed={mediaFocus}
+            aria-label="Toggle media focus"
+          >
+            <span
+              className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                mediaFocus ? 'translate-x-4' : ''
+              }`}
+            />
           </button>
         </div>
 

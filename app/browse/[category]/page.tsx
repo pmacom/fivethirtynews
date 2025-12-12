@@ -2,8 +2,15 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import NewsCard from './components/NewsCard';
 import { SearchTrigger } from '@/components/search';
+
+interface ChannelInfo {
+  slug: string;
+  name: string;
+  icon: string | null;
+}
 
 interface ContentItem {
   id: string;
@@ -19,6 +26,7 @@ interface ContentItem {
   primary_channel: string;
   channels?: string[];
   tags?: string[];
+  media_focus?: boolean;
 }
 
 interface Pagination {
@@ -59,6 +67,7 @@ export default function BrowseCategoryPage() {
   });
   const [error, setError] = useState<string | null>(null);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  const [channels, setChannels] = useState<ChannelInfo[]>([]);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
@@ -102,6 +111,22 @@ export default function BrowseCategoryPage() {
     fetchContent(0, true);
   }, [category, fetchContent]);
 
+  // Fetch channels for this category
+  useEffect(() => {
+    const fetchChannels = async () => {
+      try {
+        const res = await fetch(`/api/channels/by-group?group=${category}&withContent=true`);
+        const data = await res.json();
+        if (data.success && data.data) {
+          setChannels(data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch channels:', err);
+      }
+    };
+    fetchChannels();
+  }, [category]);
+
   // Infinite scroll observer
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -130,29 +155,49 @@ export default function BrowseCategoryPage() {
     <div className="min-h-screen bg-zinc-900 text-white">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-zinc-900/95 backdrop-blur border-b border-zinc-800">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
-          </button>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold">{displayName}</h1>
-            <p className="text-sm text-zinc-400">
-              {pagination.total} item{pagination.total !== 1 ? 's' : ''}
-            </p>
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          {/* Top row: Back button, title, search */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push('/')}
+              className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+            <div className="flex-1">
+              <h1 className="text-xl font-bold">{displayName}</h1>
+              <p className="text-sm text-zinc-400">
+                {pagination.total} item{pagination.total !== 1 ? 's' : ''}
+              </p>
+            </div>
+            <SearchTrigger
+              variant="input"
+              className="w-64"
+              onSelectContent={(content) => {
+                window.open(content.url, '_blank');
+              }}
+            />
           </div>
-          <SearchTrigger
-            variant="input"
-            className="w-64"
-            onSelectContent={(content) => {
-              window.open(content.url, '_blank');
-            }}
-          />
+
+          {/* Channel navigation pills */}
+          {channels.length > 1 && (
+            <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1 scrollbar-hide">
+              <span className="text-xs text-zinc-500 shrink-0">Channels:</span>
+              {channels.map((ch) => (
+                <Link
+                  key={ch.slug}
+                  href={`/browse/${category}/${ch.slug}`}
+                  className="px-3 py-1 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-full whitespace-nowrap transition-colors"
+                >
+                  {ch.icon && <span className="mr-1">{ch.icon}</span>}
+                  {ch.name}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </header>
 

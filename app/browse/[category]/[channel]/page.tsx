@@ -4,18 +4,29 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { SearchTrigger } from '@/components/search';
+import NewsCard from '../components/NewsCard';
+
+interface ChannelInfo {
+  slug: string;
+  name: string;
+  icon: string | null;
+}
 
 interface ContentItem {
   id: string;
   title: string | null;
   description: string | null;
   url: string;
+  content_url?: string;
   thumbnail_url: string | null;
   platform: string;
+  platform_content_id?: string;
   author_name: string | null;
   author_username: string | null;
   created_at: string;
   primary_channel: string;
+  channels?: string[];
+  tags?: string[];
 }
 
 interface Pagination {
@@ -55,6 +66,8 @@ export default function BrowseChannelPage() {
     hasMore: true
   });
   const [error, setError] = useState<string | null>(null);
+  const [channels, setChannels] = useState<ChannelInfo[]>([]);
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
@@ -94,8 +107,25 @@ export default function BrowseChannelPage() {
   useEffect(() => {
     setContent([]);
     setPagination({ offset: 0, limit: 20, total: 0, hasMore: true });
+    setExpandedCardId(null);
     fetchContent(0, true);
   }, [category, channel, fetchContent]);
+
+  // Fetch channels for this category (for navigation pills)
+  useEffect(() => {
+    const fetchChannels = async () => {
+      try {
+        const res = await fetch(`/api/channels/by-group?group=${category}&withContent=true`);
+        const data = await res.json();
+        if (data.success && data.data) {
+          setChannels(data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch channels:', err);
+      }
+    };
+    fetchChannels();
+  }, [category]);
 
   // Infinite scroll observer
   useEffect(() => {
@@ -119,46 +149,74 @@ export default function BrowseChannelPage() {
   // Capitalize channel name for display
   const channelDisplayName = channel.charAt(0).toUpperCase() + channel.slice(1);
 
+  const handleExpandChange = (contentId: string, expanded: boolean) => {
+    setExpandedCardId(expanded ? contentId : null);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-900 text-white">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-zinc-900/95 backdrop-blur border-b border-zinc-800">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <button
-            onClick={() => router.push(`/browse/${category}`)}
-            className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
-          </button>
-          <div className="flex-1">
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-zinc-400 mb-1">
-              <Link href={`/browse/${category}`} className="hover:text-white transition-colors">
-                {groupDisplayName}
-              </Link>
-              <span>/</span>
-              <span className="text-white">{channelDisplayName}</span>
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          {/* Top row: Back, breadcrumb, search */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push(`/browse/${category}`)}
+              className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+            <div className="flex-1">
+              {/* Breadcrumb */}
+              <div className="flex items-center gap-2 text-sm text-zinc-400 mb-1">
+                <Link href={`/browse/${category}`} className="hover:text-white transition-colors">
+                  {groupDisplayName}
+                </Link>
+                <span>/</span>
+                <span className="text-white">{channelDisplayName}</span>
+              </div>
+              <h1 className="text-xl font-bold">{channelDisplayName}</h1>
+              <p className="text-sm text-zinc-400">
+                {pagination.total} item{pagination.total !== 1 ? 's' : ''}
+              </p>
             </div>
-            <h1 className="text-xl font-bold">{channelDisplayName}</h1>
-            <p className="text-sm text-zinc-400">
-              {pagination.total} item{pagination.total !== 1 ? 's' : ''}
-            </p>
+            <SearchTrigger
+              variant="input"
+              className="w-64"
+              onSelectContent={(content) => {
+                window.open(content.url, '_blank');
+              }}
+            />
           </div>
-          <SearchTrigger
-            variant="input"
-            className="w-64"
-            onSelectContent={(content) => {
-              window.open(content.url, '_blank');
-            }}
-          />
+
+          {/* Channel navigation pills */}
+          {channels.length > 1 && (
+            <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1 scrollbar-hide">
+              <span className="text-xs text-zinc-500 shrink-0">Channels:</span>
+              {channels.map((ch) => (
+                <Link
+                  key={ch.slug}
+                  href={`/browse/${category}/${ch.slug}`}
+                  className={`px-3 py-1 text-sm rounded-full whitespace-nowrap transition-colors ${
+                    ch.slug === channel
+                      ? 'bg-green-600 text-white'
+                      : 'bg-zinc-800 hover:bg-zinc-700'
+                  }`}
+                >
+                  {ch.icon && <span className="mr-1">{ch.icon}</span>}
+                  {ch.name}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </header>
 
       {/* Content List */}
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <main className="max-w-6xl mx-auto px-4 py-6">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
@@ -180,7 +238,12 @@ export default function BrowseChannelPage() {
         ) : (
           <div className="space-y-4">
             {content.map((item) => (
-              <ContentCard key={item.id} item={item} />
+              <NewsCard
+                key={item.id}
+                content={item}
+                isExpanded={expandedCardId === item.id}
+                onExpandChange={(expanded) => handleExpandChange(item.id, expanded)}
+              />
             ))}
           </div>
         )}
@@ -202,79 +265,5 @@ export default function BrowseChannelPage() {
         )}
       </main>
     </div>
-  );
-}
-
-function ContentCard({ item }: { item: ContentItem }) {
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
-  const getPlatformIcon = (platform: string) => {
-    switch (platform?.toLowerCase()) {
-      case 'twitter':
-        return '\u{1D54F}';
-      case 'youtube':
-        return '\u25B6';
-      case 'github':
-        return '\u2328';
-      default:
-        return '\uD83D\uDD17';
-    }
-  };
-
-  return (
-    <a
-      href={item.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700/50 hover:border-zinc-600 rounded-lg p-4 transition-all group"
-    >
-      <div className="flex gap-4">
-        {/* Thumbnail */}
-        {item.thumbnail_url && (
-          <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-zinc-700">
-            <img
-              src={item.thumbnail_url}
-              alt=""
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          </div>
-        )}
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="font-medium text-white group-hover:text-green-400 transition-colors line-clamp-2">
-              {item.title || item.description || 'Untitled'}
-            </h3>
-            <span className="flex-shrink-0 text-lg" title={item.platform}>
-              {getPlatformIcon(item.platform)}
-            </span>
-          </div>
-
-          {item.description && item.title && (
-            <p className="mt-1 text-sm text-zinc-400 line-clamp-2">
-              {item.description}
-            </p>
-          )}
-
-          <div className="mt-2 flex items-center gap-3 text-xs text-zinc-500">
-            {item.author_name && (
-              <span>@{item.author_username || item.author_name}</span>
-            )}
-            <span>{formatDate(item.created_at)}</span>
-          </div>
-        </div>
-      </div>
-    </a>
   );
 }

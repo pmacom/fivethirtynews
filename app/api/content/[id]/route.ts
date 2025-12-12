@@ -133,7 +133,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { tags, channels, primaryChannel } = body;
+    const { tags, channels, primaryChannel, mediaFocus } = body;
 
     // Build update object
     const updateData: Record<string, unknown> = {
@@ -165,6 +165,11 @@ export async function PATCH(
     // Update primary_channel if provided
     if (primaryChannel !== undefined) {
       updateData.primary_channel = primaryChannel;
+    }
+
+    // Update media_focus if provided
+    if (mediaFocus !== undefined) {
+      updateData.media_focus = Boolean(mediaFocus);
     }
 
     // Update content
