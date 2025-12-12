@@ -31,7 +31,7 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const FETCH_CHUNK_SIZE = 100; // Fetch members in chunks of 100 to reduce memory pressure
 const CHUNK_DELAY_MS = 100; // Small delay between chunks to allow GC
 
-client.once('ready', () => {
+client.once('clientReady', () => {
   console.log(`[Discord] Bot logged in as ${client.user?.tag}`);
   console.log(`[Discord] Connected to ${client.guilds.cache.size} guild(s)`);
 });
