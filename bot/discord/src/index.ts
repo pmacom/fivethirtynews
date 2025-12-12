@@ -8,6 +8,17 @@ const BOT_HTTP_PORT = parseInt(process.env.BOT_HTTP_PORT || '3001', 10);
 async function main() {
   console.log('[Bot] Starting 530 Discord Bot...');
 
+  // Log env var status (not values) for debugging
+  const envStatus = {
+    DISCORD_BOT_TOKEN: !!process.env.DISCORD_BOT_TOKEN,
+    BOT_API_SECRET: !!process.env.BOT_API_SECRET,
+    DISCORD_GUILD_ID: !!process.env.DISCORD_GUILD_ID,
+    SUPABASE_URL: !!process.env.SUPABASE_URL,
+    BOT_HTTP_PORT: process.env.BOT_HTTP_PORT || '3001 (default)',
+    APP_URL: process.env.APP_URL || 'not set',
+  };
+  console.log('[Bot] Environment status:', envStatus);
+
   // Validate required environment variables
   if (!BOT_TOKEN) {
     console.error('[Bot] DISCORD_BOT_TOKEN is required');
