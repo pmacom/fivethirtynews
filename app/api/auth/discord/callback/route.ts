@@ -425,12 +425,14 @@ export async function GET(request: NextRequest) {
       const response = NextResponse.redirect(new URL('/', appUrl));
 
       // Set session cookie (HttpOnly for security)
+      const cookieDomain = process.env.NODE_ENV === 'production' ? '530society.com' : undefined;
       response.cookies.set('530_session', sessionToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
         expires: sessionExpiresAt,
+        domain: cookieDomain,
       });
 
       // Also set user info cookie (not HttpOnly so JS can read it)
@@ -447,6 +449,7 @@ export async function GET(request: NextRequest) {
         sameSite: 'lax',
         path: '/',
         expires: sessionExpiresAt,
+        domain: cookieDomain,
       });
 
       return response;
