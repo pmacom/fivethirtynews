@@ -1,3 +1,9 @@
+const dotenv = require('dotenv');
+const path = require('path');
+
+// Load .env.production
+dotenv.config({ path: path.join(__dirname, '.env.production') });
+
 module.exports = {
   apps: [{
     name: '530news',
@@ -5,11 +11,8 @@ module.exports = {
     args: 'run start -- -p 3000',
     cwd: '/root/fivethirty',
     env: {
-      NODE_ENV: 'production',
-      NEXT_PUBLIC_APP_URL: 'https://530society.com',
-      NEXT_PUBLIC_SITE_URL: 'https://530society.com',
-      BOT_URL:'https://bot.530society.com',
-      DISCORD_REDIRECT_URI:'https://530society.com/api/auth/discord/callback',
+        ...process.env,
+        NODE_ENV: 'production',
     },
     env_file: '.env.production',
     instances: 1,
