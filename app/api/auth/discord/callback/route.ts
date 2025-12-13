@@ -421,7 +421,8 @@ export async function GET(request: NextRequest) {
 
     // Handle web login: set cookie and redirect to homepage
     if (isWebLogin) {
-      const response = NextResponse.redirect(new URL('/', request.url));
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://530society.com';
+      const response = NextResponse.redirect(new URL('/', appUrl));
 
       // Set session cookie (HttpOnly for security)
       response.cookies.set('530_session', sessionToken, {
